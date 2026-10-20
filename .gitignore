@@ -233,3 +233,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,python
+### Project ###
+# 학습 결과
+runs/
+wandb/
+*.pt

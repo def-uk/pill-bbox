@@ -10,6 +10,7 @@ dependencies = [
     "opencv-python>=5.0.0.93",
     "optuna>=5.0.0",
     "pandas>=3.0.6",
+    "python-dotenv>=1.2.4",
     "pyyaml>=6.0.3",
     "scikit-learn>=1.9.1",
     "seaborn>=0.13.2",
