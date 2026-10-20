@@ -108,6 +108,32 @@ macOS에서 MPS가 지원하지 않는 연산 때문에 에러가 나면, 그 �
 PYTORCH_ENABLE_MPS_FALLBACK=1 uv run python main.py
 ```
 
+## 실험 기록 (wandb)
+
+처음 한 번, `.env.example`을 `.env`로 복사하고 [API 키](https://wandb.ai/authorize)를 채웁니다. `.env`는 커밋되지 않습니다.
+
+```bash
+cp .env.example .env   # WANDB_API_KEY, WANDB_ENTITY(팀 이름) 입력
+```
+
+학습 전에 모델을 넘겨 `init_wandb()`를 호출하면 그 모델의 학습 로그(loss, mAP, 그래프, 가중치)가 wandb에 기록됩니다. ultralytics 전역 설정은 건드리지 않으므로 이 프로젝트 밖의 YOLO 학습에는 영향이 없습니다.
+
+```python
+from ultralytics import YOLO
+
+from src.config import get_device, init_wandb
+
+model = YOLO("yolov8s.pt")
+init_wandb(model, run_name="yolov8s-baseline", config={"seed": 42})
+model.train(data="data.yaml", epochs=50, device=get_device())
+```
+
+| 상황 | 명령 |
+|---|---|
+| wandb 끄고 실행 | `WANDB_MODE=disabled uv run python main.py` |
+| 인터넷 없이 기록만 남기기 | `WANDB_MODE=offline uv run python main.py` |
+| offline 기록 나중에 올리기 | `uv run wandb sync wandb/offline-run-*` |
+
 ## 코드 컨벤션
 
 [docs/CODE_CONVENTION.md](docs/CODE_CONVENTION.md)를 참고하세요. 커밋 전에 아래 두 명령을 실행합니다.
