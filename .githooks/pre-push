@@ -1,0 +1,9 @@
+#!/bin/sh
+# 원격 main으로 push하지 않는다(삭제·강제 push 포함). main은 PR 병합으로만 바뀐다.
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "main으로 push할 수 없습니다. 작업 브랜치를 push하고 PR을 만드세요." >&2
+    exit 1
+  fi
+done
+exit 0

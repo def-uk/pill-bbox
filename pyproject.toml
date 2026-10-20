@@ -1,0 +1,53 @@
+[project]
+name = "pillbbox"
+version = "0.1.0"
+description = "Pill detection with YOLO"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.4",
+    "opencv-python>=5.0.0.93",
+    "optuna>=5.0.0",
+    "pandas>=3.0.6",
+    "pyyaml>=6.0.3",
+    "scikit-learn>=1.9.1",
+    "seaborn>=0.13.2",
+    "tensorboard>=2.21.0",
+    "torch>=2.14.1",
+    "torchsummary>=1.5.1",
+    "torchvision>=0.29.1",
+    "tqdm>=4.70.1",
+    "ultralytics>=8.4.182",
+    "wandb>=0.31.0",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "jupyterlab>=4.6.4",
+    "ruff>=0.17.1",
+]
+
+# macOS uses the default PyPI wheels (MPS support).
+# Windows/Linux use CUDA 12.6 wheels for NVIDIA GPUs.
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cu126", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+    { index = "pytorch-cu126", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F: pycodestyle·pyflakes, I: import 정렬, B: 흔한 버그 패턴, UP: 최신 문법
+select = ["E", "F", "I", "B", "UP"]

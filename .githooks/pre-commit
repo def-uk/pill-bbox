@@ -1,0 +1,7 @@
+#!/bin/sh
+# main 브랜치에서 직접 커밋하지 않는다. 작업 브랜치를 만들어 PR로 병합한다.
+branch=$(git symbolic-ref --short -q HEAD)
+if [ "$branch" = "main" ]; then
+  echo "main에 직접 커밋할 수 없습니다. 작업 브랜치를 만드세요: git switch -c <영역>/<내용>" >&2
+  exit 1
+fi
