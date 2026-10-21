@@ -198,6 +198,7 @@ val mAP50: 0.81 -> 0.86
 # 처음 한 번: 설치와 로그인
 brew install gh                    # macOS
 winget install --id GitHub.cli     # Windows
+sudo apt install gh                # Linux/Ubuntu
 gh auth login
 
 # PR 만들기
@@ -213,6 +214,30 @@ gh pr view --web                   # 현재 브랜치의 PR을 브라우저로 �
 - PR 제목은 커밋 형식과 같이 `<type>: <요약>`으로 씁니다.
 - 본문은 [PR 템플릿](.github/PULL_REQUEST_TEMPLATE.md)을 채웁니다. `--fill`을 쓰면 템플릿이 빠지므로 쓰지 않습니다.
 - `gh`를 쓰지 않는다면 push 후 GitHub 저장소 페이지에 뜨는 **Compare & pull request** 버튼을 눌러도 됩니다.
+
+### 최신 버전 받기
+
+PR이 머지된 뒤 새 작업을 시작할 때는 `main`을 최신으로 받고 새 브랜치를 만듭니다. 머지된 브랜치에서 이어서 작업하지 않습니다.
+
+```bash
+git switch main
+git pull origin main
+git switch -c feat/<짧은-설명>
+```
+
+작업 중인 브랜치에 `main`의 최신 변경을 반영할 때는 브랜치를 옮기지 않고 그대로 받습니다.
+
+```bash
+git pull origin main               # main의 변경을 현재 브랜치에 merge
+
+# 커밋하지 않은 작업이 있어 pull이 막힐 때
+git stash                          # 작업 중인 변경을 임시 저장
+git pull origin main
+git stash pop                      # 작업 내용 되돌리기
+```
+
+- 충돌이 나면 해당 파일의 `<<<<<<<` ~ `>>>>>>>` 구간을 정리하고 `git add <파일>` 후 커밋합니다.
+- `git stash pop`에서 충돌이 나면 stash가 남아 있으므로, 정리한 뒤 `git stash drop`으로 지웁니다.
 
 ## 폴더 구조
 
