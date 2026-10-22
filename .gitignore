@@ -238,3 +238,10 @@ $RECYCLE.BIN/
 runs/
 wandb/
 *.pt
+
+data/test_images
+data/train_annotations
+data/train_images
+
+# Claude Code 개인 설정
+CLAUDE.local.md
