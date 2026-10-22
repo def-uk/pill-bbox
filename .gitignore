@@ -242,6 +242,7 @@ wandb/
 data/test_images
 data/train_annotations
 data/train_images
+data/train_annotations_original
 
 # Claude Code 개인 설정
 CLAUDE.local.md
