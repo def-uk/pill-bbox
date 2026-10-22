@@ -238,3 +238,7 @@ $RECYCLE.BIN/
 runs/
 wandb/
 *.pt
+
+data/test_images
+data/train_annotations
+data/train_images
