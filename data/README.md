@@ -1,5 +1,22 @@
 # 데이터
 
+## 폴더 구조
+
+```text
+data/
+├── raw/                        # 원본 데이터
+│   ├── train_images/
+│   ├── train_annotations/
+│   └── test_images/
+├── processed/                  # 원본과 분리한 가공 결과
+│   ├── corrected_annotations/  # bbox 수정본 JSON
+│   └── correction_records/     # 수정 전후 좌표와 근거
+└── README.md
+```
+
+`raw/`와 `processed/`는 Git에서 제외합니다. 원본은 `raw/`에서 읽기만 하고, 수정본과
+수정 기록은 `processed/`에 저장합니다.
+
 ## Annotations (JSON 파일 구조)
 
 필수여부: M = 필수, O = 선택, C = 조건부
