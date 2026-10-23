@@ -1,0 +1,81 @@
+{
+    "images": [
+        {
+            "file_name": "K-003351-020238-031863_0_2_0_2_70_000_200.png",
+            "width": 976,
+            "height": 1280,
+            "imgfile": "K-003351-020238-031863_0_2_0_2_70_000_200.png",
+            "drug_N": "K-020238",
+            "drug_S": "정상알약",
+            "back_color": "연회색 배경",
+            "drug_dir": "앞면",
+            "light_color": "주백색",
+            "camera_la": 70,
+            "camera_lo": 0,
+            "size": 200,
+            "dl_idx": "20238",
+            "dl_mapping_code": "K-020238",
+            "dl_name": "플라빅스정 75mg",
+            "dl_name_en": "Plavix Tab. 75mg",
+            "img_key": "http://connectdi.com/design/img/drug/149883724889500122.jpg",
+            "dl_material": "클로피도그렐황산염",
+            "dl_material_en": "Clopidogrel Bisulfate",
+            "dl_custom_shape": "정제, 저작정",
+            "dl_company": "(주)한독",
+            "dl_company_en": "Handok",
+            "di_company_mf": "Sanofi Winthrop Industrie",
+            "di_company_mf_en": "",
+            "item_seq": 200700907,
+            "di_item_permit_date": "20070122",
+            "di_class_no": "[02180]동맥경화용제",
+            "di_etc_otc_code": "전문의약품",
+            "di_edi_code": "652101570,A07404851",
+            "chart": "분홍색의 원형필름코팅정",
+            "drug_shape": "원형",
+            "thick": 4,
+            "leng_long": 8.5,
+            "leng_short": 8.5,
+            "print_front": "75",
+            "print_back": "1171",
+            "color_class1": "분홍",
+            "color_class2": "",
+            "line_front": "",
+            "line_back": "",
+            "img_regist_ts": "20041222",
+            "form_code_name": "필름코팅정",
+            "mark_code_front_anal": "",
+            "mark_code_back_anal": "",
+            "mark_code_front_img": "",
+            "mark_code_back_img": "",
+            "mark_code_front": "",
+            "mark_code_back": "",
+            "change_date": "20210426",
+            "id": 907
+        }
+    ],
+    "type": "instances",
+    "annotations": [
+        {
+            "area": 36290,
+            "iscrowd": 0,
+            "bbox": [
+                446,
+                844,
+                190,
+                191
+            ],
+            "category_id": 20238,
+            "ignore": 0,
+            "segmentation": [],
+            "id": 3441,
+            "image_id": 907
+        }
+    ],
+    "categories": [
+        {
+            "supercategory": "pill",
+            "id": 20238,
+            "name": "플라빅스정 75mg"
+        }
+    ]
+}

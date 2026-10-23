@@ -1,0 +1,81 @@
+{
+    "images": [
+        {
+            "file_name": "K-003351-016262-018357_0_2_0_2_75_000_200.png",
+            "width": 976,
+            "height": 1280,
+            "imgfile": "K-003351-016262-018357_0_2_0_2_75_000_200.png",
+            "drug_N": "K-018357",
+            "drug_S": "정상알약",
+            "back_color": "연회색 배경",
+            "drug_dir": "앞면",
+            "light_color": "주백색",
+            "camera_la": 75,
+            "camera_lo": 0,
+            "size": 200,
+            "dl_idx": "18357",
+            "dl_mapping_code": "K-018357",
+            "dl_name": "종근당글리아티린연질캡슐(콜린알포세레이트) ",
+            "dl_name_en": "Chongkundang Gliatirin Soft Cap.",
+            "img_key": "http://connectdi.com/design/img/drug/147428272769400062.jpg",
+            "dl_material": "콜린알포세레이트",
+            "dl_material_en": "Choline Alfoscerate",
+            "dl_custom_shape": "연질캡슐제",
+            "dl_company": "(주)종근당",
+            "dl_company_en": "Chong Kun Dang Pharmaceutical",
+            "di_company_mf": "(주)서흥",
+            "di_company_mf_en": "Suheung",
+            "item_seq": 200600026,
+            "di_item_permit_date": "20060313",
+            "di_class_no": "[01190]기타의 중추신경용약",
+            "di_etc_otc_code": "전문의약품",
+            "di_edi_code": "643301790,A01207791",
+            "chart": "무색투명의 점조한 액을 넣은 담황색을 띤 타원형의 연질캡슐제",
+            "drug_shape": "타원형",
+            "thick": 8.5,
+            "leng_long": 16.1,
+            "leng_short": 8.5,
+            "print_front": "GLT400",
+            "print_back": "",
+            "color_class1": "갈색",
+            "color_class2": "",
+            "line_front": "",
+            "line_back": "",
+            "img_regist_ts": "20160119",
+            "form_code_name": "연질캡슐제, 액상",
+            "mark_code_front_anal": "",
+            "mark_code_back_anal": "",
+            "mark_code_front_img": "",
+            "mark_code_back_img": "",
+            "mark_code_front": "",
+            "mark_code_back": "",
+            "change_date": "20210728",
+            "id": 239
+        }
+    ],
+    "type": "instances",
+    "annotations": [
+        {
+            "area": 97965,
+            "iscrowd": 0,
+            "bbox": [
+                6567,
+                625,
+                311,
+                315
+            ],
+            "category_id": 18357,
+            "ignore": 0,
+            "segmentation": [],
+            "id": 903,
+            "image_id": 239
+        }
+    ],
+    "categories": [
+        {
+            "supercategory": "pill",
+            "id": 18357,
+            "name": "종근당글리아티린연질캡슐(콜린알포세레이트) "
+        }
+    ]
+}

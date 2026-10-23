@@ -1,0 +1,81 @@
+{
+    "images": [
+        {
+            "file_name": "K-003351-029667-031863_0_2_0_2_70_000_200.png",
+            "width": 976,
+            "height": 1280,
+            "imgfile": "K-003351-029667-031863_0_2_0_2_70_000_200.png",
+            "drug_N": "K-003351",
+            "drug_S": "정상알약",
+            "back_color": "연회색 배경",
+            "drug_dir": "앞면",
+            "light_color": "주백색",
+            "camera_la": 70,
+            "camera_lo": 0,
+            "size": 200,
+            "dl_idx": "3351",
+            "dl_mapping_code": "K-003351",
+            "dl_name": "일양하이트린정 2mg",
+            "dl_name_en": "Hytrin Tab. 2mg Ilyang",
+            "img_key": "http://connectdi.com/design/img/drug/147765842976900148.jpg",
+            "dl_material": "테라조신염산염수화물",
+            "dl_material_en": "Terazosin Hydrochloride Hydrate",
+            "dl_custom_shape": "정제, 저작정",
+            "dl_company": "일양약품(주)",
+            "dl_company_en": "Ilyang Pharmaceutical",
+            "di_company_mf": "",
+            "di_company_mf_en": "",
+            "item_seq": 199101125,
+            "di_item_permit_date": "19910626",
+            "di_class_no": "[02590]기타의 비뇨생식기관 및 항문용약",
+            "di_etc_otc_code": "전문의약품",
+            "di_edi_code": "641702010,A09503981",
+            "chart": "오랜지색 또는 노란색의 원형정제.",
+            "drug_shape": "원형",
+            "thick": 2.76,
+            "leng_long": 7.01,
+            "leng_short": 7.01,
+            "print_front": "I분할선Y",
+            "print_back": "HT",
+            "color_class1": "주황",
+            "color_class2": "",
+            "line_front": "-",
+            "line_back": "",
+            "img_regist_ts": "20041222",
+            "form_code_name": "나정",
+            "mark_code_front_anal": "",
+            "mark_code_back_anal": "",
+            "mark_code_front_img": "",
+            "mark_code_back_img": "",
+            "mark_code_front": "",
+            "mark_code_back": "",
+            "change_date": "20170328",
+            "id": 208
+        }
+    ],
+    "type": "instances",
+    "annotations": [
+        {
+            "area": 41615,
+            "iscrowd": 0,
+            "bbox": [
+                178,
+                249,
+                205,
+                203
+            ],
+            "category_id": 3351,
+            "ignore": 0,
+            "segmentation": [],
+            "id": 791,
+            "image_id": 208
+        }
+    ],
+    "categories": [
+        {
+            "supercategory": "pill",
+            "id": 3351,
+            "name": "일양하이트린정 2mg"
+        }
+    ]
+}

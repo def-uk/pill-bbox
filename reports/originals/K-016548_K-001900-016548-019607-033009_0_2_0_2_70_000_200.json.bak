@@ -1,0 +1,81 @@
+{
+    "images": [
+        {
+            "file_name": "K-001900-016548-019607-033009_0_2_0_2_70_000_200.png",
+            "width": 976,
+            "height": 1280,
+            "imgfile": "K-001900-016548-019607-033009_0_2_0_2_70_000_200.png",
+            "drug_N": "K-016548",
+            "drug_S": "정상알약",
+            "back_color": "연회색 배경",
+            "drug_dir": "앞면",
+            "light_color": "주백색",
+            "camera_la": 70,
+            "camera_lo": 0,
+            "size": 200,
+            "dl_idx": "16548",
+            "dl_mapping_code": "K-016548",
+            "dl_name": "가바토파정 100mg",
+            "dl_name_en": "Gabatopa Tab. 100mg",
+            "img_key": null,
+            "dl_material": "토피라메이트",
+            "dl_material_en": "Topiramate",
+            "dl_custom_shape": "정제, 저작정",
+            "dl_company": "동아에스티(주)",
+            "dl_company_en": "Dong-A St",
+            "di_company_mf": "",
+            "di_company_mf_en": "",
+            "item_seq": 200500251,
+            "di_item_permit_date": "20050628",
+            "di_class_no": "[01130]항전간제",
+            "di_etc_otc_code": "전문의약품",
+            "di_edi_code": "642500020,A01508461",
+            "chart": null,
+            "drug_shape": null,
+            "thick": 0,
+            "leng_long": 0,
+            "leng_short": 0,
+            "print_front": null,
+            "print_back": null,
+            "color_class1": null,
+            "color_class2": null,
+            "line_front": null,
+            "line_back": null,
+            "img_regist_ts": null,
+            "form_code_name": null,
+            "mark_code_front_anal": null,
+            "mark_code_back_anal": null,
+            "mark_code_front_img": null,
+            "mark_code_back_img": null,
+            "mark_code_front": null,
+            "mark_code_back": null,
+            "change_date": null,
+            "id": 1228
+        }
+    ],
+    "type": "instances",
+    "annotations": [
+        {
+            "area": 76494,
+            "iscrowd": 0,
+            "bbox": [
+                88,
+                255,
+                366,
+                209
+            ],
+            "category_id": 16548,
+            "ignore": 0,
+            "segmentation": [],
+            "id": 4683,
+            "image_id": 1228
+        }
+    ],
+    "categories": [
+        {
+            "supercategory": "pill",
+            "id": 16548,
+            "name": "가바토파정 100mg"
+        }
+    ]
+}
