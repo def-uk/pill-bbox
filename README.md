@@ -1,6 +1,25 @@
 # pillbbox
 
+<<<<<<< HEAD
 알약 검출 프로젝트
+=======
+알약 이미지에서 알약의 위치(bbox)와 종류를 검출하는 프로젝트입니다.
+
+- 입력: 알약 촬영 이미지 / 출력: 알약별 bbox와 클래스
+- 모델: 미정. 여러 모델을 실험해 본 뒤 확정합니다.
+- 실험 기록: [wandb](#실험-기록-wandb)
+
+<!-- 채워 주세요: 목표 지표(예: test mAP50-95), 데이터 출처, 일정, 팀원과 역할 -->
+
+## 문서
+
+| 문서 | 내용 |
+|---|---|
+| [docs/CODE_CONVENTION.md](docs/CODE_CONVENTION.md) | 코드 컨벤션 (포맷, 이름, import, 경로·장치) |
+| [docs/GIT_CONVENTION.md](docs/GIT_CONVENTION.md) | Git 컨벤션 (커밋 메시지, 브랜치, PR) |
+| [data/README.md](data/README.md) | 데이터 폴더 구조(`raw/`, `processed/`), annotation JSON 구조 |
+| [AGENTS.md](AGENTS.md) | AI 코딩 에이전트(Codex, Claude Code) 지침 |
+>>>>>>> 913012d4f01ae87025c6bdac22b5d2c4f5c30a16
 
 ## 치트시트
 
@@ -159,6 +178,7 @@ VS Code에서는 추천 확장(Ruff)을 설치하면 저장할 때 자동으로 
 - 관련 이슈가 있으면 끝에 `#이슈번호`를 붙입니다.
 - 커밋 하나에는 한 가지 변경만 담습니다.
 
+<<<<<<< HEAD
 ### type
 
 | type | 언제 | 예시 |
@@ -238,6 +258,13 @@ git stash pop                      # 작업 내용 되돌리기
 
 - 충돌이 나면 해당 파일의 `<<<<<<<` ~ `>>>>>>>` 구간을 정리하고 `git add <파일>` 후 커밋합니다.
 - `git stash pop`에서 충돌이 나면 stash가 남아 있으므로, 정리한 뒤 `git stash drop`으로 지웁니다.
+=======
+- Codex는 `AGENTS.md`를 바로 읽습니다.
+- Claude Code는 `CLAUDE.md`를 읽고, `CLAUDE.md`가 `AGENTS.md`를 불러옵니다.
+- 규칙을 바꿀 때는 `AGENTS.md`만 고칩니다. 개인 설정은 `CLAUDE.local.md` 등 커밋되지 않는 파일에 둡니다.
+- 에이전트가 만든 코드도 커밋 전에 직접 읽고, 위 컨벤션과 PR 템플릿 체크리스트를 똑같이 적용합니다.
+- `.md` 문서는 기본적으로 잠겨 있어 에이전트가 고치지 못합니다. 에이전트가 해제를 요청하면 직접 `uv run python scripts/md_lock.py unlock`을 실행하고, 수정이 끝나면 `uv run python scripts/md_lock.py lock`으로 다시 잠급니다. 처음 받은 뒤 한 번 `lock`을 실행해 두세요.
+>>>>>>> 913012d4f01ae87025c6bdac22b5d2c4f5c30a16
 
 ## 폴더 구조
 
@@ -249,6 +276,12 @@ pillbbox/
 ├── models/             # 학습, 평가, 튜닝
 ├── notebooks/          # 실험 노트북
 ├── src/                # 공통 설정 (config.py)
+<<<<<<< HEAD
+=======
+├── scripts/            # 개발 보조 스크립트 (md_lock.py: md 문서 잠금)
+├── AGENTS.md           # AI 에이전트 지침 (CLAUDE.md는 이 파일을 불러옴)
+├── CLAUDE.md
+>>>>>>> 913012d4f01ae87025c6bdac22b5d2c4f5c30a16
 ├── main.py
 ├── visualization.py
 ├── pyproject.toml

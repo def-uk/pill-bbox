@@ -1,5 +1,6 @@
 # 데이터
 
+<<<<<<< HEAD
 ## bbox 검사·수정 결과 보관
 
 이번 bbox 작업 결과는 프로젝트 루트의 `reports/`에 보관한다.
@@ -13,6 +14,24 @@
 
 실제 데이터는 `raw/train_images/`, `raw/train_annotations/`, `raw/test_images/`에 있다.
 노트북 경로도 현재 데이터 위치에 맞춰 사용한다.
+=======
+## 폴더 구조
+
+```text
+data/
+├── raw/                        # 원본 데이터
+│   ├── train_images/
+│   ├── train_annotations/
+│   └── test_images/
+├── processed/                  # 원본과 분리한 가공 결과
+│   ├── corrected_annotations/  # bbox 수정본 JSON
+│   └── correction_records/     # 수정 전후 좌표와 근거
+└── README.md
+```
+
+`raw/`와 `processed/`는 Git에서 제외합니다. 원본은 `raw/`에서 읽기만 하고, 수정본과
+수정 기록은 `processed/`에 저장합니다.
+>>>>>>> 913012d4f01ae87025c6bdac22b5d2c4f5c30a16
 
 ## Annotations (JSON 파일 구조)
 
