@@ -239,8 +239,12 @@ runs/
 wandb/
 *.pt
 
-data/raw
-data/processed
+
+data/raw/
+data/processed/
+
+# md 잠금 해제 표시 (scripts/md_lock.py)
+.md_unlocked
 
 # Claude Code 개인 설정
 CLAUDE.local.md

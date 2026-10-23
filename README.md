@@ -14,7 +14,7 @@
 |---|---|
 | [docs/CODE_CONVENTION.md](docs/CODE_CONVENTION.md) | 코드 컨벤션 (포맷, 이름, import, 경로·장치) |
 | [docs/GIT_CONVENTION.md](docs/GIT_CONVENTION.md) | Git 컨벤션 (커밋 메시지, 브랜치, PR) |
-| [data/README.md](data/README.md) | annotation JSON 구조 |
+| [data/README.md](data/README.md) | 데이터 폴더 구조(`raw/`, `processed/`), annotation JSON 구조 |
 | [AGENTS.md](AGENTS.md) | AI 코딩 에이전트(Codex, Claude Code) 지침 |
 
 ## 치트시트
@@ -183,6 +183,7 @@ Codex, Claude Code 등 에이전트용 지침은 [AGENTS.md](AGENTS.md) 하나�
 - Claude Code는 `CLAUDE.md`를 읽고, `CLAUDE.md`가 `AGENTS.md`를 불러옵니다.
 - 규칙을 바꿀 때는 `AGENTS.md`만 고칩니다. 개인 설정은 `CLAUDE.local.md` 등 커밋되지 않는 파일에 둡니다.
 - 에이전트가 만든 코드도 커밋 전에 직접 읽고, 위 컨벤션과 PR 템플릿 체크리스트를 똑같이 적용합니다.
+- `.md` 문서는 기본적으로 잠겨 있어 에이전트가 고치지 못합니다. 에이전트가 해제를 요청하면 직접 `uv run python scripts/md_lock.py unlock`을 실행하고, 수정이 끝나면 `uv run python scripts/md_lock.py lock`으로 다시 잠급니다. 처음 받은 뒤 한 번 `lock`을 실행해 두세요.
 
 ## 폴더 구조
 
@@ -195,6 +196,7 @@ pillbbox/
 ├── notebooks/          # 실험 노트북
 ├── team_test/          # 팀원 Git 연습용
 ├── src/                # 공통 설정 (config.py)
+├── scripts/            # 개발 보조 스크립트 (md_lock.py: md 문서 잠금)
 ├── AGENTS.md           # AI 에이전트 지침 (CLAUDE.md는 이 파일을 불러옴)
 ├── CLAUDE.md
 ├── main.py
