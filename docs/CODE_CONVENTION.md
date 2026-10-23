@@ -66,7 +66,7 @@ def make_labels(csv_path: Path, output_dir: Path) -> int:
 
 `.gitignore`에 등록되어 있습니다.
 
-- 데이터: `data/train_images/`, `data/train_annotations/`, `data/test_images/`
+- 데이터: `data/raw/`(원본 이미지·JSON), `data/processed/`(가공 결과·수정 기록)
 - 모델 가중치: `*.pt`
 - 학습 결과: `runs/`, `wandb/`
 - 가상환경: `.venv/`
