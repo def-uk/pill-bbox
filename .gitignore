@@ -239,9 +239,12 @@ runs/
 wandb/
 *.pt
 
-data/test_images
-data/train_annotations
-data/train_images
+
+data/raw/
+data/processed/
+
+# md 잠금 해제 표시 (scripts/md_lock.py)
+.md_unlocked
 
 # Claude Code 개인 설정
 CLAUDE.local.md

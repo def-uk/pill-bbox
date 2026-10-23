@@ -17,7 +17,8 @@ AI 코딩 에이전트(Codex, Claude Code 등)가 이 저장소에서 작업할 
 | `src/config.py` | 공통 설정: `PROJECT_ROOT`, `get_device()`, `init_wandb()` |
 | `data_process/` | 전처리, 라벨 생성(`make_labels.py`), 파일 이동, `data.yaml` 생성 |
 | `models/` | 학습(`train.py`), 평가(`evaluate.py`), 튜닝(`tuning.py`, optuna) |
-| `data/` | 원본 데이터. `train_images/`, `train_annotations/`(JSON), `test_images/`는 커밋되지 않음 |
+| `data/` | `raw/`는 원본 이미지·JSON, `processed/`는 가공 결과·수정 기록. 둘 다 커밋되지 않음 |
+| `scripts/` | 개발 보조 스크립트. `md_lock.py`는 md 문서 잠금 |
 | `notebooks/` | 탐색·시각화 노트북 |
 | `team_test/` | 팀원 개인 Git 연습용. 건드리지 않음 |
 
@@ -52,6 +53,25 @@ WANDB_MODE=disabled uv run python <파일>   # 에이전트가 확인용으로 �
 - `main`에서 커밋하거나 `main`으로 push하지 않습니다. 브랜치 이름은 `<type>/<짧은-설명>`.
 - 커밋 메시지는 `<type>: <요약>`. type은 `feat`, `fix`, `exp`, `data`, `refactor`, `docs`, `chore` 중 하나. 요약은 한국어 50자 이내, 마침표 없음. 커밋 하나에 변경 하나.
 - PR 제목도 같은 형식. 본문은 `.github/PULL_REQUEST_TEMPLATE.md`를 채웁니다(`gh pr create --fill` 금지).
+
+## md 문서 잠금
+
+저장소의 `.md` 파일(이 파일 포함)은 기본적으로 잠겨 있습니다. 에이전트가 사용자 허락 없이 문서를 바꾸지 않게 하기 위해서입니다.
+
+- 에이전트는 잠금을 직접 풀거나 우회하지 않습니다. `md_lock.py unlock` 실행, `chmod`, `.md_unlocked` 파일 생성, 다른 경로로 덮어쓰기 모두 금지입니다.
+- md 파일을 고쳐야 하면 작업을 멈추고, 고칠 파일과 이유를 알린 뒤 사용자에게 터미널에서 아래 명령을 실행해 달라고 요청합니다.
+
+  ```bash
+  uv run python scripts/md_lock.py unlock
+  ```
+
+- 사용자가 해제했다고 알려 주면 수정합니다. md 수정을 모두 마치면 마지막 응답에서 다시 잠그는 명령을 안내합니다.
+
+  ```bash
+  uv run python scripts/md_lock.py lock
+  ```
+
+- 상태 확인: `uv run python scripts/md_lock.py status`. 잠긴 동안 md 파일은 읽기 전용이고, Claude Code는 hook이 수정을 거부합니다.
 
 ## 에이전트 작업 원칙
 
