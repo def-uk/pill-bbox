@@ -1,6 +1,21 @@
 # pillbbox
 
-알약 검출 프로젝트
+알약 이미지에서 알약의 위치(bbox)와 종류를 검출하는 프로젝트입니다.
+
+- 입력: 알약 촬영 이미지 / 출력: 알약별 bbox와 클래스
+- 모델: 미정. 여러 모델을 실험해 본 뒤 확정합니다.
+- 실험 기록: [wandb](#실험-기록-wandb)
+
+<!-- 채워 주세요: 목표 지표(예: test mAP50-95), 데이터 출처, 일정, 팀원과 역할 -->
+
+## 문서
+
+| 문서 | 내용 |
+|---|---|
+| [docs/CODE_CONVENTION.md](docs/CODE_CONVENTION.md) | 코드 컨벤션 (포맷, 이름, import, 경로·장치) |
+| [docs/GIT_CONVENTION.md](docs/GIT_CONVENTION.md) | Git 컨벤션 (커밋 메시지, 브랜치, PR) |
+| [data/README.md](data/README.md) | 데이터 폴더 구조(`raw/`, `processed/`), annotation JSON 구조 |
+| [AGENTS.md](AGENTS.md) | AI 코딩 에이전트(Codex, Claude Code) 지침 |
 
 ## 치트시트
 
@@ -8,7 +23,8 @@
 
 | 상황 | 명령 |
 |---|---|
-| 처음 받았을 때 / pull 받은 뒤 | `uv sync` |
+| 처음 받았을 때 (한 번) | `uv sync` → `git config core.hooksPath .githooks` |
+| pull 받은 뒤 | `uv sync` |
 | 코드 실행 | `uv run python main.py` |
 | 노트북 열기 | `uv run jupyter lab` |
 | 패키지 추가 / 제거 | `uv add <패키지>` / `uv remove <패키지>` |
@@ -60,6 +76,12 @@ uv sync
 ```
 
 `.venv`가 만들어지고 `uv.lock`에 적힌 버전 그대로 설치됩니다. Python 3.12가 없으면 uv가 알아서 받아 옵니다.
+
+같이 git hook도 켭니다. `main`에 직접 커밋·push하는 실수를 막아 줍니다.
+
+```bash
+git config core.hooksPath .githooks
+```
 
 OS마다 PyTorch가 다르게 설치됩니다.
 
@@ -145,110 +167,38 @@ uv run ruff check . --fix
 
 VS Code에서는 추천 확장(Ruff)을 설치하면 저장할 때 자동으로 정리됩니다. ruff 규칙은 `pyproject.toml`에만 둡니다.
 
-## Git 커밋 컨벤션
+## Git 컨벤션
 
-### 형식
+자세한 내용은 [docs/GIT_CONVENTION.md](docs/GIT_CONVENTION.md)를 참고하세요. 핵심만 요약하면:
 
-```
-<type>: <요약>
+- `main`에 직접 커밋·push하지 않고, `<type>/<짧은-설명>` 브랜치를 만들어 PR로 합칩니다.
+- 커밋 메시지는 `<type>: <요약>` (한국어, 50자 이내, 마침표 없음). type은 `feat` `fix` `exp` `data` `refactor` `docs` `chore`.
+- PR 본문은 [PR 템플릿](.github/PULL_REQUEST_TEMPLATE.md)을 채웁니다.
 
-본문(선택)
-```
+## AI 코딩 에이전트
 
-- 요약은 한국어로, 50자 이내로, 끝에 마침표 없이 씁니다.
-- 관련 이슈가 있으면 끝에 `#이슈번호`를 붙입니다.
-- 커밋 하나에는 한 가지 변경만 담습니다.
+Codex, Claude Code 등 에이전트용 지침은 [AGENTS.md](AGENTS.md) 하나로 관리합니다.
 
-### type
-
-| type | 언제 | 예시 |
-|---|---|---|
-| `feat` | 새 기능 | `feat: YOLO 라벨 변환 스크립트 추가` |
-| `fix` | 버그 수정 | `fix: bbox 좌표가 이미지 밖으로 나가는 문제 수정` |
-| `exp` | 실험 설정, 하이퍼파라미터 변경 | `exp: yolov8s, imgsz 640으로 학습` |
-| `data` | 데이터 전처리, 분할 방식 변경 | `data: train/val 분할 비율 8:2로 변경` |
-| `refactor` | 동작은 그대로, 구조만 정리 | `refactor: 경로 설정을 config.py로 이동` |
-| `docs` | 문서 | `docs: README에 실행 방법 추가` |
-| `chore` | 패키지, 설정, 기타 | `chore: optuna 의존성 추가` |
-
-### 예시
-
-```
-exp: yolov8m 기본 설정으로 50 epoch 학습
-
-yolov8s 대비 작은 알약 검출이 부족해서 모델 크기를 키움.
-val mAP50: 0.81 -> 0.86
-
-#12
-```
-
-### 브랜치
-
-`main`에 바로 push하지 않고, 브랜치를 만들어 PR로 합칩니다.
-
-```
-<type>/<짧은-설명>      예: feat/label-converter, exp/yolov8m-baseline
-```
-
-### PR 올리기
-
-브랜치를 push한 뒤 GitHub CLI(`gh`)로 PR을 만듭니다.
-
-```bash
-# 처음 한 번: 설치와 로그인
-brew install gh                    # macOS
-winget install --id GitHub.cli     # Windows
-sudo apt install gh                # Linux/Ubuntu
-gh auth login
-
-# PR 만들기
-git push -u origin feat/<짧은-설명>
-gh pr create --base main           # 제목·본문을 묻고, 본문에는 PR 템플릿이 채워짐
-gh pr create --base main --web     # 브라우저에서 작성하고 싶을 때
-
-# PR 확인
-gh pr status                       # 내 PR 상태
-gh pr view --web                   # 현재 브랜치의 PR을 브라우저로 열기
-```
-
-- PR 제목은 커밋 형식과 같이 `<type>: <요약>`으로 씁니다.
-- 본문은 [PR 템플릿](.github/PULL_REQUEST_TEMPLATE.md)을 채웁니다. `--fill`을 쓰면 템플릿이 빠지므로 쓰지 않습니다.
-- `gh`를 쓰지 않는다면 push 후 GitHub 저장소 페이지에 뜨는 **Compare & pull request** 버튼을 눌러도 됩니다.
-
-### 최신 버전 받기
-
-PR이 머지된 뒤 새 작업을 시작할 때는 `main`을 최신으로 받고 새 브랜치를 만듭니다. 머지된 브랜치에서 이어서 작업하지 않습니다.
-
-```bash
-git switch main
-git pull origin main
-git switch -c feat/<짧은-설명>
-```
-
-작업 중인 브랜치에 `main`의 최신 변경을 반영할 때는 브랜치를 옮기지 않고 그대로 받습니다.
-
-```bash
-git pull origin main               # main의 변경을 현재 브랜치에 merge
-
-# 커밋하지 않은 작업이 있어 pull이 막힐 때
-git stash                          # 작업 중인 변경을 임시 저장
-git pull origin main
-git stash pop                      # 작업 내용 되돌리기
-```
-
-- 충돌이 나면 해당 파일의 `<<<<<<<` ~ `>>>>>>>` 구간을 정리하고 `git add <파일>` 후 커밋합니다.
-- `git stash pop`에서 충돌이 나면 stash가 남아 있으므로, 정리한 뒤 `git stash drop`으로 지웁니다.
+- Codex는 `AGENTS.md`를 바로 읽습니다.
+- Claude Code는 `CLAUDE.md`를 읽고, `CLAUDE.md`가 `AGENTS.md`를 불러옵니다.
+- 규칙을 바꿀 때는 `AGENTS.md`만 고칩니다. 개인 설정은 `CLAUDE.local.md` 등 커밋되지 않는 파일에 둡니다.
+- 에이전트가 만든 코드도 커밋 전에 직접 읽고, 위 컨벤션과 PR 템플릿 체크리스트를 똑같이 적용합니다.
+- `.md` 문서는 기본적으로 잠겨 있어 에이전트가 고치지 못합니다. 에이전트가 해제를 요청하면 직접 `uv run python scripts/md_lock.py unlock`을 실행하고, 수정이 끝나면 `uv run python scripts/md_lock.py lock`으로 다시 잠급니다. 처음 받은 뒤 한 번 `lock`을 실행해 두세요.
 
 ## 폴더 구조
 
 ```
 pillbbox/
-├── data/               # 데이터 (설명: data/data.txt)
+├── data/               # 데이터 (구조: data/README.md, 이미지·annotation은 커밋 안 함)
 ├── docs/               # 컨벤션 등 문서
-├── data_process/       # 전처리, 라벨 생성, YOLO yaml 생성
+├── data_process/       # 전처리, 라벨 생성, 데이터셋 yaml 생성
 ├── models/             # 학습, 평가, 튜닝
 ├── notebooks/          # 실험 노트북
+├── team_test/          # 팀원 Git 연습용
 ├── src/                # 공통 설정 (config.py)
+├── scripts/            # 개발 보조 스크립트 (md_lock.py: md 문서 잠금)
+├── AGENTS.md           # AI 에이전트 지침 (CLAUDE.md는 이 파일을 불러옴)
+├── CLAUDE.md
 ├── main.py
 ├── visualization.py
 ├── pyproject.toml
