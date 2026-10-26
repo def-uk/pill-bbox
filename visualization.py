@@ -6,6 +6,7 @@ import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
 from PIL import Image
 
@@ -140,3 +141,14 @@ def plot_corr_heatmap(ax: Axes, corr: pd.DataFrame, title: str):
     ax.set_frame_on(False)
     ax.set_title(title, fontsize=11)
     return mesh
+
+
+def save_figure(fig: Figure, path: Path, dpi: int = 100) -> None:
+    """그림을 확장자 형식으로 저장한다. 폴더가 없으면 만들고 바깥 여백은 잘라 낸다.
+
+    사진이 들어간 그림은 `.jpg`로 저장하면 PNG보다 훨씬 작다.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    # JPEG는 품질을 조금 낮춰 크기를 줄인다. 차트는 PNG로 두어 선과 글자를 선명하게 유지한다.
+    pil_kwargs = {"quality": 85} if path.suffix.lower() in {".jpg", ".jpeg"} else None
+    fig.savefig(path, dpi=dpi, bbox_inches="tight", facecolor="white", pil_kwargs=pil_kwargs)
