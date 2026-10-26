@@ -1,4 +1,5 @@
 import math
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 import matplotlib.font_manager as fm
@@ -48,6 +49,29 @@ def show_image(ax: Axes, img_path: Path, title: str | None = None, fontsize: int
         ax.set_title(title, fontsize=fontsize)
 
 
+def draw_bbox(
+    ax: Axes,
+    bbox: Sequence[float],
+    label: str | None = None,
+    color: str = "red",
+    linestyle: str = "-",
+) -> None:
+    """[x, y, w, h] 박스 하나를 축에 그리고 왼쪽 위에 label을 붙인다."""
+    x, y, w, h = bbox
+    ax.add_patch(Rectangle((x, y), w, h, fill=False, edgecolor=color, lw=2, ls=linestyle))
+    if label:
+        ax.text(
+            x,
+            y - 8,
+            label,
+            color="white",
+            fontsize=7,
+            va="bottom",
+            clip_on=True,
+            bbox={"facecolor": color, "alpha": 0.7, "edgecolor": "none", "pad": 1},
+        )
+
+
 def draw_bboxes(
     ax: Axes,
     boxes: pd.DataFrame,
@@ -57,16 +81,32 @@ def draw_bboxes(
 ) -> None:
     """x, y, w, h 열이 있는 표의 bbox를 축에 그린다. 좌표가 NaN인 행은 건너뛴다."""
     for row in boxes.dropna(subset=["x", "y", "w", "h"]).itertuples():
-        ax.add_patch(
-            Rectangle((row.x, row.y), row.w, row.h, fill=False, edgecolor=color, lw=2, ls=linestyle)
-        )
-        if label_col:
-            ax.text(
-                row.x,
-                row.y - 8,
-                str(getattr(row, label_col)),
-                color="white",
-                fontsize=7,
-                va="bottom",
-                bbox={"facecolor": color, "alpha": 0.7, "edgecolor": "none", "pad": 1},
-            )
+        label = str(getattr(row, label_col)) if label_col else None
+        draw_bbox(ax, (row.x, row.y, row.w, row.h), label, color, linestyle)
+
+
+def draw_image_bounds(ax: Axes, width: float, height: float) -> None:
+    """이미지 경계를 초록 점선으로 그린다. 이미지 밖 좌표를 볼 때 기준선으로 쓴다."""
+    ax.add_patch(Rectangle((0, 0), width, height, fill=False, edgecolor="lime", lw=1.5, ls="--"))
+
+
+def zoom_to(
+    ax: Axes,
+    bboxes: Iterable[Sequence[float]],
+    margin: float = 0.15,
+    limit: tuple[float, float] | None = None,
+) -> None:
+    """[x, y, w, h] 박스들을 모두 포함하도록 축 범위를 바꾼다. 여백은 가장 긴 변 × margin이다.
+
+    limit=(width, height)를 주면 이미지 안으로 자르고, None이면 이미지 밖 좌표까지 보여 준다.
+    """
+    boxes = [tuple(map(float, b)) for b in bboxes]
+    boxes = [b for b in boxes if not any(math.isnan(v) for v in b)]
+    x0, y0 = min(b[0] for b in boxes), min(b[1] for b in boxes)
+    x1, y1 = max(b[0] + b[2] for b in boxes), max(b[1] + b[3] for b in boxes)
+    pad = max(x1 - x0, y1 - y0) * margin
+    x0, y0, x1, y1 = x0 - pad, y0 - pad, x1 + pad, y1 + pad
+    if limit:
+        x0, y0, x1, y1 = max(x0, 0), max(y0, 0), min(x1, limit[0]), min(y1, limit[1])
+    ax.set_xlim(x0, x1)
+    ax.set_ylim(y1, y0)
