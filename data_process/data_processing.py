@@ -1,8 +1,11 @@
+import hashlib
 import json
+import math
 import re
 from pathlib import Path
 
 import pandas as pd
+from PIL import Image
 
 IMG_EXTS = {".png", ".jpg", ".jpeg"}
 
@@ -164,3 +167,147 @@ def load_schema(readme_path: Path) -> pd.DataFrame:
             section, field, dtype, required, description = m.groups()
             rows.append([section, field or "", dtype, required, description])
     return pd.DataFrame(rows, columns=["section", "field", "type", "required", "description"])
+
+
+def _image_error(exc: Exception, path: Path) -> str:
+    """오류 메시지의 절대 경로를 파일 이름으로 바꿔 출력과 캐시에 개인 경로가 남지 않게 한다."""
+    return repr(exc).replace(str(path), path.name)
+
+
+def read_image_headers(paths: list[Path], split: str) -> pd.DataFrame:
+    """이미지 헤더만 읽어 크기·색상 모드를 표로 만든다. 픽셀은 디코딩하지 않는다."""
+    rows = []
+    for path in paths:
+        row = {"split": split, "file_name": path.name, "width": None, "height": None}
+        row.update(mode=None, error=None)
+        try:
+            with Image.open(path) as img:
+                row.update(width=img.width, height=img.height, mode=img.mode)
+        except (OSError, ValueError) as exc:
+            row["error"] = _image_error(exc, path)
+        rows.append(row)
+    return pd.DataFrame(rows, columns=["split", "file_name", "width", "height", "mode", "error"])
+
+
+def inspect_image_integrity(paths: list[Path], split: str) -> pd.DataFrame:
+    """이미지를 한 장씩 전체 디코딩해 파일 SHA256·픽셀 SHA256·디코딩 오류를 표로 만든다.
+
+    file_sha256은 파일 바이트, pixel_sha256은 RGB로 바꾼 픽셀의 해시다. 파일 형식이 달라도
+    픽셀이 같으면 pixel_sha256이 같다. 이미지 수에 비례해 오래 걸린다.
+    """
+    cols = ["split", "file_name", "file_sha256", "pixel_sha256", "decoded", "error"]
+    rows = []
+    for path in paths:
+        row = dict.fromkeys(cols)
+        row.update(split=split, file_name=path.name, decoded=False)
+        try:
+            with path.open("rb") as stream:
+                row["file_sha256"] = hashlib.file_digest(stream, "sha256").hexdigest()
+            # verify()는 형식만 검사하므로 다시 열어 전체 픽셀을 디코딩한다.
+            with Image.open(path) as img:
+                img.verify()
+            with Image.open(path) as img:
+                rgb = img.convert("RGB")
+            row["pixel_sha256"] = hashlib.sha256(rgb.tobytes()).hexdigest()
+            row["decoded"] = True
+        except (OSError, ValueError, SyntaxError) as exc:
+            row["error"] = _image_error(exc, path)
+        rows.append(row)
+    return pd.DataFrame(rows, columns=cols)
+
+
+def fingerprint_files(paths: list[Path], root: Path) -> str:
+    """파일 목록의 상대 경로·크기·수정 시각으로 입력 지문(SHA256)을 만든다. 캐시 검증용."""
+    digest = hashlib.sha256()
+    for path in sorted(paths):
+        stat = path.stat()
+        digest.update(
+            f"{path.relative_to(root).as_posix()}|{stat.st_size}|{stat.st_mtime_ns}\n".encode()
+        )
+    return digest.hexdigest()
+
+
+def load_cache(cache_path: Path, key: dict) -> tuple[pd.DataFrame | None, str]:
+    """key가 저장 당시와 모두 같을 때만 캐시 표를 반환한다. 아니면 (None, 이유)를 반환한다."""
+    if not cache_path.is_file():
+        return None, "캐시 없음"
+    try:
+        saved = json.loads(cache_path.read_text(encoding="utf-8"))
+        saved_key, records = saved["key"], saved["records"]
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return None, f"캐시 읽기 실패: {exc!r}"
+    diff = sorted(k for k in key.keys() | saved_key.keys() if key.get(k) != saved_key.get(k))
+    if diff:
+        return None, f"캐시 불일치: {', '.join(diff)}"
+    return pd.DataFrame(records), "캐시 사용"
+
+
+def save_cache(cache_path: Path, key: dict, df: pd.DataFrame) -> None:
+    """표를 key와 함께 JSON으로 저장한다. load_cache는 key가 같을 때만 이 표를 돌려준다."""
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    records = json.loads(df.to_json(orient="records", force_ascii=False))
+    payload = {"key": key, "records": records}
+    cache_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+
+def _missing_kind(value: object, present: bool) -> str:
+    """JSON 값 하나의 결측 유형을 돌려준다. 0과 False는 결측으로 보지 않는다."""
+    if not present:
+        return "키 없음"
+    if value is None:
+        return "null"
+    if isinstance(value, str) and not value.strip():
+        return "빈 문자열"
+    if isinstance(value, (list, dict)) and not value:
+        return "빈 배열/객체"
+    if isinstance(value, float) and not math.isfinite(value):
+        return "NaN/무한대"
+    return "값 있음"
+
+
+def scan_missing_values(ann_dir: Path, schema_df: pd.DataFrame) -> pd.DataFrame:
+    """원본 JSON을 다시 읽어 스키마의 모든 키를 레코드마다 검사하고 결측 유형을 기록한다.
+
+    로더는 키 없음과 null을 모두 NaN으로 만들므로, 둘을 구분하려면 원본을 읽어야 한다.
+    한 행 = (JSON, 섹션, 레코드 인덱스, 키). kind는 _missing_kind의 값이며 결측이 아니면
+    "값 있음"이다. 읽지 못한 JSON은 로더의 오류 표(parse)에 이미 있으므로 건너뛴다.
+    """
+    fields = list(schema_df[["section", "field", "required"]].itertuples(index=False))
+    rows = []
+    for json_path in sorted(ann_dir.rglob("*.json")):
+        source_json = json_path.relative_to(ann_dir).as_posix()
+        try:
+            data = json.loads(json_path.read_text(encoding="utf-8-sig"))
+        except (OSError, UnicodeDecodeError, ValueError):
+            continue
+        if not isinstance(data, dict):
+            continue
+        for section, field, required in fields:
+            if not field:
+                # 최상위 키(images, annotations 등)는 JSON 자체를 레코드 하나로 본다.
+                records, key_name = [data], section
+            else:
+                value = data.get(section)
+                records = value if isinstance(value, list) else [value] if value else []
+                key_name = field
+            for index, record in enumerate(records):
+                if not isinstance(record, dict):
+                    continue
+                kind = _missing_kind(record.get(key_name), key_name in record)
+                if field == "bbox" and kind == "값 있음" and isinstance(record[key_name], list):
+                    parts = [_missing_kind(v, True) for v in record[key_name]]
+                    if any(p != "값 있음" for p in parts):
+                        kind = "bbox 내부 결측"
+                rows.append(
+                    {
+                        "source_json": source_json,
+                        "section": section,
+                        "record_index": index,
+                        "key": f"{section}.{field}" if field else section,
+                        "required": required,
+                        "kind": kind,
+                        "file_name": record.get("file_name") if section == "images" else None,
+                        "drug_N": record.get("drug_N") if section == "images" else None,
+                    }
+                )
+    return pd.DataFrame(rows)
