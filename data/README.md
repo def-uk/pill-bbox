@@ -1,5 +1,20 @@
 # 데이터
 
+<<<<<<< HEAD
+## bbox 검사·수정 결과 보관
+
+이번 bbox 작업 결과는 프로젝트 루트의 `reports/`에 보관한다.
+
+- `reports/originals/`: 수정 전 JSON 4개 백업(`.json.bak`)
+- `reports/corrected_annotations/`: 수정한 JSON 4개의 사본. 전체 학습 라벨이 아니다.
+- `reports/bbox_repair/`: 변경 기록, 수정 이미지, 수정 전 검사 결과
+- `reports/bbox_audit/`: 수정 후 전체 검사 결과
+- `reports/audit_bboxes.ps1`: 현재 `data/raw/`의 학습 이미지와 JSON 검사
+- `reports/repair_bboxes.ps1`: 이미 적용한 수정 작업 기록. 재실행용이 아니다.
+
+실제 데이터는 `raw/train_images/`, `raw/train_annotations/`, `raw/test_images/`에 있다.
+노트북 경로도 현재 데이터 위치에 맞춰 사용한다.
+=======
 ## 폴더 구조
 
 ```text
@@ -16,6 +31,7 @@ data/
 
 `raw/`와 `processed/`는 Git에서 제외합니다. 원본은 `raw/`에서 읽기만 하고, 수정본과
 수정 기록은 `processed/`에 저장합니다.
+>>>>>>> 913012d4f01ae87025c6bdac22b5d2c4f5c30a16
 
 ## Annotations (JSON 파일 구조)
 

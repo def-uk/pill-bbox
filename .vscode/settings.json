@@ -12,5 +12,6 @@
     "notebook.source.fixAll.ruff": "explicit",
     "notebook.source.organizeImports.ruff": "explicit"
   },
-  "ruff.configurationPreference": "filesystemFirst"
+  "ruff.configurationPreference": "filesystemFirst",
+  "python-envs.defaultEnvManager": "ms-python.python:system"
 }
