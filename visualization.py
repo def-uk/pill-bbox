@@ -39,10 +39,20 @@ def image_grid(n: int, cols: int = 4, cell: tuple[float, float] = (4, 5.5)) -> t
     return fig, list(axes.flat[:n])
 
 
-def show_image(ax: Axes, img_path: Path, title: str | None = None, fontsize: int = 8) -> None:
-    """이미지를 축에 그린다. 축 범위를 이미지 크기로 고정해 밖에 있는 bbox는 잘려 보인다."""
+def show_image(
+    ax: Axes,
+    img_path: Path,
+    title: str | None = None,
+    fontsize: int = 8,
+    rotate180: bool = False,
+) -> None:
+    """이미지를 축에 그린다. 축 범위를 이미지 크기로 고정해 밖에 있는 bbox는 잘려 보인다.
+
+    rotate180=True면 이미지를 180° 돌려 그린다. bbox는 rotate_bboxes_180으로 함께 돌린다.
+    """
     with Image.open(img_path) as img:
-        ax.imshow(img.convert("RGB"))
+        rgb = img.convert("RGB")
+        ax.imshow(rgb.rotate(180) if rotate180 else rgb)
     ax.set_autoscale_on(False)
     ax.axis("off")
     if title:

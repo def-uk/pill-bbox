@@ -883,3 +883,105 @@ def measure_pill_axes(ann_df: pd.DataFrame, img_dir: Path, seed: int = 42) -> pd
     axes_df["axis_ratio"] = axes_df["long_px"] / axes_df["short_px"]
     # 캐시로 저장하면 index가 사라지므로 라벨 식별자를 함께 둔다.
     return pd.concat([ann_df[["source_json", "annotation_id"]], axes_df], axis=1)
+
+
+def _phash(gray: np.ndarray) -> np.ndarray:
+    """흑백 사진을 32x32로 줄여 DCT한 뒤 저주파 8x8 성분이 중앙값보다 큰지를 64비트로 만든다."""
+    small = cv2.resize(gray, (32, 32), interpolation=cv2.INTER_AREA)
+    dct = cv2.dct(np.float32(small))[:8, :8]
+    return (dct > np.median(dct)).flatten()
+
+
+def image_hashes(paths: list[Path]) -> pd.DataFrame:
+    """사진마다 pHash, 180° 돌린 pHash, aHash를 64개 bool 배열로 구한다(kwon 셀 90, 94, sohee 셀 2).
+
+    pHash는 컬러로 읽어 흑백으로 바꾸고(kwon), aHash는 흑백으로 바로 읽는다(sohee). 원본 노트북과
+    같은 값을 내기 위해서다. 두 흑백 변환은 값이 조금 달라 경계 근처의 해시 비트가 바뀔 수 있다.
+    """
+    rows = []
+    for path in paths:
+        gray = cv2.cvtColor(cv2.imread(str(path)), cv2.COLOR_BGR2GRAY)
+        direct_gray = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+        small = cv2.resize(direct_gray, (8, 8), interpolation=cv2.INTER_AREA)
+        rows.append(
+            {
+                "file_name": path.name,
+                "phash": _phash(gray),
+                "phash_rot180": _phash(cv2.rotate(gray, cv2.ROTATE_180)),
+                "ahash": (small > small.mean()).flatten(),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def hash_similarity(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """(n, 64), (m, 64) bool 해시의 모든 쌍에서 같은 비트의 비율 (n, m). 1이면 같은 해시다."""
+    return 1 - (a[:, None, :] != b[None, :, :]).mean(axis=-1)
+
+
+def rotate_bboxes_180(boxes: pd.DataFrame, width: float, height: float) -> pd.DataFrame:
+    """사진을 180° 돌렸을 때의 bbox로 x, y를 바꾼다. w, h는 그대로다."""
+    return boxes.assign(x=width - boxes["x"] - boxes["w"], y=height - boxes["y"] - boxes["h"])
+
+
+def setup_pair_distances(ann_df: pd.DataFrame) -> pd.DataFrame:
+    """다른 조합·같은 각도 사진 쌍마다 공통 약의 박스 중심 거리(px) 목록을 구한다(kwon 셀 109, 113).
+
+    조합은 파일 이름 첫 밑줄 앞, 각도는 다섯 번째 밑줄 뒤 값이다. 공통 약이 없는 쌍은 뺀다.
+    한 사진에 같은 약이 둘 이상이면 마지막 박스만 쓴다(이 데이터에는 없음).
+    """
+    boxes = ann_df.dropna(subset=BBOX_COLS)
+    boxes = boxes.assign(cx=boxes["x"] + boxes["w"] / 2, cy=boxes["y"] + boxes["h"] / 2)
+    centers = {
+        file_name: dict(zip(g["category_id"], zip(g["cx"], g["cy"], strict=True), strict=True))
+        for file_name, g in boxes.groupby("file_name")
+    }
+    parts = pd.Series(sorted(centers)).str.split("_")
+    photos = pd.DataFrame(
+        {"file_name": sorted(centers), "combo": parts.str[0], "angle": parts.str[5].astype(int)}
+    )
+    rows = []
+    for angle, group in photos.groupby("angle"):
+        for p1, p2 in itertools.combinations(group.itertuples(), 2):
+            shared = sorted(centers[p1.file_name].keys() & centers[p2.file_name].keys())
+            if p1.combo == p2.combo or not shared:
+                continue
+            c1, c2 = centers[p1.file_name], centers[p2.file_name]
+            dists = [float(np.hypot(c1[c][0] - c2[c][0], c1[c][1] - c2[c][1])) for c in shared]
+            rows.append(
+                {
+                    "angle": angle,
+                    "file1": p1.file_name,
+                    "file2": p2.file_name,
+                    "combo1": p1.combo,
+                    "combo2": p2.combo,
+                    "shared": shared,
+                    "dists": dists,
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def group_setups(
+    pair_df: pd.DataFrame, combos: Sequence[str], same_dist: float = 30, min_same: int = 2
+) -> tuple[pd.Series, pd.Series]:
+    """같은 자리 공통 약이 min_same개 이상인 쌍을 세팅 공유로 보고 조합을 묶는다(kwon 셀 109).
+
+    공통 약의 박스 중심 거리가 same_dist 이하이면 같은 자리다. 세팅 공유가 사슬처럼 이어지면
+    (A-B, B-C) 한 묶음이 된다. (쌍마다 세팅 공유 여부, 조합 → 묶음 이름)을 반환한다.
+    묶음 이름은 묶음 안에서 이름순으로 가장 앞선 조합이다.
+    """
+    parent = {combo: combo for combo in combos}
+
+    def find(combo: str) -> str:
+        while parent[combo] != combo:
+            parent[combo] = parent[parent[combo]]
+            combo = parent[combo]
+        return combo
+
+    is_shared = pair_df["dists"].map(lambda dists: sum(d <= same_dist for d in dists) >= min_same)
+    for c1, c2 in pair_df.loc[is_shared, ["combo1", "combo2"]].itertuples(index=False):
+        parent[find(c1)] = find(c2)
+    roots = pd.Series({combo: find(combo) for combo in combos})
+    group = roots.map(roots.groupby(roots).apply(lambda s: min(s.index)))
+    return is_shared.rename("setup_shared"), group.rename("setup_group")
