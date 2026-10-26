@@ -744,3 +744,142 @@ def measure_bbox_padding(ann_df: pd.DataFrame, img_dir: Path, seed: int = 42) ->
     cols = [*keys, "bbox", "status", "tight_bbox", "foreground_bbox", "padding_ratio"]
     cols += ["segmentation_agreement", "bbox_iou", "review_reason"]
     return pd.DataFrame(rows).reindex(columns=cols)
+
+
+# 알약 장단축 측정 방식의 이름(JJAM 과거 셀 78). 계산 방식이나 기본 인자를 바꾸면 이름도 바꾼다.
+AXIS_VERSION = "grabcut_min_area_rect_v1"
+
+
+def _largest_grabcut_component(
+    crop: np.ndarray, rectangle: tuple[int, int, int, int], seed: int, iterations: int
+) -> tuple[np.ndarray, np.ndarray, float]:
+    """고정 seed의 GrabCut 전경에서 가장 큰 덩어리의 (마스크, 윤곽, 전경 중 비율)을 구한다."""
+    mask = np.zeros(crop.shape[:2], dtype=np.uint8)
+    cv2.setRNGSeed(seed)
+    cv2.grabCut(
+        crop,
+        mask,
+        rectangle,
+        np.zeros((1, 65)),
+        np.zeros((1, 65)),
+        iterations,
+        cv2.GC_INIT_WITH_RECT,
+    )
+    foreground = np.isin(mask, [cv2.GC_FGD, cv2.GC_PR_FGD]).astype(np.uint8)
+    count, components, stats, _ = cv2.connectedComponentsWithStats(foreground)
+    if count < 2:
+        raise ValueError("전경 없음")
+    largest = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+    component = (components == largest).astype(np.uint8)
+    contours, _ = cv2.findContours(component, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    return component, max(contours, key=cv2.contourArea), float(component.sum() / foreground.sum())
+
+
+def _measure_pill_axis(
+    img: np.ndarray,
+    bbox: Sequence[float],
+    seed: int = 42,
+    iterations: int = 3,
+    max_crop_side: int = 360,
+) -> dict:
+    """bbox 하나의 알약 장축·단축·중심·방향을 원본 좌표로 잰다(JJAM 과거 셀 78, dongwook 셀 17).
+
+    bbox 주변을 GrabCut으로 분리하고 가장 큰 덩어리의 최소 외접 회전 사각형을 쓴다. 두 seed의
+    마스크가 다르거나(IoU < 0.9), 덩어리가 여럿이거나, 윤곽이 bbox 경계에 닿으면 status로 표시한다.
+    """
+    left, top, width, height = (float(v) for v in bbox)
+    img_h, img_w = img.shape[:2]
+    if min(left, top) < 0 or min(width, height) <= 0:
+        return {"status": "invalid_bbox"}
+    if left + width > img_w or top + height > img_h:
+        return {"status": "invalid_bbox"}
+    if left == 0 or top == 0 or left + width == img_w or top + height == img_h:
+        return {"status": "image_boundary"}
+    crop_left, crop_top = max(int(left) - 10, 0), max(int(top) - 10, 0)
+    crop_right = min(int(np.ceil(left + width)) + 10, img_w)
+    crop_bottom = min(int(np.ceil(top + height)) + 10, img_h)
+    crop = img[crop_top:crop_bottom, crop_left:crop_right]
+    scale = min(1.0, max_crop_side / max(crop.shape[:2]))
+    crop = cv2.resize(crop, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    scale_x = crop.shape[1] / (crop_right - crop_left)
+    scale_y = crop.shape[0] / (crop_bottom - crop_top)
+    rect_left = max(1, round((left - crop_left) * scale_x))
+    rect_top = max(1, round((top - crop_top) * scale_y))
+    rectangle = (
+        rect_left,
+        rect_top,
+        min(max(1, round(width * scale_x)), crop.shape[1] - rect_left - 1),
+        min(max(1, round(height * scale_y)), crop.shape[0] - rect_top - 1),
+    )
+    if min(rectangle[2:]) <= 1:
+        return {"status": "tiny_bbox"}
+    try:
+        mask, contour, fraction = _largest_grabcut_component(crop, rectangle, seed, iterations)
+        other, _, other_fraction = _largest_grabcut_component(crop, rectangle, seed + 1, iterations)
+    except (cv2.error, ValueError):
+        return {"status": "segmentation_failed"}
+    if cv2.contourArea(contour) < 20:
+        return {"status": "tiny_foreground"}
+    mask_iou = float(np.logical_and(mask, other).sum() / np.logical_or(mask, other).sum())
+    contour = contour.astype(np.float32)
+    contour[:, 0, 0] = contour[:, 0, 0] / scale_x + crop_left
+    contour[:, 0, 1] = contour[:, 0, 1] / scale_y + crop_top
+    (center_x, center_y), (long_px, short_px), angle = cv2.minAreaRect(contour)
+    if min(long_px, short_px) <= 0:
+        return {"status": "degenerate_contour"}
+    if long_px < short_px:  # 긴 변이 장축이 되도록 맞춘다.
+        long_px, short_px, angle = short_px, long_px, angle + 90
+    points = contour[:, 0, :]
+    touches_bbox = (
+        points[:, 0].min() <= left + 2 / scale_x
+        or points[:, 1].min() <= top + 2 / scale_y
+        or points[:, 0].max() >= left + width - 2 / scale_x
+        or points[:, 1].max() >= top + height - 2 / scale_y
+    )
+    status = "estimated"
+    if mask_iou < 0.90:
+        status = "unstable_segmentation"
+    elif min(fraction, other_fraction) < 0.80:
+        status = "multiple_components"
+    elif touches_bbox:
+        status = "bbox_boundary"
+    return {
+        "status": status,
+        "center_x": center_x,
+        "center_y": center_y,
+        "long_px": long_px,
+        "short_px": short_px,
+        "angle_rad": float(np.deg2rad(angle)),
+        "mask_iou": mask_iou,
+    }
+
+
+def measure_pill_axes(ann_df: pd.DataFrame, img_dir: Path, seed: int = 42) -> pd.DataFrame:
+    """bbox마다 알약의 장축·단축 길이(px)와 방향을 잰다(JJAM 과거 셀 78). ann_df와 같은 index다.
+
+    라벨 식별자 (source_json, annotation_id) 열을 함께 둔다. 1분 반 정도 걸린다.
+
+    status가 estimated인 행만 자동 검사를 통과한 측정이다(수동 검수 완료가 아님). 나머지는
+    unstable_segmentation, multiple_components, bbox_boundary(윤곽이 bbox에 닿음: 잘림 의심),
+    invalid_bbox, image_boundary, tiny_bbox, tiny_foreground, segmentation_failed,
+    degenerate_contour, missing_image다. axis_ratio = 장축 ÷ 단축이며, 1.1 미만이면 원형에
+    가까워 angle_rad(장축 방향)를 믿기 어렵다. 결과가 같도록 OpenCV를 단일 스레드로 돌린다.
+    """
+    cols = ["status", "center_x", "center_y", "long_px", "short_px", "angle_rad", "mask_iou"]
+    rows = {}
+    n_threads = cv2.getNumThreads()
+    cv2.setNumThreads(1)
+    try:
+        for file_name, group in ann_df.dropna(subset=BBOX_COLS).groupby("file_name"):
+            img = cv2.imread(str(img_dir / file_name))
+            for i, box in group[BBOX_COLS].iterrows():
+                if img is None:
+                    rows[i] = {"status": "missing_image"}
+                else:
+                    rows[i] = _measure_pill_axis(img, box.to_numpy(), seed=seed)
+    finally:
+        cv2.setNumThreads(n_threads)
+    axes_df = pd.DataFrame.from_dict(rows, orient="index", columns=cols).reindex(ann_df.index)
+    axes_df["axis_ratio"] = axes_df["long_px"] / axes_df["short_px"]
+    # 캐시로 저장하면 index가 사라지므로 라벨 식별자를 함께 둔다.
+    return pd.concat([ann_df[["source_json", "annotation_id"]], axes_df], axis=1)

@@ -110,3 +110,23 @@ def zoom_to(
         x0, y0, x1, y1 = max(x0, 0), max(y0, 0), min(x1, limit[0]), min(y1, limit[1])
     ax.set_xlim(x0, x1)
     ax.set_ylim(y1, y0)
+
+
+def plot_corr_heatmap(ax: Axes, corr: pd.DataFrame, title: str):
+    """상관계수 행렬을 −1~1 색으로 칠하고 칸마다 값을 적는다. 색 막대용 mesh를 반환한다."""
+    mesh = ax.pcolormesh(corr.values, cmap="RdBu_r", vmin=-1, vmax=1, edgecolors="white", lw=2)
+    for i in range(len(corr)):
+        for j in range(len(corr.columns)):
+            value = corr.iat[i, j]
+            color = "white" if abs(value) >= 0.6 else "#1f1f1f"
+            ax.text(j + 0.5, i + 0.5, f"{value:.2f}", ha="center", va="center", color=color)
+    ax.set_xticks(
+        [k + 0.5 for k in range(len(corr.columns))], corr.columns, rotation=45, ha="right"
+    )
+    ax.set_yticks([k + 0.5 for k in range(len(corr))], corr.index)
+    ax.invert_yaxis()
+    ax.set_aspect("equal")
+    ax.tick_params(length=0)
+    ax.set_frame_on(False)
+    ax.set_title(title, fontsize=11)
+    return mesh
