@@ -1,0 +1,105 @@
+from pathlib import Path
+
+from ultralytics import YOLO
+
+from data_process.data_yaml import data_yaml_path
+from src.config import PROJECT_ROOT, get_device, init_wandb
+
+RUNS_DIR = PROJECT_ROOT / "runs"
+# 증강 설정 묶음. 같은 분할·fold에서 on과 off를 학습해 증강 효과를 비교한다.
+# on: 두 모델에 같게 쓰는 기본값 (계획 [5], EDA 9.3). 적지 않은 인자는 ultralytics 기본값이다
+#     (hsv_s 0.7, hsv_v 0.4, translate 0.1, scale 0.5, mosaic 1.0, close_mosaic 10).
+# - degrees: 알약은 방향과 무관. 회전하면 박스가 외접 사각형이라 느슨해지므로 작게 시작한다.
+# - fliplr·flipud: 각인이 거울상이 되므로 끈다.
+# - hsv_h: 색이 약 구별 단서라 색상 변화를 줄인다.
+# - copy_paste: segmentation 라벨이 없어 ultralytics 구현이 동작하지 않는다.
+# - perspective: 각도별 bbox 차이가 1–2%라 쓰지 않는다.
+# off: 학습 이미지를 바꾸는 증강을 모두 끈다. 크기 맞춤(letterbox)만 남는다.
+AUG_PRESETS = {
+    "on": {
+        "degrees": 10.0,
+        "fliplr": 0.0,
+        "flipud": 0.0,
+        "hsv_h": 0.005,
+        "copy_paste": 0.0,
+        "perspective": 0.0,
+    },
+    "off": {
+        "hsv_h": 0.0,
+        "hsv_s": 0.0,
+        "hsv_v": 0.0,
+        "degrees": 0.0,
+        "translate": 0.0,
+        "scale": 0.0,
+        "shear": 0.0,
+        "perspective": 0.0,
+        "flipud": 0.0,
+        "fliplr": 0.0,
+        "bgr": 0.0,
+        "mosaic": 0.0,
+        "mixup": 0.0,
+        "cutmix": 0.0,
+        "copy_paste": 0.0,
+    },
+}
+
+
+def train(
+    model_name: str,
+    label_version: str,
+    split_name: str,
+    fold: int,
+    epochs: int,
+    exp: str,
+    imgsz: int = 640,
+    batch: int = 16,
+    seed: int = 42,
+    fraction: float = 1.0,
+    aug: str = "on",
+    **train_kwargs: object,
+) -> Path:
+    """data_main이 만든 fold의 data.yaml로 YOLO를 학습하고 결과 폴더(runs/<exp>/<이름>)를 반환한다.
+
+    model_name은 ultralytics 가중치 이름(yolo11m.pt, yolo26m.pt 등)이다. aug는 AUG_PRESETS의
+    이름(on/off)이고 결과 폴더 이름에 들어간다. train_kwargs는 증강 설정을 덮어쓰거나 다른 학습
+    인자를 더한다. 라벨 버전·분할·fold·seed는 wandb config에
+    남긴다. wandb를 끄려면 WANDB_MODE=disabled.
+    """
+    data = data_yaml_path(label_version, split_name, fold)
+    if not data.is_file():
+        raise FileNotFoundError(
+            f"{data}가 없습니다. 먼저 data_process.data_main --label {label_version} "
+            f"--split {split_name}을 실행하세요."
+        )
+    if aug not in AUG_PRESETS:
+        raise ValueError(f"증강 설정 {aug}이 없습니다: {list(AUG_PRESETS)}")
+    run_name = f"{Path(model_name).stem}_{split_name}_aug{aug}_fold{fold}"
+    args = {
+        **AUG_PRESETS[aug],
+        **train_kwargs,
+        "data": str(data),
+        "epochs": epochs,
+        "imgsz": imgsz,
+        "batch": batch,
+        "seed": seed,
+        "deterministic": True,
+        "fraction": fraction,
+        "device": get_device(),
+        "project": str(RUNS_DIR / exp),
+        "name": run_name,
+    }
+    config = {
+        "model": model_name,
+        "label_version": label_version,
+        "split_name": split_name,
+        "fold": fold,
+        "aug": aug,
+        **{k: v for k, v in args.items() if k not in ("data", "project", "name")},
+    }
+    model = YOLO(model_name)
+    run = init_wandb(model, run_name=f"{exp}/{run_name}", config=config)
+    try:
+        model.train(**args)
+    finally:
+        run.finish()
+    return Path(model.trainer.save_dir)
