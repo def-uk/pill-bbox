@@ -250,3 +250,5 @@ data/processed/*
 
 # Claude Code 개인 설정
 CLAUDE.local.md
+# oh-my-claudecode 도구 상태 (세션마다 바뀜)
+.omc/
