@@ -5,6 +5,7 @@ description = "Pill detection with YOLO"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "easyocr>=1.7.2",
     "gdown>=6.4.2",
     "matplotlib>=3.11.2",
     "numpy>=2.5.4",
@@ -49,6 +50,8 @@ explicit = true
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+# 통합 전 개인 EDA 노트북은 원본 그대로 보관한다.
+extend-exclude = ["notebooks/archive"]
 
 [tool.ruff.lint]
 # E/F: pycodestyle·pyflakes, I: import 정렬, B: 흔한 버그 패턴, UP: 최신 문법
