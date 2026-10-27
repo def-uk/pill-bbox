@@ -14,11 +14,11 @@ AI 코딩 에이전트(Codex, Claude Code 등)가 이 저장소에서 작업할 
 
 | 경로 | 역할 |
 |---|---|
-| `src/config.py` | 공통 설정: `PROJECT_ROOT`, `get_device()`, `init_wandb()` |
+| `src/config.py` | 공통 설정: `PROJECT_ROOT`, `RUNS_DIR`, `get_device()`, `init_wandb()` |
 | `data_process/` | 데이터 파이프라인. 진입점 `data_main.py`, 보정·라벨 버전(`make_labels.py`), 분할(`split.py`), 이미지 링크(`move_files.py`), `data.yaml` 생성(`data_yaml.py`) |
 | `models/` | 학습(`train.py`, 진입점 `model_main.py`), 평가·test 예측(`evaluate.py`), 튜닝(`tuning.py`, optuna) |
 | `data/` | `raw/`는 원본 이미지·JSON, `processed/`는 파이프라인 산출물·보정 기록. `processed/` 바로 아래 csv만 커밋 가능 |
-| `runs/` | 학습 결과(ultralytics). 커밋되지 않음 |
+| `runs/` | 학습 결과(ultralytics)와 평가 결과(`runs/<exp>/results/`). 커밋되지 않음. Colab에서는 `--runs-dir`로 Drive에 둠 |
 | `scripts/` | 개발 보조 스크립트. `md_lock.py`는 md 문서 잠금 |
 | `notebooks/` | 탐색·시각화 노트북 |
 | `team_test/` | 팀원 개인 Git 연습용. 건드리지 않음 |
@@ -62,7 +62,7 @@ WANDB_MODE=disabled uv run python -m models.model_main --model yolo11m.pt yolo26
 - 라벨을 고쳐야 하면 원본 JSON이나 `labels_*.csv`를 직접 고치지 않습니다. 보정 기록(`make_labels.py`의 기록 생성 함수, `data/processed/*.csv`)을 바꾸고 다시 실행합니다. 새 보정은 `reviewed`(사람 검수)가 있어야 적용됩니다.
 - 여백 검수표 `data/processed/padding_review.csv`의 `decision`(승인/거부)은 사람이 채웁니다. 에이전트가 대신 승인하지 않습니다.
 - `data.yaml`과 txt 목록에는 그 PC의 절대 경로가 들어갑니다. 다른 PC·Colab으로 복사하지 말고 그곳에서 다시 실행합니다.
-- 모델 비교는 한 fold 점수가 아니라 같은 분할의 5 fold 평균·표준편차로 합니다. 학습은 전체 파인튜닝(`freeze` 없음)이 기본이고, 증강은 `--aug on off`로 비교합니다.
+- 모델 비교는 한 fold 점수가 아니라 같은 분할의 5 fold 평균·표준편차로 합니다. 주 지표는 잠정 mAP75-95(`models/evaluate.py`의 `MAIN_METRIC`)입니다. 학습은 전체 파인튜닝(`freeze` 없음)이 기본이고, 증강은 `--aug on off`로 비교합니다.
 - Mac(MPS)에서는 `epochs=1`, 작은 `fraction`으로 동작 확인만 합니다. 본 학습은 사용자가 요청할 때 GPU(Colab 등)에서 합니다.
 - 파이프라인 코드를 고치면 `--label v1`을 다시 실행해 자동 검사(누수 0%, 라벨 검사, YOLO 변환 검사)가 통과하는지 확인합니다.
 
