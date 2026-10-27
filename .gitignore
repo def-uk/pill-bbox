@@ -241,7 +241,9 @@ wandb/
 
 
 data/raw/
-data/processed/
+data/processed/*
+!data/processed/*.csv
+
 
 # md 잠금 해제 표시 (scripts/md_lock.py)
 .md_unlocked
