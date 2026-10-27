@@ -15,6 +15,7 @@
 | [docs/CODE_CONVENTION.md](docs/CODE_CONVENTION.md) | 코드 컨벤션 (포맷, 이름, import, 경로·장치) |
 | [docs/GIT_CONVENTION.md](docs/GIT_CONVENTION.md) | Git 컨벤션 (커밋 메시지, 브랜치, PR) |
 | [data/README.md](data/README.md) | 데이터 폴더 구조(`raw/`, `processed/`), annotation JSON 구조 |
+| [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md) | 데이터 파이프라인 사용법 (라벨 버전, 분할, 학습·평가 명령, 여백 검수) |
 | [AGENTS.md](AGENTS.md) | AI 코딩 에이전트(Codex, Claude Code) 지침 |
 
 ## 치트시트
@@ -26,6 +27,7 @@
 | 처음 받았을 때 (한 번) | `uv sync` → `git config core.hooksPath .githooks` |
 | pull 받은 뒤 | `uv sync` |
 | 코드 실행 | `uv run python main.py` |
+| 학습 데이터 만들기 | `uv run python -m data_process.data_main --label v1` |
 | 노트북 열기 | `uv run jupyter lab` |
 | 패키지 추가 / 제거 | `uv add <패키지>` / `uv remove <패키지>` |
 | 개발용 패키지 추가 | `uv add --dev <패키지>` |

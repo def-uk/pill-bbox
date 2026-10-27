@@ -6,18 +6,19 @@ AI 코딩 에이전트(Codex, Claude Code 등)가 이 저장소에서 작업할 
 ## 프로젝트
 
 - 알약 이미지에서 알약 위치(bbox)와 종류를 검출하는 프로젝트입니다.
-- 검출 모델은 아직 정하지 않았습니다. 여러 모델을 실험해 본 뒤 확정합니다. 특정 모델을 전제로 구조를 바꾸지 않습니다.
-- 초기 단계입니다. `data_process/`, `models/`의 `.py` 파일과 `main.py`는 아직 비어 있는 뼈대입니다. 파일 이름과 폴더 구조는 팀이 정한 것이므로 임의로 옮기거나 합치지 않습니다.
-- 사람용 문서: [README.md](README.md), 코드 규칙 [docs/CODE_CONVENTION.md](docs/CODE_CONVENTION.md), Git 규칙 [docs/GIT_CONVENTION.md](docs/GIT_CONVENTION.md), 데이터 구조 [data/README.md](data/README.md). 아래 요약과 다르면 docs가 우선입니다.
+- 검출 모델은 아직 확정하지 않았습니다. 후보 YOLO11m·YOLO26m을 같은 데이터로 비교하는 중입니다. 데이터 파이프라인(라벨·분할·YOLO 변환)은 특정 모델을 전제로 바꾸지 않습니다.
+- 데이터 파이프라인(`data_process/`)과 학습·평가(`models/train.py`, `models/evaluate.py`)는 구현되어 있습니다. `main.py`, `models/tuning.py`는 아직 비어 있는 뼈대입니다. 파일 이름과 폴더 구조는 팀이 정한 것이므로 임의로 옮기거나 합치지 않습니다.
+- 사람용 문서: [README.md](README.md), 코드 규칙 [docs/CODE_CONVENTION.md](docs/CODE_CONVENTION.md), Git 규칙 [docs/GIT_CONVENTION.md](docs/GIT_CONVENTION.md), 데이터 구조 [data/README.md](data/README.md), 데이터 파이프라인 사용법 [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md). 아래 요약과 다르면 docs가 우선입니다.
 
 ## 폴더
 
 | 경로 | 역할 |
 |---|---|
-| `src/config.py` | 공통 설정: `PROJECT_ROOT`, `get_device()`, `init_wandb()` |
-| `data_process/` | 전처리, 라벨 생성(`make_labels.py`), 파일 이동, `data.yaml` 생성 |
-| `models/` | 학습(`train.py`), 평가(`evaluate.py`), 튜닝(`tuning.py`, optuna) |
-| `data/` | `raw/`는 원본 이미지·JSON, `processed/`는 가공 결과·수정 기록. 둘 다 커밋되지 않음 |
+| `src/config.py` | 공통 설정: `PROJECT_ROOT`, `RUNS_DIR`, `get_device()`, `init_wandb()` |
+| `data_process/` | 데이터 파이프라인. 진입점 `data_main.py`, 보정·라벨 버전(`make_labels.py`), 분할(`split.py`), 이미지 링크(`move_files.py`), `data.yaml` 생성(`data_yaml.py`) |
+| `models/` | 학습(`train.py`, 진입점 `model_main.py`), 평가·test 예측(`evaluate.py`), 튜닝(`tuning.py`, optuna) |
+| `data/` | `raw/`는 원본 이미지·JSON, `processed/`는 파이프라인 산출물·보정 기록. `processed/` 바로 아래 csv만 커밋 가능 |
+| `runs/` | 학습 결과(ultralytics)와 평가 결과(`runs/<exp>/results/`). 커밋되지 않음. Colab에서는 `--runs-dir`로 Drive에 둠 |
 | `scripts/` | 개발 보조 스크립트. `md_lock.py`는 md 문서 잠금 |
 | `notebooks/` | 탐색·시각화 노트북 |
 | `team_test/` | 팀원 개인 Git 연습용. 건드리지 않음 |
@@ -32,6 +33,12 @@ uv run python main.py                     # 실행
 uv add <패키지> / uv add --dev <패키지>     # 패키지 추가 (pyproject.toml, uv.lock 함께 커밋)
 uv run ruff format . && uv run ruff check . --fix   # 코드를 고친 뒤 항상 실행
 WANDB_MODE=disabled uv run python <파일>   # 에이전트가 확인용으로 실행할 때
+
+# 데이터 파이프라인 (자세히: docs/DATA_PIPELINE.md)
+uv run python -m data_process.data_main --label v1          # 원본 → 라벨 → 분할 → data.yaml
+uv run python -m data_process.data_main --prepare-padding-review   # 여백 검수표·그림 (약 3분)
+WANDB_MODE=disabled uv run python -m models.model_main --model yolo11m.pt yolo26m.pt \
+    --split combo_v1_s42 --folds 0 --epochs 1 --fraction 0.1 --exp smoke   # 학습 동작 확인
 ```
 
 테스트 스위트는 아직 없습니다. 바꾼 코드는 ruff 통과와 작은 입력으로 직접 실행해 확인합니다.
@@ -47,6 +54,17 @@ WANDB_MODE=disabled uv run python <파일>   # 에이전트가 확인용으로 �
 - 하이퍼파라미터는 함수 인자나 설정으로 받고, 실험마다 seed를 고정해 기록합니다.
 - wandb 기록은 `init_wandb(model, ...)`로만 켭니다. ultralytics 전역 설정(`settings.update(wandb=True)` 등)은 바꾸지 않습니다.
 - 주석과 docstring은 한국어로 씁니다.
+
+## 데이터 파이프라인
+
+- 학습 데이터는 `data_process.data_main`으로만 만듭니다. 라벨 txt, `data.yaml`, 분할 목록을 손으로 만들거나 노트북에서 따로 만들지 않습니다. 노트북은 `data_process.data_yaml.data_yaml_path(라벨 버전, 분할, fold)`로 경로를 받아 씁니다.
+- 기본 라벨은 `v1`, 기본 분할은 `combo_v1_s42`와 `setup30fix_v1_s42`입니다. 분할 이름 형식은 `<단위>_<라벨 버전>_s<seed>`이고 라벨 버전과 맞아야 합니다.
+- 라벨을 고쳐야 하면 원본 JSON이나 `labels_*.csv`를 직접 고치지 않습니다. 보정 기록(`make_labels.py`의 기록 생성 함수, `data/processed/*.csv`)을 바꾸고 다시 실행합니다. 새 보정은 `reviewed`(사람 검수)가 있어야 적용됩니다.
+- 여백 검수표 `data/processed/padding_review.csv`의 `decision`(승인/거부)은 사람이 채웁니다. 에이전트가 대신 승인하지 않습니다.
+- `data.yaml`과 txt 목록에는 그 PC의 절대 경로가 들어갑니다. 다른 PC·Colab으로 복사하지 말고 그곳에서 다시 실행합니다.
+- 모델 비교는 한 fold 점수가 아니라 같은 분할의 5 fold 평균·표준편차로 합니다. 주 지표는 잠정 mAP75-95(`models/evaluate.py`의 `MAIN_METRIC`)입니다. 학습은 전체 파인튜닝(`freeze` 없음)이 기본이고, 증강은 `--aug on off`로 비교합니다.
+- Mac(MPS)에서는 `epochs=1`, 작은 `fraction`으로 동작 확인만 합니다. 본 학습은 사용자가 요청할 때 GPU(Colab 등)에서 합니다.
+- 파이프라인 코드를 고치면 `--label v1`을 다시 실행해 자동 검사(누수 0%, 라벨 검사, YOLO 변환 검사)가 통과하는지 확인합니다.
 
 ## Git 규칙 (요약)
 
@@ -76,7 +94,7 @@ WANDB_MODE=disabled uv run python <파일>   # 에이전트가 확인용으로 �
 ## 에이전트 작업 원칙
 
 - 사용자가 요청하지 않으면 커밋, push, PR 생성을 하지 않습니다.
-- 커밋하면 안 되는 것: `data/` 아래 이미지·annotation, `*.pt`, `runs/`, `wandb/`, `.env`, API 키. 이런 파일을 만들거나 수정했다면 스테이징하지 않습니다.
+- 커밋하면 안 되는 것: `data/` 아래 이미지·annotation·파이프라인 산출물(`data/processed/` 하위 폴더), `*.pt`, `runs/`, `wandb/`, `.env`, API 키. 이런 파일을 만들거나 수정했다면 스테이징하지 않습니다.
 - 전체 학습(긴 epoch, 튜닝)은 요청이 있을 때만 실행합니다. 동작 확인은 `epochs=1`, 작은 `fraction` 등 짧게 돌리고 `WANDB_MODE=disabled`를 붙입니다.
 - `data/` 아래 이미지와 JSON은 수가 많고 큽니다. 전체를 읽지 말고 파일 몇 개나 `data/README.md`의 스키마로 구조를 파악합니다.
 - 노트북(`.ipynb`)을 고쳤다면 출력을 지운 상태로 둡니다. 두 번 이상 쓰는 코드는 `.py`로 옮겨 import합니다.
