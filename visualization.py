@@ -1,4 +1,6 @@
+import importlib.util
 import math
+import subprocess
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 
@@ -12,14 +14,31 @@ from PIL import Image
 
 # 먼저 찾는 순서: Windows → Mac → Linux(나눔) → Linux(Noto)
 KOREAN_FONTS = ["Malgun Gothic", "AppleGothic", "NanumGothic", "Noto Sans CJK KR"]
-# WSL에서는 Windows 폰트 파일을 직접 등록해야 matplotlib이 찾는다.
+# 파일로 직접 등록할 폰트. matplotlib이 폰트 목록을 만든 뒤 설치된 폰트도 이렇게 해야 찾는다.
 WSL_MALGUN = Path("/mnt/c/Windows/Fonts/malgun.ttf")
+NANUM_GOTHIC = Path("/usr/share/fonts/truetype/nanum/NanumGothic.ttf")  # apt fonts-nanum
+
+
+def install_colab_font() -> None:
+    """Colab에서 나눔 폰트(fonts-nanum)가 없으면 apt로 설치한다. Colab이 아니면 아무것도 안 한다."""
+    if NANUM_GOTHIC.exists() or importlib.util.find_spec("google.colab") is None:
+        return
+    result = subprocess.run(
+        ["apt-get", "install", "-y", "-qq", "fonts-nanum"], capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        print(f"fonts-nanum 설치 실패: {result.stderr.strip()}")
 
 
 def set_korean_font() -> str | None:
-    """설치된 한글 폰트를 matplotlib 기본 폰트로 정하고 그 이름을 반환한다. 없으면 None."""
-    if WSL_MALGUN.exists():
-        fm.fontManager.addfont(str(WSL_MALGUN))
+    """설치된 한글 폰트를 matplotlib 기본 폰트로 정하고 그 이름을 반환한다. 없으면 None.
+
+    Colab에서는 나눔 폰트를 먼저 설치하므로 런타임을 다시 시작하지 않아도 한글이 보인다.
+    """
+    install_colab_font()
+    for font_file in [WSL_MALGUN, NANUM_GOTHIC]:
+        if font_file.exists():
+            fm.fontManager.addfont(str(font_file))
     installed = {f.name for f in fm.fontManager.ttflist}
     # 한글 폰트에서 마이너스 기호가 깨지지 않게 한다.
     plt.rcParams["axes.unicode_minus"] = False
