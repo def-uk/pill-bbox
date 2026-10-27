@@ -1,0 +1,367 @@
+{
+  "version": 1,
+  "jobId": "c8617949-56ec-43bb-94ec-a99dbefbf4f2",
+  "sessionId": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+  "scopeKey": "0c970190555dc23d53914bb4b1297d2302702d7c3886ffdb765197e32186c706",
+  "revision": 63,
+  "createdAt": "2026-10-27T02:45:44.009Z",
+  "updatedAt": "2026-10-27T02:46:15.519Z",
+  "producerGraceExpiresAt": "2026-10-27T02:46:14.009Z",
+  "bestEffortDeadlineAt": "2026-10-27T02:47:07.009Z",
+  "producers": {
+    "core": {
+      "state": "sealed",
+      "intentKey": "2f327960ecdf2d4d5becd665785d8223fc7cae79f67eb8f2dd692a400946febb",
+      "payloadDigest": "2f327960ecdf2d4d5becd665785d8223fc7cae79f67eb8f2dd692a400946febb",
+      "sealedAt": "2026-10-27T02:46:14.368Z",
+      "sealedBy": "recovery"
+    },
+    "wiki": {
+      "state": "no-op",
+      "sealedAt": "2026-10-27T02:45:44.023Z",
+      "sealedBy": "wiki-producer"
+    }
+  },
+  "actions": {
+    "foreground-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "dd6a5d6e29cdf5b2816f9281ad547107c4573c1ac1b6071d58f8b18f08b94ce5",
+      "payload": {
+        "transcriptPath": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+        "cwd": "/Users/dongwook/dev/pill-bbox",
+        "reason": "other",
+        "input": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "transcript_path": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+          "cwd": "/Users/dongwook/dev/pill-bbox",
+          "scratchpad_dir": "/private/tmp/claude-501/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1/scratchpad",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "ended_at": "2026-10-27T02:46:14.191Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-27T02:46:14.072Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "f44d8941-11ea-4ced-8c6d-644126664563",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-27T02:46:24.009Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-27T02:46:14.353Z"
+    },
+    "wiki-capture": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 0,
+      "idempotencyKey": "6c64c26cf84906809f406a692195a2e82d5676d8dbaa761c5a853f231903281c",
+      "payload": {
+        "transcriptPath": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+        "cwd": "/Users/dongwook/dev/pill-bbox",
+        "reason": "other",
+        "input": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "transcript_path": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+          "cwd": "/Users/dongwook/dev/pill-bbox",
+          "scratchpad_dir": "/private/tmp/claude-501/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1/scratchpad",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {}
+      },
+      "budgetMs": 9000,
+      "completedAt": "2026-10-27T02:45:44.023Z"
+    },
+    "team-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "1ef684578d6ade13da6cf075e633c1e53aa999e0cd32e91f22cf1dc37071dd27",
+      "payload": {
+        "transcriptPath": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+        "cwd": "/Users/dongwook/dev/pill-bbox",
+        "reason": "other",
+        "input": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "transcript_path": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+          "cwd": "/Users/dongwook/dev/pill-bbox",
+          "scratchpad_dir": "/private/tmp/claude-501/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1/scratchpad",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "ended_at": "2026-10-27T02:46:14.191Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-27T02:46:14.398Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "37b6c484-a213-48f6-b9b9-6dea0f72bec6",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-27T02:46:24.009Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-27T02:46:14.619Z"
+    },
+    "python-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "27f323b06942933e51aeeb0acc0c9f0b578be4543b3bd536f9c89425da28c5af",
+      "payload": {
+        "transcriptPath": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+        "cwd": "/Users/dongwook/dev/pill-bbox",
+        "reason": "other",
+        "input": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "transcript_path": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+          "cwd": "/Users/dongwook/dev/pill-bbox",
+          "scratchpad_dir": "/private/tmp/claude-501/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1/scratchpad",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "ended_at": "2026-10-27T02:46:14.191Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-27T02:46:14.643Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "b642f44e-8e19-46d8-bace-3a05aafc7cf6",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-27T02:46:24.009Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-27T02:46:14.771Z"
+    },
+    "reply-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "6c60f75ac7dd3deac116a2d57529cb0721eefcdad98b47cded28b7cfe201e39b",
+      "payload": {
+        "transcriptPath": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+        "cwd": "/Users/dongwook/dev/pill-bbox",
+        "reason": "other",
+        "input": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "transcript_path": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+          "cwd": "/Users/dongwook/dev/pill-bbox",
+          "scratchpad_dir": "/private/tmp/claude-501/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1/scratchpad",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {}
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-27T02:46:14.788Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "5546098e-2430-48b1-84e5-0f96ad8df042",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-27T02:46:24.009Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-27T02:46:14.928Z"
+    },
+    "callback": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "87d5b0c21deb3cc325fe39cee336857fe1ad76be54d6318ef45ac087cb82d2e4",
+      "payload": {
+        "transcriptPath": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+        "cwd": "/Users/dongwook/dev/pill-bbox",
+        "reason": "other",
+        "input": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "transcript_path": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+          "cwd": "/Users/dongwook/dev/pill-bbox",
+          "scratchpad_dir": "/private/tmp/claude-501/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1/scratchpad",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "ended_at": "2026-10-27T02:46:14.191Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-27T02:46:14.945Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "51189e7e-c362-440b-a8c7-53493a3780bb",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-27T02:46:24.009Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-27T02:46:15.054Z"
+    },
+    "notification": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "fae11a0134cdbb3c5af241c0fc5ccd70770714f288b4dd7d280224cc7be360a6",
+      "payload": {
+        "transcriptPath": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+        "cwd": "/Users/dongwook/dev/pill-bbox",
+        "reason": "other",
+        "input": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "transcript_path": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+          "cwd": "/Users/dongwook/dev/pill-bbox",
+          "scratchpad_dir": "/private/tmp/claude-501/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1/scratchpad",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "ended_at": "2026-10-27T02:46:14.191Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-27T02:46:15.070Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "8ce7b795-7bae-436c-8d28-4be36c76a234",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-27T02:46:24.009Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-27T02:46:15.177Z"
+    },
+    "openclaw": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "b97a747386d28107e6e51621fba2904a7e82a5425dfb025ad6c5d48a52d718cf",
+      "payload": {
+        "transcriptPath": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+        "cwd": "/Users/dongwook/dev/pill-bbox",
+        "reason": "other",
+        "input": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "transcript_path": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+          "cwd": "/Users/dongwook/dev/pill-bbox",
+          "scratchpad_dir": "/private/tmp/claude-501/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1/scratchpad",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "ended_at": "2026-10-27T02:46:14.191Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-27T02:46:15.194Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "ad85b01f-1c38-4f74-8db7-efba4ada1ba2",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-27T02:46:24.009Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-27T02:46:15.343Z"
+    },
+    "spawn-next": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "b5b3534ac780a5539cf519be5ed207d05bea3ac9b6925ee8c51cf1e7bd594fc2",
+      "payload": {
+        "transcriptPath": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+        "cwd": "/Users/dongwook/dev/pill-bbox",
+        "reason": "other",
+        "input": {
+          "session_id": "35e0a8fc-3bad-4692-9262-7ff3183977c1",
+          "transcript_path": "/Users/dongwook/.claude/projects/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1.jsonl",
+          "cwd": "/Users/dongwook/dev/pill-bbox",
+          "scratchpad_dir": "/private/tmp/claude-501/-Users-dongwook-dev-pill-bbox/35e0a8fc-3bad-4692-9262-7ff3183977c1/scratchpad",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {}
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-27T02:46:15.367Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "c7c05dea-027c-4527-9fdf-40ef7939dac1",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-27T02:46:24.009Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-27T02:46:15.483Z"
+    }
+  },
+  "owner": null,
+  "phase": "complete",
+  "recoverableFailure": {
+    "reason": "actions-settled",
+    "releasedAt": "2026-10-27T02:46:15.501Z",
+    "ownerNonce": "9a4e5f78-880d-47b8-946e-0225ad6450c1"
+  },
+  "completion": {
+    "completedAt": "2026-10-27T02:46:15.501Z",
+    "terminalDigest": "71f7a3eb21acc198d9500ab446b0e5d5058b74919421e25bb9b7098cd3523c82",
+    "terminalRevision": 62
+  }
+}
