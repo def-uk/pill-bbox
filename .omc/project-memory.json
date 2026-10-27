@@ -134,6 +134,85 @@
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "data_process/make_labels.py",
+      "accessCount": 10,
+      "lastAccessed": 1793082826810,
+      "type": "file"
+    },
+    {
+      "path": "data_process/data_main.py",
+      "accessCount": 7,
+      "lastAccessed": 1793082521756,
+      "type": "file"
+    },
+    {
+      "path": "docs/DATA_PIPELINE_PLAN.md",
+      "accessCount": 5,
+      "lastAccessed": 1793094022961,
+      "type": "file"
+    },
+    {
+      "path": "data_process/split.py",
+      "accessCount": 2,
+      "lastAccessed": 1793079570514,
+      "type": "file"
+    },
+    {
+      "path": "models/train.py",
+      "accessCount": 2,
+      "lastAccessed": 1793082548384,
+      "type": "file"
+    },
+    {
+      "path": "docs/DATA_PIPELINE.md",
+      "accessCount": 2,
+      "lastAccessed": 1793085461304,
+      "type": "file"
+    },
+    {
+      "path": "models/model_main.py",
+      "accessCount": 2,
+      "lastAccessed": 1793093874337,
+      "type": "file"
+    },
+    {
+      "path": "data_process/move_files.py",
+      "accessCount": 1,
+      "lastAccessed": 1793079571852,
+      "type": "file"
+    },
+    {
+      "path": "data_process/data_yaml.py",
+      "accessCount": 1,
+      "lastAccessed": 1793079591257,
+      "type": "file"
+    },
+    {
+      "path": "data/processed/yolo/v1/check/yolo_roundtrip.png",
+      "accessCount": 1,
+      "lastAccessed": 1793079709479,
+      "type": "file"
+    },
+    {
+      "path": "data/processed/padding/review_pages/page_01.png",
+      "accessCount": 1,
+      "lastAccessed": 1793082795881,
+      "type": "file"
+    },
+    {
+      "path": "src/config.py",
+      "accessCount": 1,
+      "lastAccessed": 1793093837030,
+      "type": "file"
+    },
+    {
+      "path": "models/evaluate.py",
+      "accessCount": 1,
+      "lastAccessed": 1793093837965,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }
