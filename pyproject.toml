@@ -5,6 +5,7 @@ description = "Pill detection with YOLO"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "easyocr>=1.7.2",
     "gdown>=6.4.2",
     "matplotlib>=3.11.2",
     "numpy>=2.5.4",
