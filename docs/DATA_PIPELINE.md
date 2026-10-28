@@ -100,7 +100,7 @@ predict_test(weights, "v1", exp="base_v1")    # test 842장 예측
 make_submission(weights, "v1", exp="base_v1")  # test 예측 → 제출 csv
 ```
 
-- 결과는 `runs/<exp>/results/`에 저장됩니다. Drive에 학습했다면 세 함수 모두 `runs_dir=`에 같은 Drive 경로를 넘깁니다.
+- 결과는 `runs/<exp>/results/`에 저장됩니다. Drive에 학습했다면 모든 함수의 `runs_dir=`에 같은 Drive 경로를 넘깁니다.
 - `evaluate_fold`: 클래스별 AP(AP50, AP50-95, AP75-95), 클래스 그룹(bbox 21개 이상 / 6–20 / 5개 이하)별 평균 AP75-95, 닮은 약 3쌍의 혼동 수를 저장합니다.
 - `predict_test`: `category_id`와 픽셀 좌표 `[x, y, w, h]`로 되돌려 `<run 이름>_test_pred.csv`로 저장합니다.
 - `make_submission`: test를 예측해 제출 형식 `annotation_id, image_id, category_id, bbox_x, bbox_y, bbox_w, bbox_h, score`로 `<run 이름>_submission_conf<conf>.csv`에 저장합니다. `image_id`는 test 파일 이름의 숫자, `category_id`는 원본 JSON의 id입니다. 기본 `conf`는 0.001입니다. mAP 채점이라 점수 낮은 박스를 더해도 점수가 떨어지지 않기 때문입니다(파일 약 20MB). 터미널에서는 `uv run python -m models.evaluate --weights <best.pt> --exp <exp>`.
