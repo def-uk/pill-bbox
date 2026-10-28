@@ -62,7 +62,7 @@ WANDB_MODE=disabled uv run python -m models.model_main --model yolo11m.pt yolo26
 - 라벨을 고쳐야 하면 원본 JSON이나 `labels_*.csv`를 직접 고치지 않습니다. 보정 기록(`make_labels.py`의 기록 생성 함수, `data/processed/*.csv`)을 바꾸고 다시 실행합니다. 새 보정은 `reviewed`(사람 검수)가 있어야 적용됩니다.
 - 여백 검수표 `data/processed/padding_review.csv`의 `decision`(승인/거부)은 사람이 채웁니다. 에이전트가 대신 승인하지 않습니다.
 - `data.yaml`과 txt 목록에는 그 PC의 절대 경로가 들어갑니다. 다른 PC·Colab으로 복사하지 말고 그곳에서 다시 실행합니다.
-- 모델 비교는 한 fold 점수가 아니라 같은 분할의 5 fold 평균·표준편차로 합니다. 주 지표는 잠정 mAP75-95(`models/evaluate.py`의 `MAIN_METRIC`)입니다. 학습은 전체 파인튜닝(`freeze` 없음)이 기본이고, 증강은 `--aug on off`로 비교합니다.
+- 모델 비교는 한 fold 점수가 아니라 같은 분할의 5 fold 평균·표준편차로 합니다. 주 지표는 잠정 mAP75-95(`models/evaluate.py`의 `MAIN_METRIC`)입니다. 학습은 전체 파인튜닝(`freeze` 없음)이 기본이고, 증강은 `--aug on off`, 옵티마이저는 `--optimizer`(기본 `auto` = AdamW)로 비교합니다.
 - Mac(MPS)에서는 `epochs=1`, 작은 `fraction`으로 동작 확인만 합니다. 본 학습은 사용자가 요청할 때 GPU(Colab 등)에서 합니다.
 - 파이프라인 코드를 고치면 `--label v1`을 다시 실행해 자동 검사(누수 0%, 라벨 검사, YOLO 변환 검사)가 통과하는지 확인합니다.
 

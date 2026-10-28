@@ -74,7 +74,11 @@ uv run python -m models.model_main --model yolo26m.pt --split setup30fix_v1_s42 
 - 후보 모델은 `yolo11m.pt`, `yolo26m.pt`입니다. 가중치는 첫 실행에서 자동으로 받습니다.
 - **전체 파인튜닝**입니다. 분류 출력층만 56종용으로 새로 만들고 나머지 층은 사전학습 가중치에서 시작해 모두 학습합니다(`freeze` 없음).
 - 증강은 `--aug`로 고릅니다. `on`은 계획의 기본값(회전 10°, 색조 변화 약하게, 뒤집기 끔), `off`는 이미지를 바꾸는 증강을 모두 끕니다. 값은 `models/train.py`의 `AUG_PRESETS`에 있습니다.
-- 결과는 `runs/<exp>/<모델>_<분할>_aug<on|off>_fold<k>/`에 쌓입니다. `--runs-dir`로 `runs/` 대신 다른 폴더(Colab에서는 Drive)를 지정합니다. wandb config에 라벨 버전·분할·fold·seed·증강이 기록됩니다.
+- 옵티마이저는 `--optimizer`로 고릅니다(`auto`, `SGD`, `MuSGD`, `Adam`, `Adamax`, `AdamW`, `NAdam`, `RAdam`, `RMSProp`). `--aug`처럼 여러 개를 주면 같은 fold에서 비교합니다(예: `--optimizer AdamW SGD`).
+  - 기본 `auto`는 우리 데이터에서 항상 **AdamW, lr0 약 0.00017**을 고릅니다. 반복 수(⌈학습 사진 수/64⌉ × epoch)가 10,000 미만이기 때문입니다. `auto`는 `--lr0`를 무시하므로 함께 주면 에러로 멈춥니다.
+  - 옵티마이저를 고르면 `--lr0`로 시작 학습률을 정합니다. 생략하면 SGD 계열 0.01, 그 밖은 0.001입니다. `--cos-lr`은 학습률을 cosine 곡선으로 줄입니다.
+  - 실제로 쓰인 옵티마이저와 lr0는 wandb config의 `optimizer_used`, `lr0_used`에 남습니다.
+- 결과는 `runs/<exp>/<모델>_<분할>_aug<on|off>_opt<옵티마이저>_fold<k>/`에 쌓입니다. `--runs-dir`로 `runs/` 대신 다른 폴더(Colab에서는 Drive)를 지정합니다. wandb config에 라벨 버전·분할·fold·seed·증강·옵티마이저가 기록됩니다. 학습률을 바꿔 비교할 때는 폴더 이름에 lr0가 들어가지 않으므로 `--exp`를 다르게 줍니다.
 - 체크포인트는 `weights/last.pt`(매 epoch 덮어씀)와 `weights/best.pt`(검증 **mAP75-95**가 가장 높은 epoch)입니다. `results.csv`는 epoch별 점수 기록이고 `metrics/mAP75-95(B)` 열이 들어 있습니다.
 - `--resume`을 붙이면 fold마다 `last.pt`에서 이어 학습하고, 이미 끝난 fold는 건너뜁니다. 이어 학습은 처음 학습할 때의 인자(epoch 수, 증강 등)를 그대로 씁니다. `--resume` 없이 같은 `--exp`로 다시 실행하면 덮어쓰지 않고 멈춥니다.
 - fold 학습이 끝나면 자동으로 `best.pt`를 평가하고, 마지막에 실험 요약(`results/summary.csv`)을 만듭니다.
@@ -89,7 +93,7 @@ uv run python -m models.model_main --model yolo26m.pt --split setup30fix_v1_s42 
 ```python
 from models.evaluate import evaluate_fold, predict_test, summarize_exp
 
-weights = "runs/base_v1/yolo11m_setup30fix_v1_s42_augon_fold0/weights/best.pt"
+weights = "runs/base_v1/yolo11m_setup30fix_v1_s42_augon_optauto_fold0/weights/best.pt"
 evaluate_fold(weights, "v1", "setup30fix_v1_s42", fold=0, exp="base_v1")
 summarize_exp("base_v1")                      # 모델·분할·증강별 fold 평균·표준편차
 predict_test(weights, "v1", exp="base_v1")    # test 842장 예측
@@ -137,7 +141,7 @@ data/processed/
 └── padding/                                        # 여백 측정 결과와 검수 그림
 
 runs/<exp>/                                         # 커밋 안 함. --runs-dir로 위치 변경
-├── <모델>_<분할>_aug<on|off>_fold<k>/              # weights/best.pt, last.pt, results.csv
+├── <모델>_<분할>_aug<on|off>_opt<옵티마이저>_fold<k>/  # weights/best.pt, last.pt, results.csv
 └── results/                                        # fold별 평가 CSV, summary.csv, test 예측
 ```
 
@@ -153,5 +157,5 @@ runs/<exp>/                                         # 커밋 안 함. --runs-dir
 | `data_process/split.py` | 분할 이름 해석, fold 생성, 누수 검사 |
 | `data_process/data_yaml.py` | `class_map.csv`, fold별 `train.txt`·`val.txt`·`data.yaml` |
 | `data_process/move_files.py` | 이미지 링크(안 되면 복사) |
-| `models/train.py`, `models/model_main.py` | 학습(mAP75-95로 best.pt 선택, 이어서 학습), 증강 설정, 학습·평가 진입점 |
+| `models/train.py`, `models/model_main.py` | 학습(mAP75-95로 best.pt 선택, 이어서 학습), 증강·옵티마이저 설정, 학습·평가 진입점 |
 | `models/evaluate.py` | 주 지표(`MAIN_METRIC`), 평가 집계, test 예측 |
