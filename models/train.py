@@ -9,6 +9,13 @@ from models.evaluate import map75_95
 from src.config import RUNS_DIR, get_device, init_wandb
 
 MAIN_METRIC_KEY = "metrics/mAP75-95(B)"  # results.csv·wandb에 남는 열 이름
+# ultralytics가 받는 옵티마이저. auto는 반복 수(⌈학습 사진 수/64⌉ × epoch)가 10000을 넘으면
+# MuSGD, 아니면 AdamW를 고르고 lr0를 직접 계산해 lr0 인자를 무시한다.
+# 우리 데이터(100 epoch에 300–400회)에서는 항상 AdamW, lr0 ≈ 0.00017이 된다.
+OPTIMIZERS = ["auto", "SGD", "MuSGD", "Adam", "Adamax", "AdamW", "NAdam", "RAdam", "RMSProp"]
+# lr0를 정하지 않았을 때의 시작값 (ultralytics 설명: SGD=1e-2, Adam/AdamW=1e-3)
+SGD_LR0 = 0.01
+ADAM_LR0 = 0.001
 # 증강 설정 묶음. 같은 분할·fold에서 on과 off를 학습해 증강 효과를 비교한다.
 # on: 두 모델에 같게 쓰는 기본값 (계획 [5], EDA 9.3). 적지 않은 인자는 ultralytics 기본값이다
 #     (hsv_s 0.7, hsv_v 0.4, translate 0.1, scale 0.5, mosaic 1.0, close_mosaic 10).
@@ -64,11 +71,25 @@ class Map7595Trainer(DetectionTrainer):
         return metrics, fitness
 
 
+def default_lr0(optimizer: str) -> float | None:
+    """옵티마이저별 기본 lr0. auto는 ultralytics가 정하므로 None."""
+    if optimizer == "auto":
+        return None
+    return SGD_LR0 if "SGD" in optimizer else ADAM_LR0
+
+
 def run_dir(
-    model_name: str, split_name: str, fold: int, exp: str, aug: str, runs_dir: Path = RUNS_DIR
+    model_name: str,
+    split_name: str,
+    fold: int,
+    exp: str,
+    aug: str,
+    optimizer: str = "auto",
+    runs_dir: Path = RUNS_DIR,
 ) -> Path:
-    """학습 결과 폴더 <runs_dir>/<exp>/<모델>_<분할>_aug<on|off>_fold<k>를 반환한다."""
-    return Path(runs_dir) / exp / f"{Path(model_name).stem}_{split_name}_aug{aug}_fold{fold}"
+    """학습 결과 폴더 <runs_dir>/<exp>/<모델>_<분할>_aug<on|off>_opt<옵티마이저>_fold<k>를 반환."""
+    stem = Path(model_name).stem
+    return Path(runs_dir) / exp / f"{stem}_{split_name}_aug{aug}_opt{optimizer}_fold{fold}"
 
 
 def is_finished(last: Path) -> bool:
@@ -88,6 +109,9 @@ def train(
     seed: int = 42,
     fraction: float = 1.0,
     aug: str = "on",
+    optimizer: str = "auto",
+    lr0: float | None = None,
+    cos_lr: bool = False,
     runs_dir: Path = RUNS_DIR,
     resume: bool = False,
     **train_kwargs: object,
@@ -97,6 +121,8 @@ def train(
     model_name은 ultralytics 가중치 이름(yolo11m.pt, yolo26m.pt 등)이다. aug는 AUG_PRESETS의
     이름(on/off)이고 결과 폴더 이름에 들어간다. train_kwargs는 증강 설정을 덮어쓰거나 다른 학습
     인자를 더한다. best.pt는 검증 mAP75-95가 가장 높은 epoch다.
+    optimizer는 OPTIMIZERS 중 하나이고 결과 폴더 이름에 들어간다. lr0를 생략하면 SGD 계열 0.01,
+    그 밖은 0.001로 시작한다. auto는 lr0를 무시하므로 함께 줄 수 없다. cos_lr은 cosine 학습률 감소.
     결과는 <runs_dir>/<exp>/<이름>/에 쌓인다. Colab에서는 runs_dir을 Drive 아래로 두면 런타임이
     끊겨도 남는다. resume=True면 그 폴더의 last.pt에서 이어 학습하고, 이미 끝난 학습은 건너뛴다.
     라벨 버전·분할·fold·seed는 wandb config에 남긴다. wandb를 끄려면 WANDB_MODE=disabled.
@@ -109,7 +135,12 @@ def train(
         )
     if aug not in AUG_PRESETS:
         raise ValueError(f"증강 설정 {aug}이 없습니다: {list(AUG_PRESETS)}")
-    save_dir = run_dir(model_name, split_name, fold, exp, aug, runs_dir)
+    if optimizer not in OPTIMIZERS:
+        raise ValueError(f"옵티마이저 {optimizer}이 없습니다: {OPTIMIZERS}")
+    if optimizer == "auto" and lr0 is not None:
+        raise ValueError("optimizer=auto는 lr0를 무시합니다. lr0를 정하려면 옵티마이저를 고르세요.")
+    lr0 = default_lr0(optimizer) if lr0 is None else lr0
+    save_dir = run_dir(model_name, split_name, fold, exp, aug, optimizer, runs_dir)
     run_name = save_dir.name
     last = save_dir / "weights" / "last.pt"
     if last.is_file() and not resume:
@@ -130,6 +161,9 @@ def train(
         "seed": seed,
         "deterministic": True,
         "fraction": fraction,
+        "optimizer": optimizer,
+        **({} if lr0 is None else {"lr0": lr0}),
+        "cos_lr": cos_lr,
         "device": get_device(),
         "project": str(save_dir.parent),
         "name": run_name,
@@ -156,6 +190,14 @@ def train(
     else:
         model = YOLO(model_name)
     run = init_wandb(model, run_name=f"{exp}/{run_name}", config={**config, "resume": resume})
+    # auto가 실제로 고른 옵티마이저와 lr0는 학습 시작 때 정해지므로 그때 wandb config에 더한다.
+    model.add_callback(
+        "on_train_start",
+        lambda trainer: run.config.update(
+            {"optimizer_used": trainer.args.optimizer, "lr0_used": trainer.args.lr0},
+            allow_val_change=True,
+        ),
+    )
     try:
         model.train(trainer=Map7595Trainer, **args)
     finally:
