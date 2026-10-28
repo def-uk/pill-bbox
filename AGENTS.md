@@ -62,9 +62,31 @@ WANDB_MODE=disabled uv run python -m models.model_main --model yolo11m.pt yolo26
 - 라벨을 고쳐야 하면 원본 JSON이나 `labels_*.csv`를 직접 고치지 않습니다. 보정 기록(`make_labels.py`의 기록 생성 함수, `data/processed/*.csv`)을 바꾸고 다시 실행합니다. 새 보정은 `reviewed`(사람 검수)가 있어야 적용됩니다.
 - 여백 검수표 `data/processed/padding_review.csv`의 `decision`(승인/거부)은 사람이 채웁니다. 에이전트가 대신 승인하지 않습니다.
 - `data.yaml`과 txt 목록에는 그 PC의 절대 경로가 들어갑니다. 다른 PC·Colab으로 복사하지 말고 그곳에서 다시 실행합니다.
-- 모델 비교는 한 fold 점수가 아니라 같은 분할의 5 fold 평균·표준편차로 합니다. 주 지표는 잠정 mAP75-95(`models/evaluate.py`의 `MAIN_METRIC`)입니다. 학습은 전체 파인튜닝(`freeze` 없음)이 기본이고, 증강은 `--aug on off`로 비교합니다.
+- 모델 비교는 한 fold 점수가 아니라 같은 분할의 5 fold 평균·표준편차로 합니다. 주 지표는 잠정 mAP75-95(`models/evaluate.py`의 `MAIN_METRIC`)입니다. 학습은 전체 파인튜닝(`freeze` 없음)이 기본이고, 증강은 `--aug on off`, 옵티마이저는 `--optimizer`(기본 `auto` = AdamW)로 비교합니다.
 - Mac(MPS)에서는 `epochs=1`, 작은 `fraction`으로 동작 확인만 합니다. 본 학습은 사용자가 요청할 때 GPU(Colab 등)에서 합니다.
 - 파이프라인 코드를 고치면 `--label v1`을 다시 실행해 자동 검사(누수 0%, 라벨 검사, YOLO 변환 검사)가 통과하는지 확인합니다.
+
+## 하이퍼파라미터
+
+에이전트는 하이퍼파라미터를 혼자 정하지 않습니다. 팀원마다 다른 값이 말없이 섞이면 실험끼리 비교할 수 없기 때문입니다.
+
+- 학습을 실행하거나, 학습·튜닝 코드를 짜거나 고치기 전에 아래 기본값을 표로 보여 주고 바꿀 항목이 있는지 사용자에게 묻습니다. 기본값과 다른 값을 제안할 때는 이유를 한 줄 붙입니다.
+- 사용자가 답하기 전에는 학습을 실행하지 않습니다. 동작 확인(`epochs=1`, 작은 `fraction`, `WANDB_MODE=disabled`)은 기본값으로 바로 해도 됩니다.
+- 정한 값은 코드에 고정하지 않고 `model_main` 인자나 `train()` 인자로 넘깁니다. 실행한 명령 전체를 사용자에게 알려 같은 명령으로 다시 돌릴 수 있게 합니다.
+- 기본값 자체(아래 표, `AUG_PRESETS`, `MAIN_METRIC`, 함수 기본 인자)를 바꾸려면 사용자 확인을 받고 이 표와 `docs/DATA_PIPELINE.md`를 함께 고칩니다.
+
+| 항목 | 기본값 | 인자 | 비고 |
+|---|---|---|---|
+| 모델 | `yolo11m.pt`, `yolo26m.pt` | `--model` | 후보 비교 중. 전체 파인튜닝(`freeze` 없음) |
+| 라벨 | `v1` | `--label` | `v2`는 여백 검수 승인분이 있을 때만 의미 있음 |
+| 분할 | `setup30fix_v1_s42`, `combo_v1_s42` | `--split` | 어느 분할로 고를지 사용자에게 확인. 비교는 5 fold 전부 |
+| epochs | 100 | `--epochs` | 필수 인자 |
+| 이미지 크기 / 배치 | 640 / 16 | `--imgsz`, `--batch` | GPU 메모리가 부족하면 배치를 줄임 |
+| seed | 42 | `--seed` | 실험마다 기록 |
+| 증강 | `on` | `--aug` | 값은 `models/train.py`의 `AUG_PRESETS`. 비교는 `--aug on off` |
+| 옵티마이저 | `auto` (= AdamW, lr0 약 0.00017) | `--optimizer`, `--lr0`, `--cos-lr` | 직접 고를 때 lr0 기본값은 SGD 계열 0.01, 그 밖 0.001 |
+| 주 지표 | mAP75-95 | `MAIN_METRIC` | best.pt 선택·early stopping 기준. 대회 지표(#33) 결정 전 잠정 |
+| 그 밖 | ultralytics 기본값 (`patience` 100 등) | `train(..., patience=30)` | `model_main`에 없는 값은 Python에서 `train()` 인자로 넘김 |
 
 ## Git 규칙 (요약)
 
