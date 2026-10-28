@@ -95,8 +95,8 @@ from models.evaluate import evaluate_fold, predict_test, summarize_exp
 
 weights = "runs/base_v1/yolo11m_setup30fix_v1_s42_augon_optauto_fold0/weights/best.pt"
 evaluate_fold(weights, "v1", "setup30fix_v1_s42", fold=0, exp="base_v1")
-summarize_exp("base_v1")                      # 모델·분할·증강별 fold 평균·표준편차
-predict_test(weights, "v1", exp="base_v1")    # test 842장 예측
+summarize_exp("base_v1")  # 모델·분할·증강별 fold 평균·표준편차
+predict_test(weights, "v1", exp="base_v1")  # test 842장 예측
 ```
 
 - 결과는 `runs/<exp>/results/`에 저장됩니다. Drive에 학습했다면 세 함수 모두 `runs_dir=`에 같은 Drive 경로를 넘깁니다.
