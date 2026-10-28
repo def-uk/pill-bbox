@@ -8,14 +8,22 @@ data/
 │   ├── train_images/
 │   ├── train_annotations/
 │   └── test_images/
-├── processed/                  # 원본과 분리한 가공 결과
-│   ├── corrected_annotations/  # bbox 수정본 JSON
-│   └── correction_records/     # 수정 전후 좌표와 근거
+├── processed/                  # 원본과 분리한 가공 결과 (데이터 파이프라인이 만듦)
+│   ├── added_annotations.csv   # 라벨 누락 추가 기록 (kwon)
+│   ├── fixed_annotations.csv   # 위치 수정 기록 (kwon)
+│   ├── corrections.csv         # 통합 보정 기록 (수정 전후 좌표와 근거)
+│   ├── padding_review.csv      # 여백 검수표
+│   ├── labels/                 # 라벨 버전 (raw, v1, v2)
+│   ├── splits/                 # train/val 분할 (fold별)
+│   ├── yolo/                   # YOLO 학습 입력 (images, labels, data.yaml)
+│   └── ...                     # padding/, results/, predictions/
 └── README.md
 ```
 
-`raw/`와 `processed/`는 Git에서 제외합니다. 원본은 `raw/`에서 읽기만 하고, 수정본과
-수정 기록은 `processed/`에 저장합니다.
+`raw/`와 `processed/`는 Git에서 제외합니다. 단, `processed/` 바로 아래의 csv(보정 기록,
+검수표)는 팀 공유를 위해 커밋할 수 있습니다. 원본은 `raw/`에서 읽기만 하고, 원본 JSON을
+고치지 않고 보정 기록으로 라벨 버전을 만듭니다. 만드는 방법과 각 파일의 뜻은
+[docs/DATA_PIPELINE.md](../docs/DATA_PIPELINE.md)를 참고하세요.
 
 ## Annotations (JSON 파일 구조)
 
