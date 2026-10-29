@@ -11,6 +11,7 @@ import zipfile
 from collections.abc import Iterable
 from pathlib import Path
 
+import gdown
 import pandas as pd
 
 from data_process.data_processing import IMG_EXTS, load_annotations
@@ -31,6 +32,19 @@ def zip_key(path: Path) -> str | None:
     """zip 이름의 구분자(TL_2 등)를 반환한다. 형식이 다르면 None."""
     match = ZIP_KEY.match(_nfc(path.stem))
     return match.group(1) if match else None
+
+
+def download_drive_folder(url: str, out_dir: Path) -> Path:
+    """Google Drive 공유 폴더의 파일을 out_dir에 받고 out_dir을 반환한다.
+
+    폴더는 "링크가 있는 모든 사용자"로 공유되어 있어야 한다. 이미 받은 파일은 건너뛰고,
+    끊긴 파일은 이어 받는다. AI Hub는 해외 IP 다운로드를 막아 Colab에서는 이 방법으로 받는다.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    # output 끝에 경로 구분자가 없어야 Drive 폴더 이름의 하위 폴더 없이 out_dir에 바로 받는다
+    gdown.download_folder(url=url, output=str(out_dir), quiet=False, resume=True)
+    return out_dir
 
 
 def find_combo_zips(zip_dir: Path, exclude: Iterable[str] = ("TL_2",)) -> list[Path]:
@@ -133,6 +147,8 @@ def load_combo_annotations(dirs: list[Path]) -> tuple[pd.DataFrame, pd.DataFrame
 
     load_annotations와 같은 형식이고, source_json 앞에 zip 폴더 이름을 붙이고 zip_name 열을 더한다.
     JSON이 없는 폴더(원천 이미지 zip)는 빈 표가 되어 결과에 영향이 없다.
+    AI Hub 원본은 category_id가 모두 1(Drug)이라, 대회 데이터와 같이 drug_N의 숫자
+    (K-001900 → 1900)로 바꾸고 category_name은 dl_name으로 둔다. 원래 값은 category_id_raw에 남긴다.
     """
     ann_dfs, error_dfs = [], []
     for folder in dirs:
@@ -142,10 +158,13 @@ def load_combo_annotations(dirs: list[Path]) -> tuple[pd.DataFrame, pd.DataFrame
                 df["source_json"] = folder.name + "/" + df["source_json"]
         ann_dfs.append(ann_df.assign(zip_name=folder.name) if not ann_df.empty else ann_df)
         error_dfs.append(error_df)
-    return (
-        pd.concat(ann_dfs, ignore_index=True),
-        pd.concat(error_dfs, ignore_index=True).astype({"excluded": bool}),
-    )
+    ann_df = pd.concat(ann_dfs, ignore_index=True)
+    if not ann_df.empty:
+        ann_df["category_id_raw"] = ann_df["category_id"]
+        drug_no = ann_df["drug_N"].astype(str).str.removeprefix("K-")
+        ann_df["category_id"] = pd.to_numeric(drug_no, errors="coerce").astype("Int64")
+        ann_df["category_name"] = ann_df["dl_name"]
+    return ann_df, pd.concat(error_dfs, ignore_index=True).astype({"excluded": bool})
 
 
 def list_combo_images(dirs: list[Path]) -> pd.DataFrame:
