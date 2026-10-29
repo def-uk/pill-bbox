@@ -1,13 +1,17 @@
 import argparse
+from collections.abc import Sequence
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import yaml
+from matplotlib.figure import Figure
 from ultralytics import YOLO
 
 from data_process.data_yaml import data_yaml_path, load_class_map, yolo_dir
 from data_process.make_labels import BBOX_COLS
 from src.config import PROJECT_ROOT, RUNS_DIR, get_device
+from visualization import plot_fold_metrics, plot_per_class_ap, save_figure, set_korean_font
 
 PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 # 주 지표: IoU 0.75–0.95(0.05 간격 5단계) AP 평균. 박스가 알약에 꼭 맞는지를 엄하게 본다.
@@ -19,6 +23,11 @@ SIZE_GROUPS = [(21, "21+"), (6, "6-20"), (0, "≤5")]
 # 일부만 바꿔 찍은 닮은 약 쌍 (EDA 8.2). 크기가 같은 원형 정제 46쌍은 GrabCut 측정이 필요해 뺐다.
 CONFUSION_PAIRS = [(16262, 20238), (16232, 21325), (18357, 32310)]
 PRED_COLS = ["file_name", "yolo_idx", "category_id", *BBOX_COLS, "conf"]
+# 정밀도·재현율·평균 IoU의 계산 기준 (평가지표 선정안 #33). 신뢰도 0.5 이상인 예측만 답으로 보고,
+# 정답과 IoU 0.5 이상 겹치면 같은 알약으로 짝짓는다. ultralytics의 정밀도·재현율은 실험마다
+# F1이 최대인 신뢰도에서 계산해 서로 비교할 수 없으므로 고정 기준으로 따로 센다.
+POINT_CONF = 0.5
+POINT_IOU = 0.5
 # 대회 제출 csv 열. bbox는 원본 이미지 픽셀 기준 COCO 형식(왼쪽 위 x, y, 너비, 높이)
 SUBMISSION_COLS = [
     "annotation_id",
@@ -52,6 +61,93 @@ def size_group(n_bboxes: int) -> str:
     return next(name for low, name in SIZE_GROUPS if n_bboxes >= low)
 
 
+def box_iou(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """[x, y, w, h] 박스 a(n개)와 b(m개)의 IoU 표(n × m)를 구한다."""
+    inter_w = np.minimum(a[:, None, 0] + a[:, None, 2], b[None, :, 0] + b[None, :, 2])
+    inter_w = (inter_w - np.maximum(a[:, None, 0], b[None, :, 0])).clip(0)
+    inter_h = np.minimum(a[:, None, 1] + a[:, None, 3], b[None, :, 1] + b[None, :, 3])
+    inter_h = (inter_h - np.maximum(a[:, None, 1], b[None, :, 1])).clip(0)
+    inter = inter_w * inter_h
+    union = (a[:, 2] * a[:, 3])[:, None] + (b[:, 2] * b[:, 3])[None, :] - inter
+    return inter / union
+
+
+def match_boxes(pred: pd.DataFrame, gt: pd.DataFrame, iou_thres: float = POINT_IOU) -> pd.DataFrame:
+    """사진마다 신뢰도가 높은 예측부터, 아직 짝이 없는 정답 중 IoU가 가장 큰 것과 짝짓는다.
+
+    클래스와 관계없이 위치로만 짝짓고(IoU ≥ iou_thres), 짝마다 예측·정답 category_id와 IoU를
+    반환한다. 클래스가 맞는지는 짝을 지은 뒤에 본다.
+    """
+    rows = []
+    gt_by_file = dict(tuple(gt.groupby("file_name")))
+    pred = pred.sort_values("conf", ascending=False)
+    for file_name, p in pred.groupby("file_name", sort=False):
+        g = gt_by_file.get(file_name)
+        if g is None:
+            continue
+        iou = box_iou(p[BBOX_COLS].to_numpy(float), g[BBOX_COLS].to_numpy(float))
+        free = np.ones(len(g), dtype=bool)
+        for i, pred_category in enumerate(p["category_id"]):
+            j = int(np.where(free, iou[i], -1).argmax())
+            if iou[i, j] >= iou_thres and free[j]:
+                free[j] = False
+                rows.append([file_name, pred_category, g["category_id"].iat[j], iou[i, j]])
+    return pd.DataFrame(rows, columns=["file_name", "pred_category", "gt_category", "iou"])
+
+
+def point_metrics(
+    pred: pd.DataFrame, gt: pd.DataFrame, conf: float = POINT_CONF, iou_thres: float = POINT_IOU
+) -> dict[str, float]:
+    """신뢰도 conf 이상인 예측으로 정밀도·재현율·평균 IoU를 센다. 짝은 match_boxes로 짓는다.
+
+    정밀도 = 약까지 맞힌 짝 / 예측 수, 재현율 = 약까지 맞힌 짝 / 정답 수,
+    평균 IoU = 짝지은 쌍 전체(다른 약으로 답한 짝 포함)의 IoU 평균,
+    n_wrong_class = 다른 약으로 답한 짝 수.
+    """
+    pred = pred[pred["conf"] >= conf]
+    pairs = match_boxes(pred, gt, iou_thres)
+    n_correct = int((pairs["pred_category"] == pairs["gt_category"]).sum())
+    return {
+        "precision": n_correct / len(pred) if len(pred) else np.nan,
+        "recall": n_correct / len(gt) if len(gt) else np.nan,
+        "mean_iou": float(pairs["iou"].mean()) if len(pairs) else np.nan,
+        "n_wrong_class": len(pairs) - n_correct,
+    }
+
+
+def predict_boxes(
+    model: YOLO,
+    source: str | Path,
+    label_version: str,
+    imgsz: int = 640,
+    conf: float = 0.25,
+    iou: float = 0.7,
+) -> pd.DataFrame:
+    """이미지를 예측해 PRED_COLS 표(category_id, 원본 픽셀 COCO bbox)로 반환한다.
+
+    source는 이미지 폴더나 이미지 경로 목록 txt다.
+    """
+    class_map = load_class_map(label_version)
+    to_category = dict(zip(class_map["yolo_idx"], class_map["category_id"], strict=True))
+    rows = []
+    for result in model.predict(
+        source=str(source),
+        imgsz=imgsz,
+        conf=conf,
+        iou=iou,
+        device=get_device(),
+        stream=True,
+        verbose=False,
+    ):
+        file_name = Path(result.path).name
+        boxes = result.boxes
+        for (x1, y1, x2, y2), cls, score in zip(
+            boxes.xyxy.tolist(), boxes.cls.int().tolist(), boxes.conf.tolist(), strict=True
+        ):
+            rows.append([file_name, cls, to_category[cls], x1, y1, x2 - x1, y2 - y1, score])
+    return pd.DataFrame(rows, columns=PRED_COLS)
+
+
 def evaluate_fold(
     weights: str | Path,
     label_version: str,
@@ -69,6 +165,8 @@ def evaluate_fold(
     클래스별 표: yolo_idx, category_id, dl_name, 그룹, train/val bbox 수, AP50, AP50-95, AP75-95.
     val에 없는 클래스는 AP가 NaN이고 평균에서 빠진다. conf는 confusion matrix에도 쓰인다.
     iou는 NMS 기준이라 NMS-free 모델(YOLO26)에서는 영향이 없다.
+    요약의 precision·recall·mean_iou·n_wrong_class는 val을 따로 예측해 고정 기준
+    (POINT_CONF, POINT_IOU)으로 센 값이다(point_metrics).
     """
     class_map = load_class_map(label_version)
     labels = pd.read_csv(PROCESSED_DIR / "labels" / f"labels_{label_version}.csv")
@@ -76,9 +174,10 @@ def evaluate_fold(
     out_dir = results_dir(exp, runs_dir)
     # train이 만든 <runs_dir>/<exp>/<run 이름>/weights/best.pt에서 run 이름을 가져온다.
     stem = Path(weights).parent.parent.name
+    data = data_yaml_path(label_version, split_name, fold)
     model = YOLO(weights)
     metrics = model.val(
-        data=str(data_yaml_path(label_version, split_name, fold)),
+        data=str(data),
         imgsz=imgsz,
         batch=batch,
         conf=conf,
@@ -112,6 +211,8 @@ def evaluate_fold(
         f"confuse_{a}_{b}": int(matrix[idx[a], idx[b]] + matrix[idx[b], idx[a]])
         for a, b in CONFUSION_PAIRS
     }
+    val_list = yaml.safe_load(data.read_text(encoding="utf-8"))["val"]
+    pred = predict_boxes(model, val_list, label_version, imgsz, conf=POINT_CONF, iou=iou)
     summary = {
         "run": stem.rsplit("_fold", 1)[0],
         "weights": str(weights),
@@ -122,6 +223,7 @@ def evaluate_fold(
         "map50": float(box.map50),
         "map75": float(box.map75),
         "map50_95": float(box.map),
+        **point_metrics(pred, labels[split_of == "val"]),
         **{
             f"ap75_95_{name}": float(per_class.loc[per_class["group"] == name, "ap75_95"].mean())
             for _, name in SIZE_GROUPS
@@ -155,6 +257,94 @@ def summarize_exp(exp: str, runs_dir: Path = RUNS_DIR) -> pd.DataFrame:
     return summary
 
 
+def load_fold_results(
+    exps: Sequence[str], runs_dir: Path = RUNS_DIR
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """실험들의 fold 요약과 클래스별 표를 모아 (요약, 클래스별)로 반환한다.
+
+    evaluate_fold가 저장한 <runs_dir>/<exp>/results/*_summary.csv와 *_per_class.csv를 읽는다.
+    두 표에 exp, run, fold 열을 붙이고, 클래스별 표에는 전체 bbox 수 n_bbox를 더한다.
+    """
+    summaries, per_class = [], []
+    for exp in exps:
+        out_dir = results_dir(exp, runs_dir)
+        for path in sorted(out_dir.glob("*_summary.csv")):
+            summary = pd.read_csv(path).assign(exp=exp)
+            table = pd.read_csv(out_dir / path.name.replace("_summary.csv", "_per_class.csv"))
+            summaries.append(summary)
+            per_class.append(
+                table.assign(exp=exp, run=summary.at[0, "run"], fold=summary.at[0, "fold"])
+            )
+    if not summaries:
+        raise FileNotFoundError(f"{exps}의 평가 결과가 없습니다. evaluate_fold를 먼저 실행하세요.")
+    per_class = pd.concat(per_class, ignore_index=True)
+    per_class["n_bbox"] = per_class["n_train_bbox"] + per_class["n_val_bbox"]
+    return pd.concat(summaries, ignore_index=True), per_class
+
+
+def plot_results(
+    exps: str | Sequence[str], runs_dir: Path = RUNS_DIR, save_dir: Path | None = None
+) -> dict[str, Figure]:
+    """실험들의 fold 평가 결과를 그림 네 장으로 그려 {이름: 그림}으로 반환한다.
+
+    - fold_metrics: run별 mAP75-95와 클래스 그룹별 AP75-95 (fold 점수, 평균 ± 표준편차)
+    - point_metrics: 고정 기준(POINT_CONF, POINT_IOU)의 정밀도·재현율·평균 IoU
+    - confusion: 닮은 약 쌍(CONFUSION_PAIRS)이 서로 헷갈린 횟수. 낮을수록 좋다
+    - per_class: 클래스별 AP75-95 (fold 평균, fold 간 범위). 낮은 클래스가 위에 온다
+    여러 실험을 넘기면 한 그림에서 비교하고, run 이름표 앞에 실험 이름을 붙인다.
+    save_dir을 주면 <save_dir>/<이름>.png로도 저장한다.
+    """
+    exps = [exps] if isinstance(exps, str) else list(exps)
+    set_korean_font()
+    summaries, per_class = load_fold_results(exps, runs_dir)
+    # 분할이 하나뿐이면 run 이름표에서 분할 이름을 빼고 제목에 한 번만 적는다
+    splits = summaries["split_name"].unique()
+    for table in (summaries, per_class):
+        label = table["run"]
+        if len(splits) == 1:
+            label = label.str.replace(f"_{splits[0]}", "", regex=False)
+        table["label"] = table["exp"] + "/" + label if len(exps) > 1 else label
+    # 모든 그림에서 run을 주 지표 평균이 높은 순으로 놓는다
+    order = summaries.groupby("label")[MAIN_METRIC].mean().sort_values(ascending=False).index
+    scope = f"{', '.join(exps)} · {', '.join(splits)}"
+    groups = [name for _, name in SIZE_GROUPS]
+    names = load_class_map(summaries.at[0, "label_version"]).set_index("category_id")["dl_name"]
+    names = names.str.strip()
+    ap_metrics = {MAIN_METRIC: "mAP75-95"} | {
+        f"ap75_95_{g}": f"AP75-95 · bbox {g} 클래스" for g in groups
+    }
+    point = {"precision": "정밀도", "recall": "재현율", "mean_iou": "평균 IoU"}
+    confusion = {f"confuse_{a}_{b}": f"{names[a]}\n↔ {names[b]}" for a, b in CONFUSION_PAIRS}
+    # 이 지표가 생기기 전에 평가한 결과에는 열이 없으므로 있는 열만 그린다
+    point = {col: name for col, name in point.items() if col in summaries}
+    confusion = {col: name for col, name in confusion.items() if col in summaries}
+    point_title = f"conf {POINT_CONF:g} · IoU {POINT_IOU:g} 기준 정밀도·재현율·평균 IoU ({scope})"
+    figures = {
+        "fold_metrics": plot_fold_metrics(
+            summaries, ap_metrics, title=f"fold 점수 ({scope})", order=order
+        ),
+    }
+    if point:
+        figures["point_metrics"] = plot_fold_metrics(
+            summaries, point, title=point_title, order=order
+        )
+    if confusion:
+        figures["confusion"] = plot_fold_metrics(
+            summaries,
+            confusion,
+            title=f"닮은 약 쌍 혼동 횟수, 낮을수록 좋음 ({scope})",
+            order=order,
+            counts=True,
+        )
+    figures["per_class"] = plot_per_class_ap(
+        per_class, groups, title=f"클래스별 AP75-95 (괄호는 bbox 수, {scope})", order=order
+    )
+    if save_dir is not None:
+        for name, fig in figures.items():
+            save_figure(fig, Path(save_dir) / f"{name}.png", dpi=120)
+    return figures
+
+
 def predict_test(
     weights: str | Path,
     label_version: str,
@@ -169,27 +359,8 @@ def predict_test(
     저장 위치는 <runs_dir>/<exp>/results/<가중치 run 이름>_test_pred.csv.
     입력은 이미지 경로뿐이고 메타데이터는 쓰지 않는다. 제출 csv는 to_submission으로 바꾼다.
     """
-    class_map = load_class_map(label_version)
-    to_category = dict(zip(class_map["yolo_idx"], class_map["category_id"], strict=True))
     test_dir = yolo_dir(label_version) / "images" / "test"
-    model = YOLO(weights)
-    rows = []
-    for result in model.predict(
-        source=str(test_dir),
-        imgsz=imgsz,
-        conf=conf,
-        iou=iou,
-        device=get_device(),
-        stream=True,
-        verbose=False,
-    ):
-        file_name = Path(result.path).name
-        boxes = result.boxes
-        for (x1, y1, x2, y2), cls, score in zip(
-            boxes.xyxy.tolist(), boxes.cls.int().tolist(), boxes.conf.tolist(), strict=True
-        ):
-            rows.append([file_name, cls, to_category[cls], x1, y1, x2 - x1, y2 - y1, score])
-    pred = pd.DataFrame(rows, columns=PRED_COLS)
+    pred = predict_boxes(YOLO(weights), test_dir, label_version, imgsz, conf, iou)
     out_path = results_dir(exp, runs_dir) / f"{Path(weights).parent.parent.name}_test_pred.csv"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     pred.to_csv(out_path, index=False, encoding="utf-8")
