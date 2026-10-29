@@ -13,5 +13,6 @@
     "notebook.source.organizeImports.ruff": "explicit"
   },
   "ruff.configurationPreference": "filesystemFirst",
-  "python-envs.defaultEnvManager": "ms-python.python:system"
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "python.terminal.useEnvFile": true
 }

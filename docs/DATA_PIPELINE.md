@@ -86,22 +86,24 @@ uv run python -m models.model_main --model yolo26m.pt --split setup30fix_v1_s42 
 
 ## 평가와 test 예측
 
-주 지표는 **mAP75-95**입니다. IoU 0.75, 0.80, 0.85, 0.90, 0.95 다섯 기준의 AP 평균으로, 박스가 알약에 꼭 맞아야 점수가 납니다. 학습 중 `best.pt` 선택과 early stopping, 실험 요약의 정렬이 모두 이 값을 씁니다. mAP50, mAP75, mAP50-95도 함께 기록합니다. 대회 지표(#33)가 정해지면 `models/evaluate.py`의 `MAIN_METRIC`을 다시 정합니다.
+주 지표는 **mAP75-95**입니다. IoU 0.75, 0.80, 0.85, 0.90, 0.95 다섯 기준의 AP 평균으로, 박스가 알약에 꼭 맞아야 점수가 납니다. 학습 중 `best.pt` 선택과 early stopping, 실험 요약의 정렬이 모두 이 값을 씁니다. mAP50, mAP75, mAP50-95도 함께 기록합니다. 대회 채점 지표 mAP@[0.75:0.95]와 같습니다.
 
 `model_main`이 학습 뒤 평가까지 하므로 보통은 직접 부르지 않습니다. 따로 돌릴 때:
 
 ```python
-from models.evaluate import evaluate_fold, predict_test, summarize_exp
+from models.evaluate import evaluate_fold, make_submission, predict_test, summarize_exp
 
 weights = "runs/base_v1/yolo11m_setup30fix_v1_s42_augon_optauto_fold0/weights/best.pt"
 evaluate_fold(weights, "v1", "setup30fix_v1_s42", fold=0, exp="base_v1")
 summarize_exp("base_v1")                      # 모델·분할·증강별 fold 평균·표준편차
 predict_test(weights, "v1", exp="base_v1")    # test 842장 예측
+make_submission(weights, "v1", exp="base_v1")  # test 예측 → 제출 csv
 ```
 
-- 결과는 `runs/<exp>/results/`에 저장됩니다. Drive에 학습했다면 세 함수 모두 `runs_dir=`에 같은 Drive 경로를 넘깁니다.
+- 결과는 `runs/<exp>/results/`에 저장됩니다. Drive에 학습했다면 모든 함수의 `runs_dir=`에 같은 Drive 경로를 넘깁니다.
 - `evaluate_fold`: 클래스별 AP(AP50, AP50-95, AP75-95), 클래스 그룹(bbox 21개 이상 / 6–20 / 5개 이하)별 평균 AP75-95, 닮은 약 3쌍의 혼동 수를 저장합니다.
-- `predict_test`: `category_id`와 픽셀 좌표 `[x, y, w, h]`로 되돌려 `<run 이름>_test_pred.csv`로 저장합니다. 제출 형식(#33)은 아직 정해지지 않았습니다.
+- `predict_test`: `category_id`와 픽셀 좌표 `[x, y, w, h]`로 되돌려 `<run 이름>_test_pred.csv`로 저장합니다.
+- `make_submission`: test를 예측해 제출 형식 `annotation_id, image_id, category_id, bbox_x, bbox_y, bbox_w, bbox_h, score`로 `<run 이름>_submission_conf<conf>.csv`에 저장합니다. `image_id`는 test 파일 이름의 숫자, `category_id`는 원본 JSON의 id입니다. 기본 `conf`는 0.001입니다. mAP 채점이라 점수 낮은 박스를 더해도 점수가 떨어지지 않기 때문입니다(파일 약 20MB). 터미널에서는 `uv run python -m models.evaluate --weights <best.pt> --exp <exp>`.
 
 ## 여백 검수 (v2 라벨)
 
@@ -158,4 +160,4 @@ runs/<exp>/                                         # 커밋 안 함. --runs-dir
 | `data_process/data_yaml.py` | `class_map.csv`, fold별 `train.txt`·`val.txt`·`data.yaml` |
 | `data_process/move_files.py` | 이미지 링크(안 되면 복사) |
 | `models/train.py`, `models/model_main.py` | 학습(mAP75-95로 best.pt 선택, 이어서 학습), 증강·옵티마이저 설정, 학습·평가 진입점 |
-| `models/evaluate.py` | 주 지표(`MAIN_METRIC`), 평가 집계, test 예측 |
+| `models/evaluate.py` | 주 지표(`MAIN_METRIC`), 평가 집계, test 예측, 제출 csv |
