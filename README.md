@@ -14,7 +14,7 @@
 |---|---|
 | [docs/CODE_CONVENTION.md](docs/CODE_CONVENTION.md) | 코드 컨벤션 (포맷, 이름, import, 경로·장치) |
 | [docs/GIT_CONVENTION.md](docs/GIT_CONVENTION.md) | Git 컨벤션 (커밋 메시지, 브랜치, PR) |
-| [data/README.md](data/README.md) | 데이터 폴더 구조(`raw/`, `processed/`), annotation JSON 구조 |
+| [data/README.md](data/README.md) | 데이터 폴더 구조(`raw/`, `processed/`, `external/`), 외부 데이터(AI Hub), annotation JSON 구조 |
 | [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md) | 데이터 파이프라인 사용법 (라벨 버전, 분할, 학습·평가 명령, 여백 검수) |
 | [AGENTS.md](AGENTS.md) | AI 코딩 에이전트(Codex, Claude Code) 지침 |
 
