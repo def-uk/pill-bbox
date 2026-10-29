@@ -28,6 +28,9 @@ PRED_COLS = ["file_name", "yolo_idx", "category_id", *BBOX_COLS, "conf"]
 # F1이 최대인 신뢰도에서 계산해 서로 비교할 수 없으므로 고정 기준으로 따로 센다.
 POINT_CONF = 0.5
 POINT_IOU = 0.5
+# 추론 시간: ultralytics 검증이 잰 사진 한 장당 단계별 시간(ms). 같은 장비·배치 크기에서 잰 값끼리만
+# 비교한다. postprocess에 NMS가 들어 있어 NMS 유무의 속도 차이는 이 열에서 보인다.
+SPEED_KEYS = ["preprocess", "inference", "postprocess"]
 # 대회 제출 csv 열. bbox는 원본 이미지 픽셀 기준 COCO 형식(왼쪽 위 x, y, 너비, 높이)
 SUBMISSION_COLS = [
     "annotation_id",
@@ -98,18 +101,22 @@ def match_boxes(pred: pd.DataFrame, gt: pd.DataFrame, iou_thres: float = POINT_I
 def point_metrics(
     pred: pd.DataFrame, gt: pd.DataFrame, conf: float = POINT_CONF, iou_thres: float = POINT_IOU
 ) -> dict[str, float]:
-    """신뢰도 conf 이상인 예측으로 정밀도·재현율·평균 IoU를 센다. 짝은 match_boxes로 짓는다.
+    """신뢰도 conf 이상인 예측으로 정밀도·재현율·F1·평균 IoU를 센다. 짝은 match_boxes로 짓는다.
 
     정밀도 = 약까지 맞힌 짝 / 예측 수, 재현율 = 약까지 맞힌 짝 / 정답 수,
+    F1 = 2 × 정밀도 × 재현율 / (정밀도 + 재현율),
     평균 IoU = 짝지은 쌍 전체(다른 약으로 답한 짝 포함)의 IoU 평균,
     n_wrong_class = 다른 약으로 답한 짝 수.
     """
     pred = pred[pred["conf"] >= conf]
     pairs = match_boxes(pred, gt, iou_thres)
     n_correct = int((pairs["pred_category"] == pairs["gt_category"]).sum())
+    precision = n_correct / len(pred) if len(pred) else np.nan
+    recall = n_correct / len(gt) if len(gt) else np.nan
     return {
-        "precision": n_correct / len(pred) if len(pred) else np.nan,
-        "recall": n_correct / len(gt) if len(gt) else np.nan,
+        "precision": precision,
+        "recall": recall,
+        "f1": 2 * precision * recall / (precision + recall) if precision + recall else 0.0,
         "mean_iou": float(pairs["iou"].mean()) if len(pairs) else np.nan,
         "n_wrong_class": len(pairs) - n_correct,
     }
@@ -148,6 +155,46 @@ def predict_boxes(
     return pd.DataFrame(rows, columns=PRED_COLS)
 
 
+def box_metrics(metrics: object) -> dict[str, float]:
+    """ultralytics 검증 결과에서 mAP 네 가지와 사진 한 장당 단계별 추론 시간(ms)을 꺼낸다."""
+    box = metrics.box
+    return {
+        MAIN_METRIC: map75_95(box),
+        "map50": float(box.map50),
+        "map75": float(box.map75),
+        "map50_95": float(box.map),
+        **{f"ms_{key}": float(metrics.speed[key]) for key in SPEED_KEYS},
+    }
+
+
+def supports_nms_free(weights: str | Path) -> bool:
+    """가중치에 NMS 없이 예측하는 one2one 출력층이 있는지 본다(YOLO26은 있음, YOLO11은 없음)."""
+    return getattr(YOLO(weights).model.model[-1], "one2one_cv2", None) is not None
+
+
+def evaluate_nms_free(
+    weights: str | Path, data: Path, out_dir: Path, imgsz: int, batch: int, conf: float
+) -> dict[str, float]:
+    """one2one 출력층으로 NMS 없이 검증해 box_metrics를 반환한다.
+
+    ultralytics 기본값(nms=None)은 YOLO26도 one2many 출력층 + NMS로 예측하므로 따로 잰다.
+    앞선 검증의 fuse가 쓰지 않는 출력층을 지우므로 가중치를 새로 읽는다.
+    """
+    metrics = YOLO(weights).val(
+        data=str(data),
+        imgsz=imgsz,
+        batch=batch,
+        conf=conf,
+        nms=False,
+        device=get_device(),
+        plots=False,
+        project=str(out_dir / "val"),
+        name=f"{Path(weights).parent.parent.name}_nms_free",
+        exist_ok=True,
+    )
+    return box_metrics(metrics)
+
+
 def evaluate_fold(
     weights: str | Path,
     label_version: str,
@@ -164,9 +211,11 @@ def evaluate_fold(
 
     클래스별 표: yolo_idx, category_id, dl_name, 그룹, train/val bbox 수, AP50, AP50-95, AP75-95.
     val에 없는 클래스는 AP가 NaN이고 평균에서 빠진다. conf는 confusion matrix에도 쓰인다.
-    iou는 NMS 기준이라 NMS-free 모델(YOLO26)에서는 영향이 없다.
-    요약의 precision·recall·mean_iou·n_wrong_class는 val을 따로 예측해 고정 기준
-    (POINT_CONF, POINT_IOU)으로 센 값이다(point_metrics).
+    iou는 NMS 기준이다. YOLO26도 ultralytics 기본값에서는 NMS를 거쳐 평가되므로 영향을 받는다.
+    요약의 precision·recall·f1·mean_iou·n_wrong_class는 val을 따로 예측해 고정 기준
+    (POINT_CONF, POINT_IOU)으로 센 값이다(point_metrics). ms_*는 사진 한 장당 추론 시간이다.
+    one2one 출력층이 있는 모델(YOLO26)은 NMS 없이도 검증해 NMS 사용 점수와 함께
+    <stem>_nms_free.csv(head 열: nms / nms_free)에 따로 저장한다.
     """
     class_map = load_class_map(label_version)
     labels = pd.read_csv(PROCESSED_DIR / "labels" / f"labels_{label_version}.csv")
@@ -175,6 +224,8 @@ def evaluate_fold(
     # train이 만든 <runs_dir>/<exp>/<run 이름>/weights/best.pt에서 run 이름을 가져온다.
     stem = Path(weights).parent.parent.name
     data = data_yaml_path(label_version, split_name, fold)
+    # 검증의 fuse가 one2one 출력층을 지우기 전에 확인한다
+    nms_free = supports_nms_free(weights)
     model = YOLO(weights)
     metrics = model.val(
         data=str(data),
@@ -213,16 +264,17 @@ def evaluate_fold(
     }
     val_list = yaml.safe_load(data.read_text(encoding="utf-8"))["val"]
     pred = predict_boxes(model, val_list, label_version, imgsz, conf=POINT_CONF, iou=iou)
-    summary = {
+    info = {
         "run": stem.rsplit("_fold", 1)[0],
         "weights": str(weights),
         "label_version": label_version,
         "split_name": split_name,
         "fold": fold,
-        MAIN_METRIC: map75_95(box),
-        "map50": float(box.map50),
-        "map75": float(box.map75),
-        "map50_95": float(box.map),
+    }
+    metric = box_metrics(metrics)
+    summary = {
+        **info,
+        **metric,
         **point_metrics(pred, labels[split_of == "val"]),
         **{
             f"ap75_95_{name}": float(per_class.loc[per_class["group"] == name, "ap75_95"].mean())
@@ -237,13 +289,20 @@ def evaluate_fold(
     out_dir.mkdir(parents=True, exist_ok=True)
     per_class.to_csv(out_dir / f"{stem}_per_class.csv", index=False, encoding="utf-8")
     pd.DataFrame([summary]).to_csv(out_dir / f"{stem}_summary.csv", index=False, encoding="utf-8")
+    if nms_free:
+        free = evaluate_nms_free(weights, data, out_dir, imgsz, batch, conf)
+        heads = pd.DataFrame(
+            [{**info, "head": "nms", **metric}, {**info, "head": "nms_free", **free}]
+        )
+        heads.to_csv(out_dir / f"{stem}_nms_free.csv", index=False, encoding="utf-8")
     return per_class, summary
 
 
 def summarize_exp(exp: str, runs_dir: Path = RUNS_DIR) -> pd.DataFrame:
     """fold 요약을 run(모델_분할_증강)별 평균·표준편차로 모아 summary.csv에 저장한다.
 
-    행은 주 지표(MAIN_METRIC) 평균이 높은 순이다.
+    행은 주 지표(MAIN_METRIC) 평균이 높은 순이다. NMS-free 결과(*_nms_free.csv)가 있으면
+    run·head별 평균·표준편차를 summary_nms_free.csv에 따로 저장한다.
     """
     out_dir = results_dir(exp, runs_dir)
     runs = pd.concat(
@@ -254,6 +313,12 @@ def summarize_exp(exp: str, runs_dir: Path = RUNS_DIR) -> pd.DataFrame:
     summary.insert(0, ("n_folds", "count"), runs.groupby("run")["fold"].nunique())
     summary = summary.sort_values((MAIN_METRIC, "mean"), ascending=False)
     summary.to_csv(out_dir / "summary.csv", encoding="utf-8")
+    heads = [pd.read_csv(p) for p in sorted(out_dir.glob("*_nms_free.csv"))]
+    if heads:
+        heads = pd.concat(heads, ignore_index=True)
+        numeric = heads.drop(columns=["fold"]).select_dtypes("number").columns
+        by_head = heads.groupby(["run", "head"])[list(numeric)].agg(["mean", "std"])
+        by_head.to_csv(out_dir / "summary_nms_free.csv", encoding="utf-8")
     return summary
 
 
@@ -288,7 +353,7 @@ def plot_results(
     """실험들의 fold 평가 결과를 그림 네 장으로 그려 {이름: 그림}으로 반환한다.
 
     - fold_metrics: run별 mAP75-95와 클래스 그룹별 AP75-95 (fold 점수, 평균 ± 표준편차)
-    - point_metrics: 고정 기준(POINT_CONF, POINT_IOU)의 정밀도·재현율·평균 IoU
+    - point_metrics: 고정 기준(POINT_CONF, POINT_IOU)의 정밀도·재현율·F1·평균 IoU
     - confusion: 닮은 약 쌍(CONFUSION_PAIRS)이 서로 헷갈린 횟수. 낮을수록 좋다
     - per_class: 클래스별 AP75-95 (fold 평균, fold 간 범위). 낮은 클래스가 위에 온다
     여러 실험을 넘기면 한 그림에서 비교하고, run 이름표 앞에 실험 이름을 붙인다.
@@ -313,12 +378,14 @@ def plot_results(
     ap_metrics = {MAIN_METRIC: "mAP75-95"} | {
         f"ap75_95_{g}": f"AP75-95 · bbox {g} 클래스" for g in groups
     }
-    point = {"precision": "정밀도", "recall": "재현율", "mean_iou": "평균 IoU"}
+    point = {"precision": "정밀도", "recall": "재현율", "f1": "F1", "mean_iou": "평균 IoU"}
     confusion = {f"confuse_{a}_{b}": f"{names[a]}\n↔ {names[b]}" for a, b in CONFUSION_PAIRS}
     # 이 지표가 생기기 전에 평가한 결과에는 열이 없으므로 있는 열만 그린다
     point = {col: name for col, name in point.items() if col in summaries}
     confusion = {col: name for col, name in confusion.items() if col in summaries}
-    point_title = f"conf {POINT_CONF:g} · IoU {POINT_IOU:g} 기준 정밀도·재현율·평균 IoU ({scope})"
+    point_title = (
+        f"conf {POINT_CONF:g} · IoU {POINT_IOU:g} 기준 정밀도·재현율·F1·평균 IoU ({scope})"
+    )
     figures = {
         "fold_metrics": plot_fold_metrics(
             summaries, ap_metrics, title=f"fold 점수 ({scope})", order=order
