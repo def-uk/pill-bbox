@@ -31,8 +31,9 @@ data/
 
 - 출처: [AI Hub 경구약제 이미지 데이터](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=data&dataSetSn=576)(dataSetSn=576) 중 조합 데이터.
   `TL_2`(라벨)와 그 원천 `TS_2`(이미지)는 쓰지 않습니다.
-- zip은 `notebooks/colab.ipynb` 7번 셀(AI Hub API, `.env`의 `AI_HUB_API_KEY`)로 팀 Google Drive의
-  `code_it/pillbbox/aihub_pill/` 폴더에 받아 그대로 둡니다. AI Hub 약관상 팀원에게만 공유합니다.
+- zip은 팀 Google Drive의 `code_it/pillbbox/aihub_pill/` 폴더에 받은 그대로 둡니다. AI Hub 약관상 팀원에게만 공유합니다.
+  AI Hub는 해외 IP 다운로드를 막으므로 Colab에서는 받을 수 없고, 국내 PC에서 AI Hub API(`.env`의
+  `AI_HUB_API_KEY`)로 받아 Google Drive 데스크톱의 이 폴더에 넣습니다. 팀에서 한 번만 받습니다.
 - `notebooks/02_eda.ipynb`가 zip을 찾아 `external/aihub_combo/<zip 이름>/`에 풉니다(`data_process/aihub_data.py`).
   Colab은 Drive를 마운트해 읽고, 로컬은 `.env`의 `AIHUB_ZIP_DIR`에서 읽습니다.
 - JSON 구조는 아래 스키마와 같습니다. 대회 데이터와 같은 로더(`load_annotations`)로 읽습니다.
