@@ -321,7 +321,10 @@ LABEL_VERSIONS = {
     "raw": (),
     "v1": ("kwon_added:", "kwon_fixed:", "jjam_capsule:"),
     "v2": ("kwon_added:", "kwon_fixed:", "jjam_capsule:", "grabcut_pad:"),
+    "v2auto": ("kwon_added:", "kwon_fixed:", "jjam_capsule:", "grabcut_pad:"),
 }
+# 여백 보정을 검수 없이 적용하는 실험용 버전. 미검수 후보도 모두 줄이고, 거부한 행만 뺀다.
+UNREVIEWED_PADDING_VERSIONS = {"v2auto"}
 # 여백 보정(v2) 후보 기준: GrabCut 몸체 대비 여백 비율이 이 이상인 박스 (계획 결정 4, 10%로 조정)
 PADDING_MIN = 0.10
 # 사람이 채우는 여백 검수표. 최상위 csv라 팀이 검수 결과를 커밋해 공유할 수 있다.
@@ -427,8 +430,13 @@ def make_label_version(
     # 접두어가 없으면(raw) startswith(())가 모두 False라 기록을 하나도 고르지 않는다.
     selected = corrections[corrections["correction_id"].str.startswith(LABEL_VERSIONS[version])]
     # 여백 보정은 검수표에서 승인한 것만 쓴다. 미검수·거부는 오류가 아니라 적용 대상이 아니다.
-    pending = (selected["stage"] == "여백 보정") & ~selected["reviewed"].eq(True)
-    selected = selected[~pending]
+    padding = selected["stage"] == "여백 보정"
+    if version in UNREVIEWED_PADDING_VERSIONS:
+        # 거부한 행만 빼고, 미검수 행은 승인한 것처럼 적용한다. corrections.csv에는 미검수로 남는다.
+        selected = selected[~(padding & selected["reviewed"].eq(False))].copy()
+        selected.loc[selected["stage"] == "여백 보정", "reviewed"] = True
+    else:
+        selected = selected[~(padding & ~selected["reviewed"].eq(True))]
     labels, log = apply_corrections(ann_df, selected)
     failed = log[log["status"] != "적용"]
     if not failed.empty:
