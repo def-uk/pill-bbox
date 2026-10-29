@@ -37,6 +37,8 @@ data/
 - `notebooks/02_eda.ipynb`가 zip을 찾아 `external/aihub_combo/<zip 이름>/`에 풉니다(`data_process/aihub_data.py`).
   Colab은 Drive를 마운트해 읽고, 로컬은 `.env`의 `AIHUB_ZIP_DIR`에서 읽습니다.
 - JSON 구조는 아래 스키마와 같습니다. 대회 데이터와 같은 로더(`load_annotations`)로 읽습니다.
+  단, AI Hub 원본은 `category_id`가 모두 1(`Drug`)이라 `load_combo_annotations`가 대회 데이터처럼
+  `drug_N`의 숫자(K-001900 → 1900)로 바꿉니다. `dl_idx`는 약 코드보다 1 작아 클래스로 쓰지 않습니다.
 - 지금은 EDA용입니다. 학습 데이터(`data_main`)에는 아직 넣지 않습니다.
 
 ## Annotations (JSON 파일 구조)

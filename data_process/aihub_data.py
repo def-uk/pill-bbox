@@ -133,6 +133,8 @@ def load_combo_annotations(dirs: list[Path]) -> tuple[pd.DataFrame, pd.DataFrame
 
     load_annotations와 같은 형식이고, source_json 앞에 zip 폴더 이름을 붙이고 zip_name 열을 더한다.
     JSON이 없는 폴더(원천 이미지 zip)는 빈 표가 되어 결과에 영향이 없다.
+    AI Hub 원본은 category_id가 모두 1(Drug)이라, 대회 데이터와 같이 drug_N의 숫자
+    (K-001900 → 1900)로 바꾸고 category_name은 dl_name으로 둔다. 원래 값은 category_id_raw에 남긴다.
     """
     ann_dfs, error_dfs = [], []
     for folder in dirs:
@@ -142,10 +144,13 @@ def load_combo_annotations(dirs: list[Path]) -> tuple[pd.DataFrame, pd.DataFrame
                 df["source_json"] = folder.name + "/" + df["source_json"]
         ann_dfs.append(ann_df.assign(zip_name=folder.name) if not ann_df.empty else ann_df)
         error_dfs.append(error_df)
-    return (
-        pd.concat(ann_dfs, ignore_index=True),
-        pd.concat(error_dfs, ignore_index=True).astype({"excluded": bool}),
-    )
+    ann_df = pd.concat(ann_dfs, ignore_index=True)
+    if not ann_df.empty:
+        ann_df["category_id_raw"] = ann_df["category_id"]
+        drug_no = ann_df["drug_N"].astype(str).str.removeprefix("K-")
+        ann_df["category_id"] = pd.to_numeric(drug_no, errors="coerce").astype("Int64")
+        ann_df["category_name"] = ann_df["dl_name"]
+    return ann_df, pd.concat(error_dfs, ignore_index=True).astype({"excluded": bool})
 
 
 def list_combo_images(dirs: list[Path]) -> pd.DataFrame:
