@@ -17,13 +17,25 @@ data/
 │   ├── splits/                 # train/val 분할 (fold별)
 │   ├── yolo/                   # YOLO 학습 입력 (images, labels, data.yaml)
 │   └── ...                     # padding/, results/, predictions/
+├── external/                   # 외부 데이터를 푼 폴더 (아래 "외부 데이터")
+│   └── aihub_combo/<zip 이름>/ # AI Hub 경구약제 조합 데이터
 └── README.md
 ```
 
-`raw/`와 `processed/`는 Git에서 제외합니다. 단, `processed/` 바로 아래의 csv(보정 기록,
+`raw/`, `processed/`, `external/`은 Git에서 제외합니다. 단, `processed/` 바로 아래의 csv(보정 기록,
 검수표)는 팀 공유를 위해 커밋할 수 있습니다. 원본은 `raw/`에서 읽기만 하고, 원본 JSON을
 고치지 않고 보정 기록으로 라벨 버전을 만듭니다. 만드는 방법과 각 파일의 뜻은
 [docs/DATA_PIPELINE.md](../docs/DATA_PIPELINE.md)를 참고하세요.
+
+## 외부 데이터 (AI Hub 경구약제 조합)
+
+- 출처: [AI Hub 경구약제 이미지 데이터](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=data&dataSetSn=576)(dataSetSn=576) 중 조합 데이터.
+  `TL_2`(라벨)와 그 원천 `TS_2`(이미지)는 쓰지 않습니다.
+- 받은 zip은 팀 Google Drive의 `aihub_pill/` 폴더에 그대로 둡니다. AI Hub 약관상 팀원에게만 공유합니다.
+- `notebooks/02_eda.ipynb`가 zip을 찾아 `external/aihub_combo/<zip 이름>/`에 풉니다(`data_process/aihub_data.py`).
+  Colab은 Drive를 마운트해 읽고, 로컬은 `.env`의 `AIHUB_ZIP_DIR`에서 읽습니다.
+- JSON 구조는 아래 스키마와 같습니다. 대회 데이터와 같은 로더(`load_annotations`)로 읽습니다.
+- 지금은 EDA용입니다. 학습 데이터(`data_main`)에는 아직 넣지 않습니다.
 
 ## Annotations (JSON 파일 구조)
 

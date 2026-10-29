@@ -15,9 +15,9 @@ AI 코딩 에이전트(Codex, Claude Code 등)가 이 저장소에서 작업할 
 | 경로 | 역할 |
 |---|---|
 | `src/config.py` | 공통 설정: `PROJECT_ROOT`, `RUNS_DIR`, `get_device()`, `init_wandb()` |
-| `data_process/` | 데이터 파이프라인. 진입점 `data_main.py`, 보정·라벨 버전(`make_labels.py`), 분할(`split.py`), 이미지 링크(`move_files.py`), `data.yaml` 생성(`data_yaml.py`) |
+| `data_process/` | 데이터 파이프라인. 진입점 `data_main.py`, 보정·라벨 버전(`make_labels.py`), 분할(`split.py`), 이미지 링크(`move_files.py`), `data.yaml` 생성(`data_yaml.py`). AI Hub 외부 데이터 풀기·읽기(`aihub_data.py`) |
 | `models/` | 학습(`train.py`, 진입점 `model_main.py`), 평가·test 예측(`evaluate.py`), 튜닝(`tuning.py`, optuna) |
-| `data/` | `raw/`는 원본 이미지·JSON, `processed/`는 파이프라인 산출물·보정 기록. `processed/` 바로 아래 csv만 커밋 가능 |
+| `data/` | `raw/`는 원본 이미지·JSON, `processed/`는 파이프라인 산출물·보정 기록, `external/`은 외부 데이터(AI Hub)를 푼 곳. `processed/` 바로 아래 csv만 커밋 가능 |
 | `runs/` | 학습 결과(ultralytics)와 평가 결과(`runs/<exp>/results/`). 커밋되지 않음. Colab에서는 `--runs-dir`로 Drive에 둠 |
 | `scripts/` | 개발 보조 스크립트. `md_lock.py`는 md 문서 잠금 |
 | `notebooks/` | 탐색·시각화 노트북 |
