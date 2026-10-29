@@ -40,6 +40,12 @@ data/processed/yolo/v1/splits/setup30fix_v1_s42/fold_4/data.yaml
 | `raw` | 원본 그대로 (763개, 이미지 밖 박스 1개는 YOLO 변환에서 빠짐) | 보정 효과를 재는 비교 기준 |
 | `v1` | 라벨 누락 8개 추가, 위치 수정 5개(kwon), 19232 잘린 캡슐 확대 (771개) | **기본 학습 라벨** |
 | `v2` | v1 + 여백 검수표에서 **승인한** 박스만 알약 몸체에 맞게 줄임 | 여백 기준 실험. 승인이 0건이면 v1과 같음 |
+| `v2auto` | v1 + 여백 검수표의 후보를 **검수 없이** 모두 줄임(`거부`한 행만 뺌). 지금 751개, 면적 평균 0.88배 | 여백 축소 효과를 미리 보는 실험용. 기본 라벨로 쓰지 않음 |
+
+`v2auto`를 v1과 비교할 때는 두 가지를 지킵니다.
+
+- 분할은 `combo_v2auto_s42`를 씁니다. fold 구성이 `combo_v1_s42`와 같습니다. `setup30fix`는 박스 위치로 묶음을 정하므로 fold마다 23–78장이 v1과 다릅니다.
+- v2auto로 학습한 `best.pt`도 **v1 라벨로 평가**합니다(`evaluate_fold(weights, "v1", "combo_v1_s42", fold=k, ...)`). 줄인 박스로 잰 검증 점수는 여백이 있는 정답 기준의 점수와 비교할 수 없습니다.
 
 보정은 원본 JSON을 고치지 않고 `data/processed/corrections.csv`(보정 기록)로 적용합니다. 기록마다 "지금 박스가 기록의 이전 좌표와 같을 때만" 적용되므로 잘못된 기록이 조용히 섞이지 않습니다.
 
@@ -102,6 +108,11 @@ make_submission(weights, "v1", exp="base_v1")  # test 예측 → 제출 csv
 
 - 결과는 `runs/<exp>/results/`에 저장됩니다. Drive에 학습했다면 모든 함수의 `runs_dir=`에 같은 Drive 경로를 넘깁니다.
 - `evaluate_fold`: 클래스별 AP(AP50, AP50-95, AP75-95), 클래스 그룹(bbox 21개 이상 / 6–20 / 5개 이하)별 평균 AP75-95, 닮은 약 3쌍의 혼동 수를 저장합니다.
+  - 고정 기준(신뢰도 0.5 이상 예측, 정답과 IoU 0.5 이상이면 짝)으로 센 정밀도·재현율·F1·평균 IoU(`precision`, `recall`, `f1`, `mean_iou`)도 저장합니다. 기준이 고정이라 실험끼리 바로 비교할 수 있습니다.
+  - 사진 한 장당 시간(ms) `ms_preprocess`, `ms_inference`, `ms_postprocess`도 저장합니다. NMS 시간은 `ms_postprocess`에 들어 있습니다. 같은 장비·배치 크기에서 잰 값끼리만 비교합니다.
+  - YOLO26처럼 NMS 없는 출력층이 있는 모델은 `nms=False`로 한 번 더 평가해 `<run 이름>_nms_free.csv`에 NMS 사용(`nms`)·미사용(`nms_free`) 두 행으로 저장합니다. ultralytics 기본값에서는 **YOLO26도 NMS를 거쳐** 학습 중 검증·평가·제출 예측을 하므로, 주 지표 비교(`summary.csv`)는 두 모델 모두 NMS를 쓴 값입니다.
+- `summarize_exp`: fold 요약을 run별 평균·표준편차로 모아 `summary.csv`에, NMS-free 결과가 있으면 run·head별로 `summary_nms_free.csv`에 저장합니다.
+- `plot_results`: fold 점수, 정밀도·재현율·F1·평균 IoU, 닮은 약 혼동, 클래스별 AP75-95 그림을 그립니다. `model_main`은 실험 끝에 `results/plots/`에 저장합니다.
 - `predict_test`: `category_id`와 픽셀 좌표 `[x, y, w, h]`로 되돌려 `<run 이름>_test_pred.csv`로 저장합니다.
 - `make_submission`: test를 예측해 제출 형식 `annotation_id, image_id, category_id, bbox_x, bbox_y, bbox_w, bbox_h, score`로 `<run 이름>_submission_conf<conf>.csv`에 저장합니다. `image_id`는 test 파일 이름의 숫자, `category_id`는 원본 JSON의 id입니다. 기본 `conf`는 0.001입니다. mAP 채점이라 점수 낮은 박스를 더해도 점수가 떨어지지 않기 때문입니다(파일 약 20MB). 터미널에서는 `uv run python -m models.evaluate --weights <best.pt> --exp <exp>`.
 
