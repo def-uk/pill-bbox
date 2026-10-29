@@ -11,6 +11,7 @@ import zipfile
 from collections.abc import Iterable
 from pathlib import Path
 
+import gdown
 import pandas as pd
 
 from data_process.data_processing import IMG_EXTS, load_annotations
@@ -31,6 +32,19 @@ def zip_key(path: Path) -> str | None:
     """zip 이름의 구분자(TL_2 등)를 반환한다. 형식이 다르면 None."""
     match = ZIP_KEY.match(_nfc(path.stem))
     return match.group(1) if match else None
+
+
+def download_drive_folder(url: str, out_dir: Path) -> Path:
+    """Google Drive 공유 폴더의 파일을 out_dir에 받고 out_dir을 반환한다.
+
+    폴더는 "링크가 있는 모든 사용자"로 공유되어 있어야 한다. 이미 받은 파일은 건너뛰고,
+    끊긴 파일은 이어 받는다. AI Hub는 해외 IP 다운로드를 막아 Colab에서는 이 방법으로 받는다.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    # output 끝에 경로 구분자가 없어야 Drive 폴더 이름의 하위 폴더 없이 out_dir에 바로 받는다
+    gdown.download_folder(url=url, output=str(out_dir), quiet=False, resume=True)
+    return out_dir
 
 
 def find_combo_zips(zip_dir: Path, exclude: Iterable[str] = ("TL_2",)) -> list[Path]:
