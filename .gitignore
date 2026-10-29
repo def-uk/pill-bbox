@@ -243,6 +243,8 @@ wandb/
 data/raw/
 data/processed/*
 !data/processed/*.csv
+# 외부 데이터(AI Hub 등)를 푼 폴더
+data/external/
 
 
 # md 잠금 해제 표시 (scripts/md_lock.py)
