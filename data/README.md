@@ -31,7 +31,8 @@ data/
 ## 외부 데이터 (AI Hub 경구약제 조합)
 
 - 출처: [AI Hub 경구약제 이미지 데이터](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=data&dataSetSn=576)(dataSetSn=576) 중 조합 데이터.
-  `TL_2`(라벨)와 그 원천 `TS_2`(이미지)는 쓰지 않습니다.
+  `TL_2`(라벨)와 그 원천 `TS_2`(이미지)는 쓰지 않습니다. 검증용(`VL_1`·`VS_1`)은 `VS_1`이 팀 Drive에
+  올라오기 전까지 `02_eda.ipynb`의 `EXCLUDE`로 뺍니다.
 - zip은 팀 Google Drive의 `code_it/pillbbox/aihub_pill/` 폴더에 받은 그대로 둡니다. AI Hub 약관상 팀원에게만 공유합니다.
   AI Hub는 해외 IP 다운로드를 막으므로 Colab에서는 받을 수 없고, 국내 PC에서 AI Hub API(`.env`의
   `AI_HUB_API_KEY`)로 받아 Google Drive 데스크톱의 이 폴더에 넣습니다. 팀에서 한 번만 받습니다.
