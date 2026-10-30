@@ -59,7 +59,7 @@ WANDB_MODE=disabled uv run python -m models.model_main --model yolo11m.pt yolo26
 
 - 학습 데이터는 `data_process.data_main`으로만 만듭니다. 라벨 txt, `data.yaml`, 분할 목록을 손으로 만들거나 노트북에서 따로 만들지 않습니다. 노트북은 `data_process.data_yaml.data_yaml_path(라벨 버전, 분할, fold)`로 경로를 받아 씁니다.
 - 기본 라벨은 `v1`, 기본 분할은 `combo_v1_s42`와 `setup30fix_v1_s42`입니다. 분할 이름 형식은 `<단위>_<라벨 버전>_s<seed>`이고 라벨 버전과 맞아야 합니다.
-- 라벨을 고쳐야 하면 원본 JSON이나 `labels_*.csv`를 직접 고치지 않습니다. 보정 기록(`make_labels.py`의 기록 생성 함수, `data/processed/*.csv`)을 바꾸고 다시 실행합니다. 새 보정은 `reviewed`(사람 검수)가 있어야 적용됩니다.
+- 라벨을 고쳐야 하면 원본 JSON이나 `labels_*.csv`를 직접 고치지 않습니다. 보정 기록(`make_labels.py`의 기록 생성 함수, `data/processed/*.csv`)을 바꾸고 다시 실행합니다. 새 보정은 `reviewed`(사람 검수)가 있어야 적용됩니다. 예외는 실험용 `v2auto`(미검수 여백 보정을 적용, `UNREVIEWED_PADDING_VERSIONS`)뿐입니다.
 - 여백 검수표 `data/processed/padding_review.csv`의 `decision`(승인/거부)은 사람이 채웁니다. 에이전트가 대신 승인하지 않습니다.
 - `data.yaml`과 txt 목록에는 그 PC의 절대 경로가 들어갑니다. 다른 PC·Colab으로 복사하지 말고 그곳에서 다시 실행합니다.
 - 모델 비교는 한 fold 점수가 아니라 같은 분할의 5 fold 평균·표준편차로 합니다. 주 지표는 대회 채점 지표와 같은 mAP75-95(`models/evaluate.py`의 `MAIN_METRIC`)입니다. 학습은 전체 파인튜닝(`freeze` 없음)이 기본이고, 증강은 `--aug on off`, 옵티마이저는 `--optimizer`(기본 `auto` = AdamW)로 비교합니다.
@@ -78,7 +78,7 @@ WANDB_MODE=disabled uv run python -m models.model_main --model yolo11m.pt yolo26
 | 항목 | 기본값 | 인자 | 비고 |
 |---|---|---|---|
 | 모델 | `yolo11m.pt`, `yolo26m.pt` | `--model` | 후보 비교 중. 전체 파인튜닝(`freeze` 없음) |
-| 라벨 | `v1` | `--label` | `v2`는 여백 검수 승인분이 있을 때만 의미 있음 |
+| 라벨 | `v1` | `--label` | `v2`는 여백 검수 승인분이 있을 때만 의미 있음. `v2auto`(검수 없이 여백 축소)는 실험용이고 v1 라벨로 평가 |
 | 분할 | `setup30fix_v1_s42`, `combo_v1_s42` | `--split` | 어느 분할로 고를지 사용자에게 확인. 비교는 5 fold 전부 |
 | epochs | 100 | `--epochs` | 필수 인자 |
 | 이미지 크기 / 배치 | 640 / 16 | `--imgsz`, `--batch` | GPU 메모리가 부족하면 배치를 줄임 |
