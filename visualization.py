@@ -1,4 +1,6 @@
+import importlib.util
 import math
+import subprocess
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 
@@ -8,18 +10,46 @@ import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
+from matplotlib.ticker import MaxNLocator
 from PIL import Image
 
 # 먼저 찾는 순서: Windows → Mac → Linux(나눔) → Linux(Noto)
 KOREAN_FONTS = ["Malgun Gothic", "AppleGothic", "NanumGothic", "Noto Sans CJK KR"]
-# WSL에서는 Windows 폰트 파일을 직접 등록해야 matplotlib이 찾는다.
+# 파일로 직접 등록할 폰트. matplotlib이 폰트 목록을 만든 뒤 설치된 폰트도 이렇게 해야 찾는다.
 WSL_MALGUN = Path("/mnt/c/Windows/Fonts/malgun.ttf")
+NANUM_GOTHIC = Path("/usr/share/fonts/truetype/nanum/NanumGothic.ttf")  # apt fonts-nanum
+
+# 지표 차트 색. 범주 색은 이 순서대로만 쓴다(세 색은 색각 이상에서도 서로 구별되는 조합).
+# 세 번째 색은 흰 바탕 대비가 낮아 모양(GROUP_MARKERS)과 범례를 함께 쓴다.
+SERIES_COLORS = ["#2a78d6", "#eb6834", "#1baf7a"]
+GROUP_MARKERS = ["o", "s", "^"]
+INK = "#0b0b0b"
+INK_SECONDARY = "#52514e"
+INK_MUTED = "#898781"
+GRID_COLOR = "#e1e0d9"
+AXIS_COLOR = "#c3c2b7"
+
+
+def install_colab_font() -> None:
+    """Colab에서 나눔 폰트(fonts-nanum)가 없으면 apt로 설치한다. Colab이 아니면 아무것도 안 한다."""
+    if NANUM_GOTHIC.exists() or importlib.util.find_spec("google.colab") is None:
+        return
+    result = subprocess.run(
+        ["apt-get", "install", "-y", "-qq", "fonts-nanum"], capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        print(f"fonts-nanum 설치 실패: {result.stderr.strip()}")
 
 
 def set_korean_font() -> str | None:
-    """설치된 한글 폰트를 matplotlib 기본 폰트로 정하고 그 이름을 반환한다. 없으면 None."""
-    if WSL_MALGUN.exists():
-        fm.fontManager.addfont(str(WSL_MALGUN))
+    """설치된 한글 폰트를 matplotlib 기본 폰트로 정하고 그 이름을 반환한다. 없으면 None.
+
+    Colab에서는 나눔 폰트를 먼저 설치하므로 런타임을 다시 시작하지 않아도 한글이 보인다.
+    """
+    install_colab_font()
+    for font_file in [WSL_MALGUN, NANUM_GOTHIC]:
+        if font_file.exists():
+            fm.fontManager.addfont(str(font_file))
     installed = {f.name for f in fm.fontManager.ttflist}
     # 한글 폰트에서 마이너스 기호가 깨지지 않게 한다.
     plt.rcParams["axes.unicode_minus"] = False
@@ -152,3 +182,143 @@ def save_figure(fig: Figure, path: Path, dpi: int = 100) -> None:
     # JPEG는 품질을 조금 낮춰 크기를 줄인다. 차트는 PNG로 두어 선과 글자를 선명하게 유지한다.
     pil_kwargs = {"quality": 85} if path.suffix.lower() in {".jpg", ".jpeg"} else None
     fig.savefig(path, dpi=dpi, bbox_inches="tight", facecolor="white", pil_kwargs=pil_kwargs)
+
+
+def style_metric_axis(ax: Axes) -> None:
+    """지표 차트 축에서 옅은 세로 격자와 아래 축선만 남긴다."""
+    ax.grid(axis="x", color=GRID_COLOR, lw=0.8)
+    ax.set_axisbelow(True)
+    for side in ["top", "right", "left"]:
+        ax.spines[side].set_visible(False)
+    ax.spines["bottom"].set_color(AXIS_COLOR)
+    ax.tick_params(colors=INK_SECONDARY, labelsize=8, length=0)
+
+
+def plot_fold_metrics(
+    folds: pd.DataFrame,
+    metrics: dict[str, str],
+    label_col: str = "label",
+    title: str | None = None,
+    order: Sequence[str] | None = None,
+    counts: bool = False,
+) -> Figure:
+    """run별 fold 점수(점)와 평균 ± 표준편차를 지표마다 한 칸씩 나란히 그린다.
+
+    folds는 run × fold 한 행에 지표 열이 있는 표이고, metrics는 {열 이름: 칸 제목}이다.
+    run은 order 순서로 위에서부터 놓는다. 생략하면 첫 지표의 평균이 높은 순이다.
+    지표는 0 이상이라 표준편차 막대는 0에서 자른다. counts=True면 횟수로 보고 정수 눈금을 쓴다.
+    """
+    first = next(iter(metrics))
+    if order is None:
+        order = folds.groupby(label_col)[first].mean().sort_values(ascending=False).index
+    labels = list(order)
+    n = len(labels)
+    fig, axes = plt.subplots(
+        1,
+        len(metrics),
+        figsize=(2.5 + 2.6 * len(metrics), 1.2 + 0.6 * n),
+        sharey=True,
+        squeeze=False,
+    )
+    rows = folds[label_col].map({label: i for i, label in enumerate(labels)})
+    for ax, (col, name) in zip(axes[0], metrics.items(), strict=True):
+        ax.scatter(folds[col], rows, s=36, color=SERIES_COLORS[0], alpha=0.5, lw=0, label="fold")
+        stats = folds.groupby(label_col)[col].agg(["mean", "std"]).reindex(labels)
+        std = stats["std"].fillna(0)
+        ax.errorbar(
+            stats["mean"],
+            range(n),
+            xerr=[std.clip(upper=stats["mean"]).to_numpy(), std.to_numpy()],
+            fmt="D",
+            ms=5,
+            color=INK,
+            elinewidth=1.5,
+            capsize=3,
+            label="평균 ± 표준편차",
+        )
+        for i, mean in enumerate(stats["mean"]):
+            if pd.notna(mean):
+                ax.annotate(
+                    f"{mean:.1f}" if counts else f"{mean:.3f}",
+                    (mean, i),
+                    xytext=(0, 6),
+                    textcoords="offset points",
+                    ha="center",
+                    fontsize=7,
+                    color=INK_SECONDARY,
+                )
+        ax.set_title(name, fontsize=9, color=INK)
+        ax.margins(x=0.15)
+        if not folds[col].max() > 0:  # 모두 0(또는 값 없음)이면 축이 0 둘레로만 잡힌다
+            ax.set_xlim(-0.05, 1)
+        if counts:
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        style_metric_axis(ax)
+    axes[0, 0].set_yticks(range(n), labels, fontsize=8, color=INK)
+    axes[0, 0].set_ylim(n - 0.4, -0.7)  # 첫 run이 맨 위. 위쪽은 평균 값 글자 자리
+    handles, names = axes[0, 0].get_legend_handles_labels()
+    fig.legend(handles, names, loc="lower right", ncol=2, frameon=False, fontsize=8)
+    if title:
+        fig.suptitle(title, x=0.01, ha="left", fontsize=11, color=INK)
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    return fig
+
+
+def plot_per_class_ap(
+    per_class: pd.DataFrame,
+    groups: Sequence[str],
+    label_col: str = "label",
+    title: str | None = None,
+    order: Sequence[str] | None = None,
+) -> Figure:
+    """클래스별 AP75-95의 fold 평균(점)과 fold 간 최소–최대(선)를 run마다 한 칸씩 그린다.
+
+    per_class는 run × fold × 클래스 한 행에 category_id, dl_name, group, n_bbox, ap75_95 열이
+    있는 표다. 색과 모양은 클래스 그룹(groups 순서)이다. 클래스는 모든 run의 평균이 낮은 순으로
+    위에서부터 놓고, 어느 fold의 val에도 없던 클래스는 맨 아래에 둔다. run 칸은 order 순서이고,
+    생략하면 클래스 평균이 높은 순이다.
+    """
+    stats = per_class.groupby([label_col, "category_id"])["ap75_95"].agg(["mean", "min", "max"])
+    classes = per_class.drop_duplicates("category_id").set_index("category_id")
+    class_mean = stats.groupby("category_id")["mean"].mean().reindex(classes.index)
+    classes = classes.loc[class_mean.sort_values().index]
+    if order is None:
+        order = stats.groupby(label_col)["mean"].mean().sort_values(ascending=False).index
+    labels = list(order)
+    n = len(classes)
+    fig, axes = plt.subplots(
+        1,
+        len(labels),
+        figsize=(3 + 3.2 * len(labels), 1.6 + 0.2 * n),
+        sharey=True,
+        squeeze=False,
+    )
+    rows = pd.Series(range(n), index=classes.index)
+    for ax, label in zip(axes[0], labels, strict=True):
+        run = stats.loc[label].reindex(classes.index)
+        for group, color, marker in zip(groups, SERIES_COLORS, GROUP_MARKERS, strict=False):
+            part = run[classes["group"] == group]
+            ax.hlines(rows[part.index], part["min"], part["max"], color=color, lw=2, alpha=0.4)
+            ax.scatter(
+                part["mean"],
+                rows[part.index],
+                s=30,
+                color=color,
+                marker=marker,
+                zorder=3,
+                label=f"bbox {group}",
+            )
+        for i in rows[run["mean"].isna()]:
+            ax.text(0.01, i, "val에 없음", va="center", fontsize=7, color=INK_MUTED)
+        ax.set_xlim(-0.03, 1)  # 0점 표시가 축 경계에 잘리지 않게 조금 띄운다
+        ax.set_title(label, fontsize=9, color=INK)
+        style_metric_axis(ax)
+    names = [f"{row.dl_name.strip()} ({row.n_bbox})" for row in classes.itertuples()]
+    axes[0, 0].set_yticks(range(n), names, fontsize=7, color=INK)
+    axes[0, 0].set_ylim(n - 0.5, -0.5)
+    handles, group_names = axes[0, 0].get_legend_handles_labels()
+    fig.legend(handles, group_names, loc="lower right", ncol=len(groups), frameon=False, fontsize=8)
+    if title:
+        fig.suptitle(title, x=0.01, ha="left", fontsize=11, color=INK)
+    fig.tight_layout(rect=(0, 0.02, 1, 1))
+    return fig

@@ -241,10 +241,16 @@ wandb/
 
 
 data/raw/
-data/processed/
+data/processed/*
+!data/processed/*.csv
+# 외부 데이터(AI Hub 등)를 푼 폴더
+data/external/
+
 
 # md 잠금 해제 표시 (scripts/md_lock.py)
 .md_unlocked
 
 # Claude Code 개인 설정
 CLAUDE.local.md
+# oh-my-claudecode 도구 상태 (세션마다 바뀜)
+.omc/

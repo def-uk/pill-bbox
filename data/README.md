@@ -8,14 +8,41 @@ data/
 │   ├── train_images/
 │   ├── train_annotations/
 │   └── test_images/
-├── processed/                  # 원본과 분리한 가공 결과
-│   ├── corrected_annotations/  # bbox 수정본 JSON
-│   └── correction_records/     # 수정 전후 좌표와 근거
+├── processed/                  # 원본과 분리한 가공 결과 (데이터 파이프라인이 만듦)
+│   ├── added_annotations.csv   # 라벨 누락 추가 기록 (kwon)
+│   ├── fixed_annotations.csv   # 위치 수정 기록 (kwon)
+│   ├── corrections.csv         # 통합 보정 기록 (수정 전후 좌표와 근거)
+│   ├── padding_review.csv      # 여백 검수표
+│   ├── labels/                 # 라벨 버전 (raw, v1, v2, v2auto)
+│   ├── splits/                 # train/val 분할 (fold별)
+│   ├── yolo/                   # YOLO 학습 입력 (images, labels, data.yaml)
+│   └── ...                     # padding/, results/, predictions/
+├── external/                   # 외부 데이터를 푼 폴더 (아래 "외부 데이터")
+│   ├── aihub_zips/             # 팀 Drive에서 받은 AI Hub zip
+│   └── aihub_combo/<zip 이름>/ # 그 zip을 푼 AI Hub 경구약제 조합 데이터
 └── README.md
 ```
 
-`raw/`와 `processed/`는 Git에서 제외합니다. 원본은 `raw/`에서 읽기만 하고, 수정본과
-수정 기록은 `processed/`에 저장합니다.
+`raw/`, `processed/`, `external/`은 Git에서 제외합니다. 단, `processed/` 바로 아래의 csv(보정 기록,
+검수표)는 팀 공유를 위해 커밋할 수 있습니다. 원본은 `raw/`에서 읽기만 하고, 원본 JSON을
+고치지 않고 보정 기록으로 라벨 버전을 만듭니다. 만드는 방법과 각 파일의 뜻은
+[docs/DATA_PIPELINE.md](../docs/DATA_PIPELINE.md)를 참고하세요.
+
+## 외부 데이터 (AI Hub 경구약제 조합)
+
+- 출처: [AI Hub 경구약제 이미지 데이터](https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=data&dataSetSn=576)(dataSetSn=576) 중 조합 데이터.
+  `TL_2`(라벨)와 그 원천 `TS_2`(이미지)는 쓰지 않습니다. 검증용(`VL_1`·`VS_1`)은 `VS_1`이 팀 Drive에
+  올라오기 전까지 `02_eda.ipynb`의 `EXCLUDE`로 뺍니다.
+- zip은 팀 Google Drive의 `code_it/pillbbox/aihub_pill/` 폴더에 받은 그대로 둡니다. AI Hub 약관상 팀원에게만 공유합니다.
+  AI Hub는 해외 IP 다운로드를 막으므로 Colab에서는 받을 수 없고, 국내 PC에서 AI Hub API(`.env`의
+  `AI_HUB_API_KEY`)로 받아 Google Drive 데스크톱의 이 폴더에 넣습니다. 팀에서 한 번만 받습니다.
+- `notebooks/02_eda.ipynb`가 이 폴더의 공유 링크(`.env`의 `AIHUB_URL`)에서 zip을 `external/aihub_zips/`로 받고
+  `external/aihub_combo/<zip 이름>/`에 풉니다(`data_process/aihub_data.py`). Colab에서는 실행만 하면 됩니다.
+  로컬에서 `.env`에 `AIHUB_ZIP_DIR`(예: Drive 데스크톱 폴더)을 적으면 받지 않고 그 폴더를 씁니다.
+- JSON 구조는 아래 스키마와 같습니다. 대회 데이터와 같은 로더(`load_annotations`)로 읽습니다.
+  단, AI Hub 원본은 `category_id`가 모두 1(`Drug`)이라 `load_combo_annotations`가 대회 데이터처럼
+  `drug_N`의 숫자(K-001900 → 1900)로 바꿉니다. `dl_idx`는 약 코드보다 1 작아 클래스로 쓰지 않습니다.
+- 지금은 EDA용입니다. 학습 데이터(`data_main`)에는 아직 넣지 않습니다.
 
 ## Annotations (JSON 파일 구조)
 

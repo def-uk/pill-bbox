@@ -8,6 +8,8 @@ from ultralytics import YOLO
 from ultralytics.utils.callbacks.wb import callbacks as wandb_callbacks
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# 학습·평가 결과 기본 폴더. Colab에서는 --runs-dir로 Google Drive 아래를 지정한다.
+RUNS_DIR = PROJECT_ROOT / "runs"
 
 # .env의 WANDB_API_KEY 등을 환경 변수로 불러온다. 이미 설정된 환경 변수가 우선한다.
 load_dotenv(PROJECT_ROOT / ".env")
