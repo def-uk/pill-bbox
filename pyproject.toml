@@ -33,18 +33,18 @@ dev = [
 ]
 
 # macOS uses the default PyPI wheels (MPS support).
-# Windows/Linux use CUDA 12.6 wheels for NVIDIA GPUs.
+# Windows/Linux use CUDA 13.0 wheels for NVIDIA GPUs.
 [tool.uv.sources]
 torch = [
-    { index = "pytorch-cu126", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+    { index = "pytorch-cu130", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
 ]
 torchvision = [
-    { index = "pytorch-cu126", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+    { index = "pytorch-cu130", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
 ]
 
 [[tool.uv.index]]
-name = "pytorch-cu126"
-url = "https://download.pytorch.org/whl/cu126"
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
 explicit = true
 
 [tool.ruff]
