@@ -1,6 +1,7 @@
 """모델 학습 진입점. data_process.data_main으로 data.yaml을 만든 뒤 실행한다.
 
-fold마다 학습이 끝나면 best.pt(검증 mAP75-95 최고 epoch)로 평가하고, 마지막에 실험 요약을 만든다.
+fold마다 학습이 끝나면 best.pt(검증 mAP75-95 최고 epoch)로 평가하고, 마지막에 실험 요약과
+지표 그림(results/plots/)을 만든다.
 
     # 동작 확인 (짧게)
     WANDB_MODE=disabled uv run python -m models.model_main --model yolo11m.pt yolo26m.pt \\
@@ -18,7 +19,7 @@ fold마다 학습이 끝나면 best.pt(검증 mAP75-95 최고 epoch)로 평가�
 import argparse
 from pathlib import Path
 
-from models.evaluate import MAIN_METRIC, evaluate_fold, results_dir, summarize_exp
+from models.evaluate import MAIN_METRIC, evaluate_fold, plot_results, results_dir, summarize_exp
 from models.train import AUG_PRESETS, OPTIMIZERS, train
 from src.config import RUNS_DIR
 
@@ -92,6 +93,9 @@ def main() -> None:
     summary = summarize_exp(args.exp, args.runs_dir)
     print(summary[[("n_folds", "count"), (MAIN_METRIC, "mean"), (MAIN_METRIC, "std")]])
     print(f"요약: {results_dir(args.exp, args.runs_dir) / 'summary.csv'}")
+    plots_dir = results_dir(args.exp, args.runs_dir) / "plots"
+    plot_results(args.exp, args.runs_dir, save_dir=plots_dir)
+    print(f"그림: {plots_dir}")
 
 
 if __name__ == "__main__":

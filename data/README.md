@@ -13,7 +13,7 @@ data/
 │   ├── fixed_annotations.csv   # 위치 수정 기록 (kwon)
 │   ├── corrections.csv         # 통합 보정 기록 (수정 전후 좌표와 근거)
 │   ├── padding_review.csv      # 여백 검수표
-│   ├── labels/                 # 라벨 버전 (raw, v1, v2)
+│   ├── labels/                 # 라벨 버전 (raw, v1, v2, v2auto)
 │   ├── splits/                 # train/val 분할 (fold별)
 │   ├── yolo/                   # YOLO 학습 입력 (images, labels, data.yaml)
 │   └── ...                     # padding/, results/, predictions/

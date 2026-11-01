@@ -65,7 +65,7 @@ RAW_DIR = PROJECT_ROOT / "data" / "raw"
 PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 # EDA 9.1의 규모. 다르면 경고만 하고 진행한다.
 EXPECTED_COUNTS = {"train_images": 232, "train_annotations": 763, "test_images": 842}
-EXPECTED_LABELS = {"raw": 763, "v1": 771, "v2": 771}
+EXPECTED_LABELS = {"raw": 763, "v1": 771, "v2": 771, "v2auto": 771}
 PADDING_DIR = PROCESSED_DIR / "padding"  # 여백 측정 전체 결과와 검수용 그림 (커밋 안 함)
 REVIEW_PAGE_SIZE = 20  # 검수 그림 한 장에 넣을 박스 수
 # 0이 아니면 학습에 쓸 수 없는 라벨 검사 항목 (raw 버전은 기록만 한다)
@@ -153,6 +153,8 @@ def step2_labels(
         print(f"[2] 여백 검수: {padding_counts} (승인만 v2에 적용)")
         if not padding_counts["approved"]:
             warnings.warn("승인된 여백 보정이 없어 v2가 v1과 같습니다", stacklevel=2)
+    if version == "v2auto":
+        print(f"[2] 여백 검수: {padding_counts} (거부만 빼고 미검수까지 v2auto에 적용)")
     if version != "raw":
         problems = {key: checks[key] for key in BLOCKING_CHECKS if checks[key]}
         if problems:
