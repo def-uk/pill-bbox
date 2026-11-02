@@ -18,6 +18,7 @@ def download_data(
 
     url을 넘기지 않으면 환경 변수(.env) DATA_URL을 쓴다.
     링크는 "링크가 있는 모든 사용자"로 공유되어 있어야 한다.
+    url 자리에 로컬 zip 경로(Colab에 마운트한 Drive의 zip 등)를 주면 받지 않고 바로 푼다.
     output_dir에 이미 파일이 있으면 받지 않는다. 다시 받으려면 overwrite=True.
     """
     output_dir = Path(output_dir)
@@ -33,7 +34,11 @@ def download_data(
     # 같은 디스크에 풀어야 옮길 때 복사 없이 이름만 바뀐다
     with tempfile.TemporaryDirectory(dir=output_dir.parent) as tmp:
         tmp_dir = Path(tmp)
-        zip_path = Path(gdown.download(url, output=str(tmp_dir / "data.zip")))
+        # 마운트한 Drive의 zip은 gdown을 거치지 않아 다운로드 횟수 제한에 걸리지 않는다
+        if Path(url).expanduser().is_file():
+            zip_path = Path(url).expanduser()
+        else:
+            zip_path = Path(gdown.download(url, output=str(tmp_dir / "data.zip")))
         if not zipfile.is_zipfile(zip_path):
             raise ValueError("zip 파일이 아닙니다. 링크와 공유 권한을 확인하세요.")
 
