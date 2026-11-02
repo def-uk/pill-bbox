@@ -1,0 +1,169 @@
+{
+  "primary_metric_source": "saved best-epoch history table; fold 0; macro max-F1 precision/recall",
+  "confusion_policy": "full-training matrix unknown; smoke reference images kept separate",
+  "experiments": [
+    {
+      "id": "baseline",
+      "label": "기본 데이터",
+      "file": "notebooks/faster_rcnn_jang.ipynb",
+      "color": "#29756c",
+      "history_cell": 36,
+      "full_cell": 24,
+      "cm_cell": 31,
+      "best_epoch": 72,
+      "scheduler": "cosine",
+      "warmup_epochs": 1,
+      "history_run": "frcnn_r50fpnv2_combo_v1_s42_augoff_optSGD_lrcos_fold0",
+      "sha256": "8843efbb57e178474e9223cdf408cca5848517a961be14ee4538eb15159f98a4",
+      "scope": "fold 0 · 최고 mAP75-95 epoch의 검증 지표",
+      "metrics": {
+        "map75_95": 0.76617,
+        "map50": 0.879861,
+        "map75": 0.879861,
+        "map50_95": 0.823016,
+        "precision": 0.841114,
+        "recall": 0.867076
+      },
+      "losses": {
+        "Total loss": {
+          "train": 0.044059,
+          "val": 0.295038
+        },
+        "RoI classification loss": {
+          "train": 0.017044,
+          "val": 0.178686
+        },
+        "RoI box regression loss": {
+          "train": 0.026524,
+          "val": 0.115662
+        },
+        "RPN objectness loss": {
+          "train": 0.000257,
+          "val": 0.000241
+        },
+        "RPN box regression loss": {
+          "train": 0.000234,
+          "val": 0.000449
+        }
+      },
+      "evaluation_summary": {
+        "map75_95": 0.626396,
+        "map50": 0.884444,
+        "map75": 0.884444,
+        "map50_95": 0.75542,
+        "precision": 0.879747,
+        "recall": 0.908497,
+        "f1": 0.893891,
+        "mean_iou": 0.914197,
+        "ms_preprocess": 1.446922,
+        "ms_inference": 72.760329,
+        "ms_postprocess": 0.588289,
+        "scope": "별도 저장된 full.T 평가 출력 · 고정 conf=0.5, IoU=0.5 Precision/Recall",
+        "run": "frcnn_r50fpnv2_combo_v1_s42_augoff_optSGD_lrconst"
+      },
+      "training_graph": "baseline_training_history.png",
+      "confusion_matrix": null,
+      "stored_reference_confusion": {
+        "image": "baseline_stored_reference_confusion.png",
+        "status": "smoke_reference_not_full_training",
+        "reason": "RUN_FULL=False 이후 REPORT_CFG=SMOKE_CFG 경로로 보고됨",
+        "conf": [
+          0.001,
+          0.25
+        ]
+      }
+    },
+    {
+      "id": "external",
+      "label": "외부 데이터 추가",
+      "file": "notebooks/faster_rcnn_jang2.ipynb",
+      "color": "#db5c35",
+      "history_cell": 38,
+      "full_cell": 26,
+      "cm_cell": 33,
+      "best_epoch": 38,
+      "scheduler": "linear",
+      "warmup_epochs": 3,
+      "external_images": 5842,
+      "history_run": "frcnn_r50fpnv2_combo_v1_s42_augoff_optSGD_lrlinear_ext157full_fold0",
+      "sha256": "118db8edae1fbf43b7036f2070ff61a894bfbf7a7ecf4d2106c3728b50766d5f",
+      "scope": "fold 0 · 최고 mAP75-95 epoch의 검증 지표",
+      "metrics": {
+        "map75_95": 0.987205,
+        "map50": 0.995,
+        "map75": 0.995,
+        "map50_95": 0.991103,
+        "precision": 0.986986,
+        "recall": 0.998111
+      },
+      "losses": {
+        "Total loss": {
+          "train": 0.014659,
+          "val": 0.022885
+        },
+        "RoI classification loss": {
+          "train": 0.006819,
+          "val": 0.009852
+        },
+        "RoI box regression loss": {
+          "train": 0.007666,
+          "val": 0.012826
+        },
+        "RPN objectness loss": {
+          "train": 5.1e-05,
+          "val": 5.5e-05
+        },
+        "RPN box regression loss": {
+          "train": 0.000122,
+          "val": 0.000152
+        }
+      },
+      "evaluation_summary": {
+        "map75_95": 0.987205,
+        "map50": 0.995,
+        "map75": 0.995,
+        "map50_95": 0.991103,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "mean_iou": 0.973251,
+        "ms_preprocess": 8.294251,
+        "ms_inference": 21.116035,
+        "ms_postprocess": 0.891566,
+        "scope": "별도 저장된 full.T 평가 출력 · 고정 conf=0.5, IoU=0.5 Precision/Recall",
+        "run": "frcnn_r50fpnv2_combo_v1_s42_augoff_optSGD_lrli..."
+      },
+      "training_graph": "external_training_history.png",
+      "confusion_matrix": null,
+      "stored_reference_confusion": {
+        "image": "external_stored_reference_confusion.png",
+        "status": "smoke_reference_not_full_training",
+        "reason": "RUN_FULL=False 이후 REPORT_CFG=SMOKE_CFG 경로로 보고됨",
+        "conf": [
+          0.001,
+          0.25
+        ]
+      }
+    },
+    {
+      "id": "mosaic",
+      "label": "Mosaic 추가",
+      "file": "notebooks/faster_rcnn_mosaic.ipynb",
+      "color": "#587da5",
+      "history_cell": null,
+      "full_cell": null,
+      "cm_cell": null,
+      "best_epoch": null,
+      "scheduler": "cosine",
+      "warmup_epochs": 1,
+      "sha256": "585bf7feeac267019c42bfef409164b70306d60783e1a21f77ee4669728a77ee",
+      "scope": "결과 미확인",
+      "metrics": null,
+      "losses": null,
+      "evaluation_summary": null,
+      "training_graph": null,
+      "confusion_matrix": null,
+      "stored_reference_confusion": null
+    }
+  ]
+}
