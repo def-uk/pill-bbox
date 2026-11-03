@@ -158,10 +158,8 @@ def run_ocr_prediction(
     )
     if split == "test":
         for name, predictions in [("yolo", original), ("ocr", adjusted)]:
-            selected = predictions.loc[
-                predictions["category_id"].isin(context["base_class_map"]["category_id"])
-            ].copy()
-            submission = to_submission(selected)
+            # 외부 전용 클래스도 포함한다는 사용자 실험 설정을 유지한다.
+            submission = to_submission(predictions)
             if submission.empty or submission.isna().any().any():
                 raise ValueError("제출 CSV가 비었거나 결측값이 있습니다.")
             submission.to_csv(output_dir / f"submission_{name}.csv", index=False)
