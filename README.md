@@ -102,22 +102,58 @@ flowchart LR
 
 실험마다 베이스라인 대비 한 가지만 바꿨습니다. 전체 목록과 그래프는 [Notion 실험 페이지](https://app.notion.com/p/4fbcef24bb194f369f6751ae5a0b6e61?source=copy_link)에 있습니다.
 
-| 기간 | 실험 | 모델 |
+### 1. 베이스라인 및 아키텍처 비교
+
+one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞춰 비교했습니다.
+
+| 실험 | 모델 | 날짜 |
 |---|---|---|
-| 10.30 | 베이스라인 구축 (분할, 평가 지표, training loop, 혼동행렬, 실패 사례 시각화, 제출 csv) | YOLO11m, YOLO26m, Faster R-CNN |
-| 10.31 | 100 에폭 학습 | YOLO11m, Faster R-CNN |
-| 11.01 | AI Hub 외부 데이터 추가 | YOLO11m, YOLO26m, Faster R-CNN |
-| 11.01–11.02 | 모자이크 증강 켜기·끄기 | YOLO11m, YOLO26m, Faster R-CNN |
-| 11.02 | 회전 증강 | YOLO11m, Faster R-CNN |
-| 11.03 | Copy-paste 증강 (정답 bbox를 잘라 다른 사진에 붙이는 방식을 직접 구현) | YOLO11m, YOLO26m, Faster R-CNN |
-| 11.03 | 2차 EDA로 선별·검수한 외부 데이터 | YOLO11m, YOLO26m |
-| 11.03 | 각인 OCR을 함께 학습해 재분류 | YOLO11m, YOLO26m |
-| 11.04 | 최고 모델에서 모자이크 끄기, 채도·색조·밝기 증강 줄이기 | YOLO11m |
-| 11.04 | 검증 없이 전체 데이터로 최종 모델 학습 (예정) | YOLO11m |
+| 베이스라인 구축 (분할, 평가 지표, training loop, 혼동행렬, 실패 사례 시각화, 제출 csv) | YOLO11m, YOLO26m, Faster R-CNN | 10.30 |
+| 100 에폭 학습 | YOLO11m, Faster R-CNN | 10.31 |
+
+### 2. 데이터 품질 개선
+
+희귀 클래스를 채우려고 외부 데이터를 더하고, 박스가 맞지 않는 사진은 걸러 냈습니다.
+
+| 실험 | 모델 | 날짜 |
+|---|---|---|
+| AI Hub 외부 데이터 추가 | YOLO11m, YOLO26m, Faster R-CNN | 11.01 |
+| 2차 EDA로 선별·검수한 외부 데이터 | YOLO11m, YOLO26m | 11.03 |
+
+### 3. 증강 기법 비교
+
+알약은 각인과 색이 클래스를 가르므로 어떤 증강이 도움이 되고 해가 되는지 하나씩 확인했습니다.
+
+| 실험 | 모델 | 날짜 |
+|---|---|---|
+| 모자이크 증강 켜기·끄기 | YOLO11m, YOLO26m, Faster R-CNN | 11.01–11.02 |
+| 회전 증강 | YOLO11m, Faster R-CNN | 11.02 |
+| Copy-paste 증강 (정답 bbox를 잘라 다른 사진에 붙이는 방식을 직접 구현) | YOLO11m, YOLO26m, Faster R-CNN | 11.03 |
+| 최고 모델에서 모자이크 끄기, 채도·색조·밝기 증강 줄이기 | YOLO11m | 11.04 |
+
+### 4. 학습 방식 변경
+
+| 실험 | 모델 | 날짜 |
+|---|---|---|
+| 각인 OCR을 함께 학습해 재분류 | YOLO11m, YOLO26m | 11.03 |
+
+### 5. 최종 모델
+
+| 실험 | 모델 | 날짜 |
+|---|---|---|
+| 검증 없이 전체 데이터로 최종 모델 학습 (예정) | YOLO11m | 11.04 |
 
 실험 코드는 실험별 브랜치(`exp/<모델>_<실험>`)와 [notebooks/](notebooks/)에 있습니다.
 
 ## 결과
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results_dark.svg">
+  <img src="docs/assets/results_light.svg" alt="모델·설정별 Kaggle mAP@[0.75:0.95]. 베이스라인은 YOLO11m 0.299, YOLO26m 0.179, Faster R-CNN 0.259. 외부 데이터를 더한 YOLO11m 0.631, 외부 데이터와 copy-paste를 쓴 YOLO26m 0.607." width="820">
+</picture>
+
+<details>
+<summary>표로 보기</summary>
 
 | 모델 | 설정 | Kaggle mAP@[0.75:0.95] |
 |---|---|---|
@@ -127,6 +163,10 @@ flowchart LR
 | YOLO11m | 외부 데이터, 외부 클래스까지 학습 | 0.63060 |
 | YOLO26m | 외부 데이터 + copy-paste | 0.607 |
 | **YOLO11m** | **최종 모델** (전체 데이터 학습 후 기입) | |
+
+</details>
+
+<!-- 점수를 바꾸면 docs/assets/make_results_chart.py의 RESULTS도 고치고 다시 실행하세요 -->
 
 > [!IMPORTANT]
 > **모델 선택: YOLO11m**
