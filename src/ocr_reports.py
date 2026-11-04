@@ -7,6 +7,76 @@ import pandas as pd
 from matplotlib.figure import Figure
 
 
+def report_ocr_validation(
+    checkpoint: Path, rows: pd.DataFrame, output_dir: Path
+) -> tuple[pd.DataFrame, list[Figure]]:
+    """정답 bbox에서 OCR CER·문자열 정확도와 문자열 혼동행렬을 저장한다."""
+    import torch
+    from torch.utils.data import DataLoader
+
+    from models.ocr import OCRRecognizer, PillTextDataset, collate_text, decode_ctc, edit_distance
+    from src.ocr_data import prepare_crop_cache
+
+    selected = rows.loc[rows["split"].eq("val")].copy().reset_index(drop=True)
+    if selected.empty:
+        raise ValueError("OCR 검증 정답이 없습니다.")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    recognizer = OCRRecognizer(checkpoint)
+    selected["_crop_index"] = range(len(selected))
+    cache = output_dir / "validation_crop_cache.npy"
+    height, width = recognizer.config["height"], recognizer.config["width"]
+    prepare_crop_cache(selected, cache, height, width)
+    dataset = PillTextDataset(
+        selected, recognizer.characters, height, width, encode_targets=False, cache_path=cache
+    )
+    loader = DataLoader(dataset, batch_size=recognizer.config["batch"], collate_fn=collate_text)
+    predictions = []
+    with torch.no_grad():
+        for images, _, _, _ in loader:
+            predictions.extend(
+                decode_ctc(recognizer.model(images.to(recognizer.device)), recognizer.characters)
+            )
+    selected["predicted_text"] = [text for text, _ in predictions]
+    selected["ocr_confidence"] = [score for _, score in predictions]
+    selected["edit_distance"] = [
+        edit_distance(truth, predicted)
+        for truth, predicted in zip(selected["text"], selected["predicted_text"], strict=True)
+    ]
+    selected.to_csv(output_dir / "ocr_validation_predictions.csv", index=False)
+    metrics = pd.DataFrame(
+        [
+            {
+                "cer": selected["edit_distance"].sum() / max(selected["text"].str.len().sum(), 1),
+                "exact_accuracy": float(selected["text"].eq(selected["predicted_text"]).mean()),
+                "samples": len(selected),
+            }
+        ],
+        index=["OCR (GT bbox)"],
+    )
+    metrics.to_csv(output_dir / "ocr_validation_metrics.csv")
+    # 문자열 인식은 검출 클래스 혼동행렬과 별도로 표시한다. 빈 예측도 남긴다.
+    truth = selected["text"].replace("", "<EMPTY>")
+    predicted = selected["predicted_text"].replace("", "<EMPTY>")
+    matrix = pd.crosstab(predicted.rename("predicted"), truth.rename("true"))
+    matrix.to_csv(output_dir / "ocr_text_confusion.csv")
+    common = truth.value_counts().head(30).index
+    compact = pd.crosstab(
+        predicted.where(predicted.isin(common), "<OTHER>"),
+        truth.where(truth.isin(common), "<OTHER>"),
+    )
+    figure, axis = plt.subplots(figsize=(12, 10))
+    shown = axis.imshow(compact.to_numpy(), cmap="Blues", aspect="auto")
+    axis.set_xticks(range(len(compact.columns)), compact.columns, rotation=90, fontsize=8)
+    axis.set_yticks(range(len(compact.index)), compact.index, fontsize=8)
+    axis.set(
+        xlabel="True text", ylabel="Predicted text", title="OCR string confusion (top 30 + OTHER)"
+    )
+    figure.colorbar(shown, ax=axis)
+    figure.tight_layout()
+    figure.savefig(output_dir / "ocr_text_confusion.png", dpi=160)
+    return metrics, [figure]
+
+
 def plot_yolo_ocr_report(
     yolo_history_path: Path, ocr_history_path: Path, comparison_path: Path
 ) -> list[Figure]:

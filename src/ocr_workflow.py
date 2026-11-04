@@ -28,32 +28,69 @@ def prepare_ocr_context(
     external_val_fraction: float,
     seed: int,
     label_mode: str,
+    all_train: bool = False,
+    external_labels_path: Path | None = None,
+    shared_split_path: Path | None = None,
 ) -> dict:
     """기존 검수표·분할·라벨만 읽어 OCR 학습과 평가 입력을 준비한다."""
-    split_path = PROJECT_ROOT / "data/processed/splits" / split / f"fold_{fold}.csv"
+    split_path = shared_split_path or (
+        PROJECT_ROOT / "data/processed/splits" / split / f"fold_{fold}.csv"
+    )
     for path in [yolo_weights, review_path, split_path]:
         if not path.is_file():
             raise FileNotFoundError(f"OCR 실행에 필요한 기존 파일이 없습니다: {path}")
     review = read_ocr_review_table(review_path)
     split_table = pd.read_csv(split_path)
     competition_files = set(split_table["file_name"])
+    if shared_split_path is not None:
+        required = {"file_name", "path", "split", "data_source"}
+        if not required.issubset(split_table):
+            raise ValueError("공유 분할에 파일명·경로·분할·데이터 출처가 필요합니다.")
+        if all_train:
+            raise ValueError("공유 검증 분할과 전체 학습을 함께 사용할 수 없습니다.")
+        review = review.loc[review["file_name"].isin(competition_files)].copy()
+        competition_files = set(
+            split_table.loc[split_table["data_source"].eq("competition"), "file_name"]
+        )
     if "metadata_origin" not in review:
         raise ValueError("기존 OCR 검수표에 metadata_origin 열이 필요합니다.")
     external_files = set(review.loc[review["metadata_origin"].eq("aihub_json"), "file_name"])
     rows = reviewed_ocr_splits(
         review,
         split_path,
-        external_files,
+        set() if shared_split_path is not None else external_files,
         label_mode=label_mode,
-        external_val_fraction=external_val_fraction,
+        external_val_fraction=0.0
+        if all_train or shared_split_path is not None
+        else external_val_fraction,
         seed=seed,
     )
+    if shared_split_path is not None:
+        rows["data_source"] = rows["file_name"].map(
+            split_table.set_index("file_name")["data_source"]
+        )
+        external_split = split_table.loc[split_table["data_source"].eq("external")]
+        rows.attrs["external_val_fraction"] = (
+            float(external_split["split"].eq("val").mean()) if len(external_split) else 0.0
+        )
+        rows.attrs["shared_split_path"] = str(shared_split_path.resolve())
+    if all_train:
+        rows["split"] = "train"
     base = load_class_map(label)
     # 학습 시 저장한 외부 클래스 표에서 번호를 재구성하고 체크포인트와 대조한다.
-    external_path = PROJECT_ROOT / "data/processed/yolo/v1_aihub_reviewed/aihub_labels.csv"
+    external_path = external_labels_path
     model = YOLO(yolo_weights)
     class_map = base.copy()
     if len(model.names) > len(base):
+        if external_path is None:
+            import yaml
+
+            args_path = yolo_weights.parent.parent / "args.yaml"
+            args = yaml.safe_load(args_path.read_text(encoding="utf-8"))
+            data_path = Path(args["data"])
+            if not data_path.is_absolute():
+                data_path = PROJECT_ROOT / data_path
+            external_path = data_path.parents[3] / "aihub_labels.csv"
         external = pd.read_csv(external_path)
         extra = external.loc[~external["category_id"].isin(base["category_id"])]
         extra = extra.drop_duplicates("category_id").sort_values("category_id")
@@ -65,17 +102,28 @@ def prepare_ocr_context(
         raise ValueError("저장된 YOLO 클래스와 기존 클래스 표가 다릅니다.")
     del model
     truth = pd.read_csv(PROJECT_ROOT / "data/processed/labels" / f"labels_{label}.csv")
+    if shared_split_path is not None and split_table["data_source"].eq("external").any():
+        if external_path is None:
+            raise ValueError("외부 검증 정답을 읽을 external_labels_path가 필요합니다.")
+        truth = pd.concat([truth, pd.read_csv(external_path)], ignore_index=True)
     val_files = set(split_table.loc[split_table["split"].eq("val"), "file_name"])
     if not val_files.issubset(set(truth["file_name"])):
         raise ValueError("기존 분할의 validation 정답이 누락됐습니다.")
     if external_files & competition_files:
         raise ValueError("대회와 외부 데이터 파일명이 겹칩니다.")
     return dict(
+        all_train=all_train,
+        yolo_weights=str(yolo_weights.resolve()),
+        shared_split_path=str(shared_split_path.resolve()) if shared_split_path else None,
         rows=rows,
         class_map=class_map,
         base_class_map=base,
         val_truth=truth.loc[truth["file_name"].isin(val_files)].copy(),
-        val_images=[yolo_dir(label) / "images/train" / name for name in sorted(val_files)],
+        val_images=(
+            [Path(value) for value in split_table.loc[split_table["split"].eq("val"), "path"]]
+            if shared_split_path is not None
+            else [yolo_dir(label) / "images/train" / name for name in sorted(val_files)]
+        ),
         test_images=sorted(
             path
             for path in (yolo_dir(label) / "images/test").iterdir()
@@ -98,7 +146,27 @@ def run_ocr_training(
     output_dir = output_root / f"fold{fold}_{datetime.now():%Y%m%d_%H%M%S_%f}"
     output_dir.mkdir(parents=True, exist_ok=False)
     rows = context["rows"]
+    all_train = context.get("all_train", False)
+    if train_args.get("all_train", all_train) != all_train:
+        raise ValueError("OCR 문맥과 학습의 전체 데이터 사용 설정이 다릅니다.")
+    train_args["all_train"] = all_train
     rows.to_csv(output_dir / "label_split.csv", index=False)
+    (output_dir / "data_summary.json").write_text(
+        json.dumps(
+            {
+                "all_train": all_train,
+                "label_mode": label_mode,
+                "yolo_weights": context.get("yolo_weights"),
+                "shared_split_path": context.get("shared_split_path"),
+                "counts": rows.groupby("split").size().to_dict(),
+                "label_sources": rows["label_source"].value_counts().to_dict(),
+                "review_file_modified": False,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     rows.loc[
         rows["data_source"].eq("external"), ["file_name", "combo", "split"]
     ].drop_duplicates().to_csv(
@@ -126,6 +194,8 @@ def run_ocr_prediction(
 
     if split not in {"val", "test"}:
         raise ValueError("예측 대상은 val 또는 test를 지정하세요.")
+    if split == "val" and context.get("all_train", False):
+        raise ValueError("전체 데이터로 OCR을 학습했으므로 validation 평가는 실행하지 않습니다.")
     dictionary = {
         int(category): texts
         for category, texts in json.loads(
