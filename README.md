@@ -1,24 +1,28 @@
-# 먹었약 (가칭)
+<div align="center">
 
-> 사진 한 장으로 "내가 지금 어떤 약을 먹는지" 알아보고 기록하는 알약 검출 모델
+<img src="docs/assets/logo.png" width="128" alt="먹었약 로고"/>
+
+# 먹었약 <sub><sup>(가칭)</sup></sub>
+
+**사진 한 장으로 "내가 지금 어떤 약을 먹는지" 알아보고 기록하는 알약 검출 모델**
 
 알약 사진에서 알약마다 위치(bbox)와 종류(56종)를 찾는 객체 검출 프로젝트입니다.
 
-- 진행 기록(문제정의, 회의록, 실험 목록): [Notion](https://app.notion.com/p/4fbcef24bb194f369f6751ae5a0b6e61?source=copy_link)
-- 저장소: [def-uk/pill-bbox](https://github.com/def-uk/pill-bbox)
-- 최종 모델: **YOLO11m** (2026-11-04 결정)
+[![Python](https://img.shields.io/badge/Python-3.12-452AF7?logo=python&logoColor=white)](pyproject.toml)
+[![uv](https://img.shields.io/badge/uv-managed-452AF7?logo=astral&logoColor=white)](https://docs.astral.sh/uv/)
+[![Model](https://img.shields.io/badge/model-YOLO11m-452AF7)](#결과)
+[![Kaggle](https://img.shields.io/badge/Kaggle%20mAP%400.75%3A0.95-0.6306-452AF7?logo=kaggle&logoColor=white)](#결과)
+[![Notion](https://img.shields.io/badge/%EC%A7%84%ED%96%89%20%EA%B8%B0%EB%A1%9D-Notion-000000?logo=notion&logoColor=white)](https://app.notion.com/p/4fbcef24bb194f369f6751ae5a0b6e61?source=copy_link)
 
-## 목차
+[문제 정의](#문제-정의) · [데이터](#데이터) · [접근 방법](#접근-방법) · [실험](#실험) · [결과](#결과) · [팀](#팀) · [시작하기](#시작하기) · [개발 가이드](#개발-가이드) · [폴더 구조](#폴더-구조)
 
-1. [문제 정의](#문제-정의)
-2. [데이터](#데이터)
-3. [접근 방법](#접근-방법)
-4. [실험](#실험)
-5. [결과](#결과)
-6. [팀](#팀)
-7. [시작하기](#시작하기)
-8. [개발 가이드](#개발-가이드)
-9. [폴더 구조](#폴더-구조)
+</div>
+
+<br/>
+
+| 🎯 과제 | 🗂️ 데이터 | 🏆 최종 모델 | 📈 최고 Kaggle 점수 |
+|:---:|:---:|:---:|:---:|
+| 알약 bbox + 56종 분류 | 대회 232장 + AI Hub 외부 데이터 | **YOLO11m** (2026-11-04 결정) | **0.63060** (mAP@[0.75:0.95]) |
 
 ## 문제 정의
 
@@ -124,20 +128,23 @@ flowchart LR
 | YOLO26m | 외부 데이터 + copy-paste | 0.607 |
 | **YOLO11m** | **최종 모델** (전체 데이터 학습 후 기입) | |
 
-**모델 선택: YOLO11m**
+> [!IMPORTANT]
+> **모델 선택: YOLO11m**
+>
+> - Kaggle 점수가 세 후보 중 가장 높았습니다.
+> - 휴대폰에서 쓸 서비스라 one-stage 모델의 속도가 이점입니다.
+> - Faster R-CNN은 증강을 YOLO 기준으로 맞춰 실험해 손해를 봤을 수 있습니다. 시간 안에 다시 맞추기 어려워 후보에서 뺐습니다.
 
-- Kaggle 점수가 세 후보 중 가장 높았습니다.
-- 휴대폰에서 쓸 서비스라 one-stage 모델의 속도가 이점입니다.
-- Faster R-CNN은 증강을 YOLO 기준으로 맞춰 실험해 손해를 봤을 수 있습니다. 시간 안에 다시 맞추기 어려워 후보에서 뺐습니다.
-
-알게 된 점:
+### 알게 된 점
 
 - 각인 OCR을 함께 학습하면 오히려 점수가 떨어졌습니다. 원인은 분석 중입니다.
 - YOLO의 내장 `copy_paste`는 세그멘테이션 마스크용이라 bbox 데이터에서는 동작하지 않아, bbox copy-paste를 직접 구현했습니다.
-- 검증 mAP75-95(0.9대)가 Kaggle 점수(0.6대)보다 크게 높았습니다. 조합 단위 분할에도 촬영 세팅이 같은 사진이 train과 검증에 함께 남아 있기 때문으로 보고,
-  모델 선택은 Kaggle 점수로 했습니다. 시간 때문에 fold 0 하나로 실험했으므로 5 fold 평균 비교는 남은 과제입니다.
 
-향후 계획:
+> [!NOTE]
+> 검증 mAP75-95(0.9대)가 Kaggle 점수(0.6대)보다 크게 높았습니다. 조합 단위 분할에도 촬영 세팅이 같은 사진이 train과 검증에 함께 남아 있기 때문으로 보고,
+> 모델 선택은 Kaggle 점수로 했습니다. 시간 때문에 fold 0 하나로 실험했으므로 5 fold 평균 비교는 남은 과제입니다.
+
+### 향후 계획
 
 - 증강을 Faster R-CNN에 맞춰 다시 실험합니다. 약은 정확도가 우선이라 two-stage 모델의 가능성을 더 확인할 가치가 있습니다.
 - 앱 사용자가 찍은 사진을 모아 정제한 뒤 학습 데이터로 씁니다.
