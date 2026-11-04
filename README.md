@@ -146,13 +146,30 @@ flowchart LR
 
 ## 팀
 
-| 이름 | 맡은 일 |
-|---|---|
-| 동욱 | 데이터 파이프라인·학습·평가 코드, Faster R-CNN 베이스라인, YOLO26m 실험, 프론트엔드 데모, README |
-| 소희 | EDA, YOLO26m 베이스라인, 발표 목차 |
-| 영현 | 라벨 보정, YOLO11m 베이스라인·외부 데이터·모자이크·OCR 실험, 프로젝트 문서화 |
-| 재민 | YOLO11m 베이스라인·증강 실험, 외부 데이터 1·2차 EDA·전처리 |
-| 영훈 | YOLO26m 베이스라인, Faster R-CNN 실험, 발표 자료 |
+<table>
+  <tr>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/def-uk"><img src="https://github.com/def-uk.png" width="100" alt="동욱"/><br/><b>동욱</b></a><br/>
+      <sub><a href="https://github.com/def-uk">@def-uk</a></sub><br/><br/>
+      <sub>데이터 파이프라인·학습·평가 코드, Faster R-CNN 베이스라인, YOLO26m 실험, 프론트엔드 데모, README</sub>
+    </td>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/gwon753-dev"><img src="https://github.com/gwon753-dev.png" width="100" alt="영현"/><br/><b>영현</b></a><br/>
+      <sub><a href="https://github.com/gwon753-dev">@gwon753-dev</a></sub><br/><br/>
+      <sub>라벨 보정, YOLO11m 베이스라인·외부 데이터·모자이크·OCR 실험, 프로젝트 문서화</sub>
+    </td>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/JJAM99"><img src="https://github.com/JJAM99.png" width="100" alt="재민"/><br/><b>재민</b></a><br/>
+      <sub><a href="https://github.com/JJAM99">@JJAM99</a></sub><br/><br/>
+      <sub>YOLO11m 베이스라인·증강 실험, 외부 데이터 1·2차 EDA·전처리</sub>
+    </td>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/younghoon1215"><img src="https://github.com/younghoon1215.png" width="100" alt="영훈"/><br/><b>영훈</b></a><br/>
+      <sub><a href="https://github.com/younghoon1215">@younghoon1215</a></sub><br/><br/>
+      <sub>YOLO26m 베이스라인, Faster R-CNN 실험, 발표 자료</sub>
+    </td>
+  </tr>
+</table>
 
 <!-- 맡은 일이 다르면 고쳐 주세요 -->
 
