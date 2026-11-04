@@ -101,15 +101,18 @@ def _error(
     return dict(zip(ERROR_COLS, [source_json, ann_id, stage, message, excluded], strict=True))
 
 
-def load_annotations(ann_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_annotations(
+    ann_dir: Path, json_paths: list[Path] | None = None
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """annotation JSON을 모두 읽어 (원본 bbox당 한 행인 ann_df, 오류 표)를 반환한다.
 
     이미지 메타데이터는 JSON 안의 annotation.image_id로 연결한다(전역 image_id로 합치지 않음).
     source_json은 ann_dir 기준 상대 경로이며, (source_json, annotation_id)가 라벨 식별자다.
     bbox 값이 비어 있거나 형식이 다른 라벨은 빼지 않고 x, y, w, h를 NaN으로 둔다.
+    json_paths를 주면 전체 폴더 탐색 없이 지정한 JSON만 읽는다.
     """
     rows, errors = [], []
-    for json_path in sorted(ann_dir.rglob("*.json")):
+    for json_path in sorted(ann_dir.rglob("*.json") if json_paths is None else json_paths):
         source_json = json_path.relative_to(ann_dir).as_posix()
         try:
             data = json.loads(json_path.read_text(encoding="utf-8-sig"))
