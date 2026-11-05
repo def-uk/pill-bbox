@@ -288,7 +288,7 @@ cp .env.example .env                                      # DATA_URL, WANDB_API_
 uv run python -m data_process.data_main --label v1        # 원본 → 라벨 → 분할 → data.yaml
 ```
 
-학습은 최종 모델 노트북 [notebooks/yolo11m_100_aihub_not_background.ipynb](notebooks/yolo11m_100_aihub_not_background.ipynb)에서 합니다. 노트북의 "팀원 실행 가이드"를 따라 GPU(Colab)에서 실행하세요.
+학습은 최종 모델 노트북 [notebooks/yolo11m.ipynb](notebooks/yolo11m.ipynb)에서 합니다. 노트북의 "팀원 실행 가이드"를 따라 GPU(Colab)에서 실행하세요.
 
 이미 학습한 `best.pt`로 Kaggle 제출 csv만 만들 때:
 
