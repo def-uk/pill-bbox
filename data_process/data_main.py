@@ -408,6 +408,9 @@ def main() -> None:
     parser.add_argument("--holdout-dir", type=Path, help="공유 train/val 분할을 저장할 폴더")
     parser.add_argument("--val-fraction", type=float, default=0.2)
     parser.add_argument(
+        "--external-train-only", action="store_true", help="외부 이미지는 전부 train"
+    )
+    parser.add_argument(
         "--fixed-train-split", type=Path, help="희귀 조합 train 고정을 읽을 기존 분할"
     )
     args = parser.parse_args()
@@ -423,6 +426,7 @@ def main() -> None:
                 args.val_fraction,
                 args.seed,
                 args.fixed_train_split,
+                external_train_only=args.external_train_only,
             )
         )
         return

@@ -78,6 +78,7 @@ def write_holdout_files(
     val_fraction: float,
     seed: int,
     fixed_train_split: Path | None = None,
+    external_train_only: bool = False,
 ) -> Path:
     """기존 입력의 대회·외부 이미지를 조합 단위로 나눠 공유 검증 분할을 저장한다."""
     import json
@@ -107,6 +108,8 @@ def write_holdout_files(
         fixed_combos = set(original.loc[fixed, "file_name"].str.split("_").str[0])
     table["fixed"] = table["combo"].isin(fixed_combos)
     for source, rows in table.groupby("data_source"):
+        if external_train_only and source == "external":
+            continue
         counts = rows.loc[~rows["fixed"]].groupby("combo").size()
         if len(counts) < 2:
             raise ValueError(f"{source}: 조합이 2개 이상이어야 검증 분할이 가능합니다.")
@@ -139,6 +142,10 @@ def write_holdout_files(
     summary = {
         "seed": seed,
         "requested_val_fraction": val_fraction,
+        "external_train_only": external_train_only,
+        "competition_val_fraction": float(
+            table.loc[table["data_source"].eq("competition"), "split"].eq("val").mean()
+        ),
         "actual_val_fraction": float(table["split"].eq("val").mean()),
         "counts": table.groupby(["data_source", "split"])
         .size()
