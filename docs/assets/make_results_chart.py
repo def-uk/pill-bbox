@@ -14,12 +14,11 @@ OUT_DIR = Path(__file__).parent
 # 바꾼 설정은 점수 옆 배지에 같은 모델 베이스라인 대비 증가율을 적는다.
 RESULTS = [
     ("YOLO11m", "베이스라인", 0.29946, "base"),
-    ("YOLO11m", "외부 데이터 + 외부 클래스까지 학습", 0.63060, "changed"),
+    ("YOLO11m", "최종: 외부 데이터 + 외부 클래스까지 학습", 0.63060, "final"),
     ("YOLO26m", "베이스라인", 0.17877, "base"),
     ("YOLO26m", "외부 데이터 + copy-paste", 0.607, "changed"),
     ("Faster R-CNN", "베이스라인", 0.25918, "base"),
     ("Faster R-CNN", "외부 데이터 + copy-paste", 0.45127, "changed"),
-    ("YOLO11m", "최종 모델 (전체 데이터 학습)", None, "final"),
 ]
 
 THEMES = {

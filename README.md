@@ -190,7 +190,10 @@ one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞�
 
 | 실험 | 모델 | 날짜 |
 |---|---|---|
-| 검증 없이 전체 데이터로 최종 모델 학습 (예정) | YOLO11m | 11.04 |
+| 검증 없이 전체 데이터(train + val)로 seed 5개 학습. 0.63060을 넘지 못해 채택하지 않음 | YOLO11m | 11.05 |
+
+최종 모델은 **외부 데이터 + 외부 클래스까지 학습한 YOLO11m의 fold 1 `best.pt`** (Kaggle 0.63060)입니다.
+서비스 앱의 `combofix-v1-fold1-w8`이 이 가중치를 int8로 줄인 모델입니다.
 
 실험 코드는 실험별 브랜치(`exp/<모델>_<실험>`)와 [notebooks/](notebooks/)에 있습니다.
 
@@ -198,7 +201,7 @@ one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞�
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results_dark.svg">
-  <img src="docs/assets/results_light.svg" alt="모델·설정별 Kaggle mAP@[0.75:0.95]. 베이스라인은 YOLO11m 0.299, YOLO26m 0.179, Faster R-CNN 0.259. 외부 데이터를 더한 YOLO11m 0.631, 외부 데이터와 copy-paste를 쓴 YOLO26m 0.607, Faster R-CNN 0.451." width="820">
+  <img src="docs/assets/results_light.svg" alt="모델·설정별 Kaggle mAP@[0.75:0.95]. 베이스라인은 YOLO11m 0.299, YOLO26m 0.179, Faster R-CNN 0.259. 최종 모델인 외부 데이터를 더한 YOLO11m 0.631, 외부 데이터와 copy-paste를 쓴 YOLO26m 0.607, Faster R-CNN 0.451." width="820">
 </picture>
 
 <details>
@@ -209,10 +212,9 @@ one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞�
 | YOLO11m | 베이스라인 (30 에폭, 외부 데이터 없음) | 0.29946 |
 | YOLO26m | 베이스라인 (30 에폭, 외부 데이터 없음) | 0.17877 |
 | Faster R-CNN | 베이스라인 (30 에폭, 외부 데이터 없음) | 0.25918 |
-| YOLO11m | 외부 데이터, 외부 클래스까지 학습 | 0.63060 |
+| **YOLO11m** | **최종 모델**: 외부 데이터, 외부 클래스까지 학습 (fold 1 `best.pt`) | **0.63060** |
 | YOLO26m | 외부 데이터 + copy-paste | 0.607 |
 | Faster R-CNN | 외부 데이터 + copy-paste | 0.45127 |
-| **YOLO11m** | **최종 모델** (전체 데이터 학습 후 기입) | |
 
 </details>
 
@@ -231,6 +233,8 @@ one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞�
   - **개별 학습**(YOLO와 OCR을 따로 학습해 결과만 결합): YOLO 출력은 그대로이므로 결합 단계를 의심합니다. OCR이 잘못 읽어 맞은 클래스를 뒤집거나, 잘라낸 알약 이미지가 작아 각인이 뭉개지거나, 다른 알약의 문자가 붙었을 수 있습니다.
   - **공동 학습**(backbone 공유, `L = L_det + λ·L_OCR`): OCR 손실이 공유 특징을 바꿔 탐지 자체가 나빠졌을 수 있습니다. 두 작업의 기울기 충돌, 너무 큰 λ, 다운샘플링으로 인한 작은 각인 소실, 회전·모자이크 뒤 bbox와 각인의 연결이 깨지는 경우를 의심합니다.
   - 확인할 것: 같은 YOLO 출력에서 OCR 결합 전·후 비교, λ=0 대조군과 비교.
+- 검증 사진까지 넣어 전체 데이터로 학습해도 점수가 오르지 않았습니다. 더해지는 대회 사진이 40장 정도로 적고,
+  20 에폭에서 멈춘 `last.pt`는 seed마다 test 예측 박스 수가 3,541–11,490개로 크게 달라 단일 모델로는 안정적이지 않았습니다.
 - YOLO의 내장 `copy_paste`는 세그멘테이션 마스크용이라 bbox 데이터에서는 동작하지 않아, bbox copy-paste를 직접 구현했습니다.
 
 > [!NOTE]
