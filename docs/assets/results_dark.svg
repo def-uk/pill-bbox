@@ -1,31 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="820" height="370" viewBox="0 0 820 370" font-family="-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Segoe UI', sans-serif" role="img" aria-label="모델·설정별 Kaggle mAP@[0.75:0.95] 막대그래프">
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="322" viewBox="0 0 820 322" font-family="-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Segoe UI', sans-serif" role="img" aria-label="모델·설정별 Kaggle mAP@[0.75:0.95] 막대그래프">
 <rect x="16" y="14" width="12" height="12" rx="3" fill="#6e6d68"/>
 <text x="34" y="24.5" font-size="13" fill="#9198a1">베이스라인 (30 에폭, 외부 데이터 없음)</text>
 <rect x="306.9" y="14" width="12" height="12" rx="3" fill="#8270FF"/>
 <text x="324.9" y="24.5" font-size="13" fill="#9198a1">바꾼 설정</text>
 <rect x="404.1" y="11.5" width="27.8" height="18" rx="9.0" fill="#2B2558"/><text x="418.0" y="24.0" font-size="11.5" font-weight="700" fill="#B9AFFF" text-anchor="middle">+%</text>
 <text x="437.9" y="24.5" font-size="13" fill="#9198a1">같은 모델 베이스라인 대비</text>
-<line x1="300.0" y1="48" x2="300.0" y2="336" stroke="#3d444d" stroke-width="1"/>
-<text x="300.0" y="354" font-size="12" fill="#9198a1" text-anchor="middle">0.0</text>
-<line x1="355.7" y1="48" x2="355.7" y2="336" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
-<text x="355.7" y="354" font-size="12" fill="#9198a1" text-anchor="middle">0.1</text>
-<line x1="411.4" y1="48" x2="411.4" y2="336" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
-<text x="411.4" y="354" font-size="12" fill="#9198a1" text-anchor="middle">0.2</text>
-<line x1="467.1" y1="48" x2="467.1" y2="336" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
-<text x="467.1" y="354" font-size="12" fill="#9198a1" text-anchor="middle">0.3</text>
-<line x1="522.9" y1="48" x2="522.9" y2="336" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
-<text x="522.9" y="354" font-size="12" fill="#9198a1" text-anchor="middle">0.4</text>
-<line x1="578.6" y1="48" x2="578.6" y2="336" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
-<text x="578.6" y="354" font-size="12" fill="#9198a1" text-anchor="middle">0.5</text>
-<line x1="634.3" y1="48" x2="634.3" y2="336" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
-<text x="634.3" y="354" font-size="12" fill="#9198a1" text-anchor="middle">0.6</text>
-<line x1="690.0" y1="48" x2="690.0" y2="336" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
-<text x="690.0" y="354" font-size="12" fill="#9198a1" text-anchor="middle">0.7</text>
+<line x1="300.0" y1="48" x2="300.0" y2="288" stroke="#3d444d" stroke-width="1"/>
+<text x="300.0" y="306" font-size="12" fill="#9198a1" text-anchor="middle">0.0</text>
+<line x1="355.7" y1="48" x2="355.7" y2="288" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="355.7" y="306" font-size="12" fill="#9198a1" text-anchor="middle">0.1</text>
+<line x1="411.4" y1="48" x2="411.4" y2="288" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="411.4" y="306" font-size="12" fill="#9198a1" text-anchor="middle">0.2</text>
+<line x1="467.1" y1="48" x2="467.1" y2="288" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="467.1" y="306" font-size="12" fill="#9198a1" text-anchor="middle">0.3</text>
+<line x1="522.9" y1="48" x2="522.9" y2="288" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="522.9" y="306" font-size="12" fill="#9198a1" text-anchor="middle">0.4</text>
+<line x1="578.6" y1="48" x2="578.6" y2="288" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="578.6" y="306" font-size="12" fill="#9198a1" text-anchor="middle">0.5</text>
+<line x1="634.3" y1="48" x2="634.3" y2="288" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="634.3" y="306" font-size="12" fill="#9198a1" text-anchor="middle">0.6</text>
+<line x1="690.0" y1="48" x2="690.0" y2="288" stroke="#3d444d" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="690.0" y="306" font-size="12" fill="#9198a1" text-anchor="middle">0.7</text>
 <text x="16" y="77.5" font-size="14" font-weight="600" fill="#f0f6fc">YOLO11m</text>
 <text x="288" y="77.5" font-size="13" fill="#9198a1" text-anchor="end">베이스라인</text>
 <path d="M300.0,63.0 H462.8 Q466.8,63.0 466.8,67.0 V79.0 Q466.8,83.0 462.8,83.0 H300.0 Z" fill="#6e6d68"/>
 <text x="474.8" y="77.5" font-size="13" font-weight="400" fill="#f0f6fc">0.299</text>
-<text x="288" y="111.5" font-size="13" fill="#9198a1" text-anchor="end">외부 데이터 + 외부 클래스까지 학습</text>
+<text x="288" y="111.5" font-size="13" fill="#9198a1" text-anchor="end">최종: 외부 데이터 + 외부 클래스까지 학습</text>
 <path d="M300.0,97.0 H647.3 Q651.3,97.0 651.3,101.0 V113.0 Q651.3,117.0 647.3,117.0 H300.0 Z" fill="#8270FF"/>
 <text x="659.3" y="111.5" font-size="13" font-weight="600" fill="#f0f6fc">0.631</text>
 <rect x="706.3" y="98.5" width="48.5" height="18" rx="9.0" fill="#2B2558"/><text x="730.6" y="111.0" font-size="11.5" font-weight="700" fill="#B9AFFF" text-anchor="middle">+111%</text>
@@ -45,8 +45,4 @@
 <path d="M300.0,261.0 H547.4 Q551.4,261.0 551.4,265.0 V277.0 Q551.4,281.0 547.4,281.0 H300.0 Z" fill="#8270FF"/>
 <text x="559.4" y="275.5" font-size="13" font-weight="600" fill="#f0f6fc">0.451</text>
 <rect x="606.4" y="262.5" width="41.6" height="18" rx="9.0" fill="#2B2558"/><text x="627.2" y="275.0" font-size="11.5" font-weight="700" fill="#B9AFFF" text-anchor="middle">+74%</text>
-<text x="16" y="323.5" font-size="14" font-weight="600" fill="#f0f6fc">YOLO11m</text>
-<text x="288" y="323.5" font-size="13" fill="#9198a1" text-anchor="end">최종 모델 (전체 데이터 학습)</text>
-<rect x="300.5" y="309.5" width="195.0" height="19" rx="4" fill="none" stroke="#8270FF" stroke-width="1.5" stroke-dasharray="4 3"/>
-<text x="310" y="323.5" font-size="12" fill="#9198a1">결과 기입 예정</text>
 </svg>
