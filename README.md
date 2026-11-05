@@ -198,7 +198,7 @@ one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞�
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results_dark.svg">
-  <img src="docs/assets/results_light.svg" alt="모델·설정별 Kaggle mAP@[0.75:0.95]. 베이스라인은 YOLO11m 0.299, YOLO26m 0.179, Faster R-CNN 0.259. 외부 데이터를 더한 YOLO11m 0.631, 외부 데이터와 copy-paste를 쓴 YOLO26m 0.607." width="820">
+  <img src="docs/assets/results_light.svg" alt="모델·설정별 Kaggle mAP@[0.75:0.95]. 베이스라인은 YOLO11m 0.299, YOLO26m 0.179, Faster R-CNN 0.259. 외부 데이터를 더한 YOLO11m 0.631, 외부 데이터와 copy-paste를 쓴 YOLO26m 0.607, Faster R-CNN 최종 모델 0.451." width="820">
 </picture>
 
 <details>
@@ -211,6 +211,7 @@ one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞�
 | Faster R-CNN | 베이스라인 (30 에폭, 외부 데이터 없음) | 0.25918 |
 | YOLO11m | 외부 데이터, 외부 클래스까지 학습 | 0.63060 |
 | YOLO26m | 외부 데이터 + copy-paste | 0.607 |
+| Faster R-CNN | 최종 모델 | 0.45127 |
 | **YOLO11m** | **최종 모델** (전체 데이터 학습 후 기입) | |
 
 </details>
