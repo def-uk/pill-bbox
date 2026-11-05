@@ -101,8 +101,8 @@ from models.evaluate import evaluate_fold, make_submission, predict_test, summar
 
 weights = "runs/base_v1/yolo11m_setup30fix_v1_s42_augon_optauto_fold0/weights/best.pt"
 evaluate_fold(weights, "v1", "setup30fix_v1_s42", fold=0, exp="base_v1")
-summarize_exp("base_v1")                      # 모델·분할·증강별 fold 평균·표준편차
-predict_test(weights, "v1", exp="base_v1")    # test 842장 예측
+summarize_exp("base_v1")  # 모델·분할·증강별 fold 평균·표준편차
+predict_test(weights, "v1", exp="base_v1")  # test 842장 예측
 make_submission(weights, "v1", exp="base_v1")  # test 예측 → 제출 csv
 ```
 

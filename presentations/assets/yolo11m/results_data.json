@@ -1,0 +1,339 @@
+{
+  "scope": "Saved notebook output candidates; not yet verified as the four user-described default-augmentation experiments",
+  "rounding": "Values in saved outputs are rounded to 5 decimal places",
+  "missing_value": null,
+  "experiments": [
+    {
+      "id": "baseline",
+      "label": "기준 실험",
+      "short": "기준 실험",
+      "ref": "origin/exp/yolo11m_100",
+      "file": "notebooks/yolo11m_epoch100.ipynb",
+      "color": "#29756c",
+      "patience": 10,
+      "device": "NVIDIA A100-SXM4-40GB",
+      "commit": "903dca725fca194d4f336c94b14c533dae3cdf69",
+      "status": "candidate",
+      "folds": [
+        {
+          "fold": 0,
+          "map75_95": 0.88456,
+          "map50": 0.93468,
+          "map50_95": 0.90962,
+          "precision": 0.92892,
+          "recall": 0.93891,
+          "inference_ms": 5.68317,
+          "pipeline_ms": 12.73875,
+          "pipeline_fps": 78.50066
+        },
+        {
+          "fold": 1,
+          "map75_95": 0.90471,
+          "map50": 0.995,
+          "map50_95": 0.94986,
+          "precision": 0.95082,
+          "recall": 0.98648,
+          "inference_ms": 3.23589,
+          "pipeline_ms": 11.7092,
+          "pipeline_fps": 85.40296
+        },
+        {
+          "fold": 2,
+          "map75_95": 0.94918,
+          "map50": 0.995,
+          "map50_95": 0.97209,
+          "precision": 0.98933,
+          "recall": 0.99353,
+          "inference_ms": 4.75938,
+          "pipeline_ms": 11.3601,
+          "pipeline_fps": 88.02741
+        },
+        {
+          "fold": 3,
+          "map75_95": 0.94619,
+          "map50": 0.98618,
+          "map50_95": 0.96618,
+          "precision": 0.93218,
+          "recall": 0.97759,
+          "inference_ms": 5.72152,
+          "pipeline_ms": 12.35703,
+          "pipeline_fps": 80.92559
+        },
+        {
+          "fold": 4,
+          "map75_95": 0.94129,
+          "map50": 0.95357,
+          "map50_95": 0.94743,
+          "precision": 0.98541,
+          "recall": 0.91075,
+          "inference_ms": 2.39733,
+          "pipeline_ms": 7.81575,
+          "pipeline_fps": 127.94676
+        }
+      ],
+      "summary": {
+        "mean": {
+          "map75_95": 0.92519,
+          "map50": 0.97289,
+          "map50_95": 0.94904,
+          "precision": 0.95733,
+          "recall": 0.96145,
+          "inference_ms": 4.35946,
+          "pipeline_ms": 11.19616,
+          "pipeline_fps": 92.16068
+        },
+        "std": {
+          "map75_95": 0.02892,
+          "map50": 0.02733,
+          "map50_95": 0.0244,
+          "precision": 0.0287,
+          "recall": 0.03534,
+          "inference_ms": 1.48994,
+          "pipeline_ms": 1.96497,
+          "pipeline_fps": 20.34833
+        }
+      },
+      "confusion_summary": {
+        "0": {
+          "gt": 117,
+          "correct": 112,
+          "wrong_class": 5,
+          "missed": 0,
+          "false_positive": 0,
+          "nonzero_cells": 28
+        },
+        "1": {
+          "gt": 123,
+          "correct": 121,
+          "wrong_class": 2,
+          "missed": 0,
+          "false_positive": 1,
+          "nonzero_cells": 28
+        },
+        "2": {
+          "gt": 129,
+          "correct": 128,
+          "wrong_class": 1,
+          "missed": 0,
+          "false_positive": 1,
+          "nonzero_cells": 30
+        },
+        "3": {
+          "gt": 120,
+          "correct": 113,
+          "wrong_class": 2,
+          "missed": 5,
+          "false_positive": 1,
+          "nonzero_cells": 33
+        },
+        "4": {
+          "gt": 126,
+          "correct": 120,
+          "wrong_class": 4,
+          "missed": 2,
+          "false_positive": 3,
+          "nonzero_cells": 36
+        },
+        "합계": {
+          "gt": 615,
+          "correct": 594,
+          "wrong_class": 14,
+          "missed": 7,
+          "false_positive": 6,
+          "nonzero_cells": 50
+        }
+      },
+      "confusion_image": "baseline_confusion_matrix.png",
+      "augmentation": {
+        "degrees": 10.0,
+        "fliplr": 0.0,
+        "flipud": 0.0,
+        "hsv_h": 0.005,
+        "mosaic": 1.0
+      },
+      "confusion_conf": 0.25,
+      "precision_recall_definition": "metrics.box.mp / metrics.box.mr (Ultralytics selected operating point; not fixed conf=0.5)",
+      "metric_eval_conf": 0.001
+    },
+    {
+      "id": "mosaic_off",
+      "label": "Mosaic 제거",
+      "short": "Mosaic 제거",
+      "ref": "origin/exp/yolo11m_mosaic",
+      "file": "notebooks/yolo11m_mosaic.ipynb",
+      "color": "#db5c35",
+      "patience": 5,
+      "device": "Tesla T4",
+      "commit": "a1822ccc3cb30360aceb4580501744ed7483edc7",
+      "status": "candidate",
+      "folds": [
+        {
+          "fold": 0,
+          "map75_95": 0.8536,
+          "map50": 0.93359,
+          "map50_95": 0.89359,
+          "precision": 0.90192,
+          "recall": 0.87722,
+          "inference_ms": 22.92191,
+          "pipeline_ms": 28.54665,
+          "pipeline_fps": 35.03038
+        },
+        {
+          "fold": 1,
+          "map75_95": 0.82341,
+          "map50": 0.90468,
+          "map50_95": 0.86405,
+          "precision": 0.89837,
+          "recall": 0.90564,
+          "inference_ms": 23.31907,
+          "pipeline_ms": 27.47841,
+          "pipeline_fps": 36.39221
+        },
+        {
+          "fold": 2,
+          "map75_95": 0.8613,
+          "map50": 0.995,
+          "map50_95": 0.92815,
+          "precision": 0.97875,
+          "recall": 0.95446,
+          "inference_ms": 23.67868,
+          "pipeline_ms": 27.73508,
+          "pipeline_fps": 36.05542
+        },
+        {
+          "fold": 3,
+          "map75_95": 0.93699,
+          "map50": 0.995,
+          "map50_95": 0.966,
+          "precision": 0.96063,
+          "recall": 0.98161,
+          "inference_ms": 24.4911,
+          "pipeline_ms": 28.62161,
+          "pipeline_fps": 34.93864
+        },
+        {
+          "fold": 4,
+          "map75_95": 0.86827,
+          "map50": 0.95946,
+          "map50_95": 0.91387,
+          "precision": 0.85747,
+          "recall": 0.93998,
+          "inference_ms": 25.07848,
+          "pipeline_ms": 29.31629,
+          "pipeline_fps": 34.11073
+        }
+      ],
+      "summary": {
+        "mean": {
+          "map75_95": 0.86872,
+          "map50": 0.95755,
+          "map50_95": 0.91313,
+          "precision": 0.91943,
+          "recall": 0.93178,
+          "inference_ms": 23.89785,
+          "pipeline_ms": 28.33961,
+          "pipeline_fps": 35.30548
+        },
+        "std": {
+          "map75_95": 0.04183,
+          "map50": 0.0393,
+          "map50_95": 0.03812,
+          "precision": 0.04951,
+          "recall": 0.041,
+          "inference_ms": 0.87768,
+          "pipeline_ms": 0.73882,
+          "pipeline_fps": 0.91939
+        }
+      },
+      "confusion_summary": {
+        "0": {
+          "gt": 117,
+          "correct": 106,
+          "wrong_class": 7,
+          "missed": 4,
+          "false_positive": 3,
+          "nonzero_cells": 34
+        },
+        "1": {
+          "gt": 123,
+          "correct": 113,
+          "wrong_class": 8,
+          "missed": 2,
+          "false_positive": 7,
+          "nonzero_cells": 41
+        },
+        "2": {
+          "gt": 129,
+          "correct": 127,
+          "wrong_class": 1,
+          "missed": 1,
+          "false_positive": 2,
+          "nonzero_cells": 31
+        },
+        "3": {
+          "gt": 120,
+          "correct": 118,
+          "wrong_class": 2,
+          "missed": 0,
+          "false_positive": 1,
+          "nonzero_cells": 29
+        },
+        "4": {
+          "gt": 126,
+          "correct": 118,
+          "wrong_class": 6,
+          "missed": 2,
+          "false_positive": 6,
+          "nonzero_cells": 39
+        },
+        "합계": {
+          "gt": 615,
+          "correct": 582,
+          "wrong_class": 24,
+          "missed": 9,
+          "false_positive": 19,
+          "nonzero_cells": 67
+        }
+      },
+      "confusion_image": "mosaic_off_confusion_matrix.png",
+      "augmentation": {
+        "degrees": 10.0,
+        "fliplr": 0.0,
+        "flipud": 0.0,
+        "hsv_h": 0.005,
+        "mosaic": 0.0
+      },
+      "confusion_conf": 0.25,
+      "precision_recall_definition": "metrics.box.mp / metrics.box.mr (Ultralytics selected operating point; not fixed conf=0.5)",
+      "metric_eval_conf": 0.001
+    },
+    {
+      "id": "external",
+      "label": "외부 데이터 추가",
+      "short": "외부 추가",
+      "ref": "origin/exp/yolo11m_100_ai_hub",
+      "file": "notebooks/yolo11m_epoch100_aihub.ipynb",
+      "color": "#587da5",
+      "commit": "69baec664d190cf6dcb0c605aa556f9fa63b0b3a",
+      "status": "unconfirmed",
+      "folds": [],
+      "summary": null,
+      "confusion_summary": null,
+      "confusion_image": null
+    },
+    {
+      "id": "external_mosaic_off",
+      "label": "외부 데이터 + Mosaic 제거",
+      "short": "외부 + Mosaic 제거",
+      "ref": "origin/exp/yolo11m_100_aihub_mosaic",
+      "file": "notebooks/yolo11m_100_aihub_mosaic.ipynb",
+      "color": "#9a7eaa",
+      "commit": "902a64b01bf755151ffd5b637abfc392d3493287",
+      "status": "unconfirmed",
+      "folds": [],
+      "summary": null,
+      "confusion_summary": null,
+      "confusion_image": null
+    }
+  ]
+}
