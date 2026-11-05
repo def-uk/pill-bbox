@@ -45,7 +45,7 @@ data/processed/yolo/v1/splits/setup30fix_v1_s42/fold_4/data.yaml
 `v2auto`를 v1과 비교할 때는 두 가지를 지킵니다.
 
 - 분할은 `combo_v2auto_s42`를 씁니다. fold 구성이 `combo_v1_s42`와 같습니다. `setup30fix`는 박스 위치로 묶음을 정하므로 fold마다 23–78장이 v1과 다릅니다.
-- v2auto로 학습한 `best.pt`도 **v1 라벨로 평가**합니다(`evaluate_fold(weights, "v1", "combo_v1_s42", fold=k, ...)`). 줄인 박스로 잰 검증 점수는 여백이 있는 정답 기준의 점수와 비교할 수 없습니다.
+- v2auto로 학습한 `best.pt`도 **v1 라벨로 평가**합니다(`data_yaml_path("v1", "combo_v1_s42", k)`의 val로 검증). 줄인 박스로 잰 검증 점수는 여백이 있는 정답 기준의 점수와 비교할 수 없습니다.
 
 보정은 원본 JSON을 고치지 않고 `data/processed/corrections.csv`(보정 기록)로 적용합니다. 기록마다 "지금 박스가 기록의 이전 좌표와 같을 때만" 적용되므로 잘못된 기록이 조용히 섞이지 않습니다.
 
@@ -72,27 +72,19 @@ data/processed/yolo/v1/splits/setup30fix_v1_s42/fold_4/data.yaml
 
 ## 평가와 test 예측
 
-주 지표는 **mAP75-95**입니다. IoU 0.75, 0.80, 0.85, 0.90, 0.95 다섯 기준의 AP 평균으로, 박스가 알약에 꼭 맞아야 점수가 납니다. 학습 중 `best.pt` 선택과 early stopping, 실험 요약의 정렬이 모두 이 값을 씁니다. mAP50, mAP75, mAP50-95도 함께 기록합니다. 대회 채점 지표 mAP@[0.75:0.95]와 같습니다.
+주 지표는 **mAP75-95**입니다. IoU 0.75, 0.80, 0.85, 0.90, 0.95 다섯 기준의 AP 평균으로, 박스가 알약에 꼭 맞아야 점수가 납니다. 학습 중 `best.pt` 선택과 early stopping이 이 값을 씁니다. mAP50, mAP75, mAP50-95도 함께 기록합니다. 대회 채점 지표 mAP@[0.75:0.95]와 같습니다.
 
-노트북은 학습 뒤 평가와 제출 csv까지 만듭니다. 학습한 `best.pt`를 따로 평가할 때:
+fold 평가는 노트북이 학습 뒤에 직접 합니다. 학습한 `best.pt`로 test를 예측하고 제출 csv를 따로 만들 때:
 
 ```python
-from models.evaluate import evaluate_fold, make_submission, predict_test, summarize_exp
+from models.evaluate import make_submission, predict_test
 
 weights = "runs/base_v1/yolo11m_setup30fix_v1_s42_augon_optauto_fold0/weights/best.pt"
-evaluate_fold(weights, "v1", "setup30fix_v1_s42", fold=0, exp="base_v1")
-summarize_exp("base_v1")  # 모델·분할·증강별 fold 평균·표준편차
 predict_test(weights, "v1", exp="base_v1")  # test 842장 예측
 make_submission(weights, "v1", exp="base_v1")  # test 예측 → 제출 csv
 ```
 
-- 결과는 `runs/<exp>/results/`에 저장됩니다. Drive에 학습했다면 모든 함수의 `runs_dir=`에 같은 Drive 경로를 넘깁니다.
-- `evaluate_fold`: 클래스별 AP(AP50, AP50-95, AP75-95), 클래스 그룹(bbox 21개 이상 / 6–20 / 5개 이하)별 평균 AP75-95, 닮은 약 3쌍의 혼동 수를 저장합니다.
-  - 고정 기준(신뢰도 0.5 이상 예측, 정답과 IoU 0.5 이상이면 짝)으로 센 정밀도·재현율·F1·평균 IoU(`precision`, `recall`, `f1`, `mean_iou`)도 저장합니다. 기준이 고정이라 실험끼리 바로 비교할 수 있습니다.
-  - 사진 한 장당 시간(ms) `ms_preprocess`, `ms_inference`, `ms_postprocess`도 저장합니다. NMS 시간은 `ms_postprocess`에 들어 있습니다. 같은 장비·배치 크기에서 잰 값끼리만 비교합니다.
-  - YOLO26처럼 NMS 없는 출력층이 있는 모델은 `nms=False`로 한 번 더 평가해 `<run 이름>_nms_free.csv`에 NMS 사용(`nms`)·미사용(`nms_free`) 두 행으로 저장합니다. ultralytics 기본값에서는 **YOLO26도 NMS를 거쳐** 학습 중 검증·평가·제출 예측을 하므로, 주 지표 비교(`summary.csv`)는 두 모델 모두 NMS를 쓴 값입니다.
-- `summarize_exp`: fold 요약을 run별 평균·표준편차로 모아 `summary.csv`에, NMS-free 결과가 있으면 run·head별로 `summary_nms_free.csv`에 저장합니다.
-- `plot_results`: fold 점수, 정밀도·재현율·F1·평균 IoU, 닮은 약 혼동, 클래스별 AP75-95 그림을 그립니다.
+- 결과는 `runs/<exp>/results/`에 저장됩니다. Drive에 학습했다면 `runs_dir=`에 같은 Drive 경로를 넘깁니다.
 - `predict_test`: `category_id`와 픽셀 좌표 `[x, y, w, h]`로 되돌려 `<run 이름>_test_pred.csv`로 저장합니다.
 - `make_submission`: test를 예측해 제출 형식 `annotation_id, image_id, category_id, bbox_x, bbox_y, bbox_w, bbox_h, score`로 `<run 이름>_submission_conf<conf>.csv`에 저장합니다. `image_id`는 test 파일 이름의 숫자, `category_id`는 원본 JSON의 id입니다. 기본 `conf`는 0.001입니다. mAP 채점이라 점수 낮은 박스를 더해도 점수가 떨어지지 않기 때문입니다(파일 약 20MB). 터미널에서는 `uv run python -m models.evaluate --weights <best.pt> --exp <exp>`.
 
@@ -151,4 +143,4 @@ runs/<exp>/                                         # 커밋 안 함. --runs-dir
 | `data_process/data_yaml.py` | `class_map.csv`, fold별 `train.txt`·`val.txt`·`data.yaml` |
 | `data_process/move_files.py` | 이미지 링크(안 되면 복사) |
 | `notebooks/yolo11m_100_aihub_not_background.ipynb` | 최종 모델 학습(mAP75-95로 best.pt 선택), 평가, 제출 csv |
-| `models/evaluate.py` | 주 지표(`MAIN_METRIC`), 평가 집계, test 예측, 제출 csv |
+| `models/evaluate.py` | test 예측, 제출 csv |
