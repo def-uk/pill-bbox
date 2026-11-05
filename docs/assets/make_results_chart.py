@@ -11,13 +11,14 @@ OUT_DIR = Path(__file__).parent
 
 # (모델, 설정, Kaggle mAP@[0.75:0.95], 종류)
 # 종류: "base" 베이스라인(회색), "changed" 바꾼 설정(강조), "final" 최종 모델(점수 None이면 점선)
+# 바꾼 설정은 점수 옆 배지에 같은 모델 베이스라인 대비 증가율을 적는다.
 RESULTS = [
     ("YOLO11m", "베이스라인", 0.29946, "base"),
     ("YOLO11m", "외부 데이터 + 외부 클래스까지 학습", 0.63060, "changed"),
     ("YOLO26m", "베이스라인", 0.17877, "base"),
     ("YOLO26m", "외부 데이터 + copy-paste", 0.607, "changed"),
     ("Faster R-CNN", "베이스라인", 0.25918, "base"),
-    ("Faster R-CNN", "최종 모델", 0.45127, "changed"),
+    ("Faster R-CNN", "외부 데이터 + copy-paste", 0.45127, "changed"),
     ("YOLO11m", "최종 모델 (전체 데이터 학습)", None, "final"),
 ]
 
@@ -28,6 +29,8 @@ THEMES = {
         "grid": "#d1d9e0",
         "base": "#8c8b85",
         "changed": "#452AF7",
+        "pill_bg": "#ECE9FE",
+        "pill_text": "#3A22D6",
     },
     "dark": {
         "text": "#f0f6fc",
@@ -35,6 +38,8 @@ THEMES = {
         "grid": "#3d444d",
         "base": "#6e6d68",
         "changed": "#8270FF",
+        "pill_bg": "#2B2558",
+        "pill_text": "#B9AFFF",
     },
 }
 
@@ -46,13 +51,31 @@ LEGEND = (("base", "베이스라인 (30 에폭, 외부 데이터 없음)"), ("ch
 
 WIDTH = 820
 LABEL_W = 300  # 왼쪽 라벨 영역
-PLOT_W = 430
+PLOT_W = 390
 ROW_H = 34
 BAR_H = 20
 GROUP_GAP = 14
 TOP = 56
 X_MAX = 0.7
 RADIUS = 4
+PILL_H = 18
+
+
+def text_width(text, size):
+    """SVG 글자 폭 어림값. 한글은 글자 크기만큼, 나머지는 그 절반 남짓."""
+    return sum(size * (0.95 if ord(ch) > 0x1100 else 0.6) for ch in text)
+
+
+def pill(x, cy, label, c):
+    """증가율 배지. x는 왼쪽 끝, cy는 글자 기준선."""
+    w = text_width(label, 11.5) + 14
+    y = cy - 4.5 - PILL_H / 2 + 0.5
+    return (
+        f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{PILL_H}" '
+        f'rx="{PILL_H / 2}" fill="{c["pill_bg"]}"/>'
+        f'<text x="{x + w / 2:.1f}" y="{cy - 0.5:.1f}" font-size="11.5" font-weight="700" '
+        f'fill="{c["pill_text"]}" text-anchor="middle">{label}</text>'
+    ), w
 
 
 def bar_path(x0, y, w, h, r):
@@ -81,6 +104,7 @@ def render(theme):
         prev = model
     plot_bottom = y
     height = plot_bottom + 34
+    baselines = {m: s for m, _, s, k in RESULTS if k == "base"}
 
     out = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{height}" '
@@ -88,14 +112,20 @@ def render(theme):
         f'aria-label="모델·설정별 Kaggle mAP@[0.75:0.95] 막대그래프">'
     ]
 
-    # 범례
-    lx = x0
+    # 범례: 색 두 가지와 증가율 배지
+    lx = 16
     for key, label in LEGEND:
         out.append(f'<rect x="{lx}" y="14" width="12" height="12" rx="3" fill="{c[key]}"/>')
         out.append(
             f'<text x="{lx + 18}" y="24.5" font-size="13" fill="{c["muted"]}">{label}</text>'
         )
-        lx += 18 + len(label) * 9.5 + 22
+        lx += 18 + text_width(label, 13) + 22
+    svg, pw = pill(lx, 24.5, "+%", c)
+    out.append(svg)
+    out.append(
+        f'<text x="{lx + pw + 6:.1f}" y="24.5" font-size="13" fill="{c["muted"]}">'
+        "같은 모델 베이스라인 대비</text>"
+    )
 
     # 격자와 축 눈금
     for i in range(int(X_MAX * 10) + 1):
@@ -139,11 +169,15 @@ def render(theme):
         fill = c["base"] if kind == "base" else c["changed"]
         weight = "600" if kind != "base" else "400"
         out.append(f'<path d="{bar_path(x0, by, w, BAR_H, RADIUS)}" fill="{fill}"/>')
+        label = f"{score:.3f}"
         out.append(
             f'<text x="{x0 + w + 8:.1f}" y="{cy}" font-size="13" font-weight="{weight}" '
-            f'fill="{c["text"]}">{score:.3f}</text>'
+            f'fill="{c["text"]}">{label}</text>'
         )
-
+        base = baselines.get(model)
+        if kind != "base" and base:
+            px = x0 + w + 8 + text_width(label, 13) + 8
+            out.append(pill(px, cy, f"{score / base - 1:+.0%}", c)[0])
     out.append("</svg>")
     return "\n".join(out) + "\n"
 
