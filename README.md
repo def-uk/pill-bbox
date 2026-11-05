@@ -6,8 +6,10 @@
 
 **알약 사진 한 장으로 복용을 기록하고, 꾸준한 기록을 캐릭터 성장과 몬스터 퇴치로 바꾸는 서비스**
 
-이 저장소는 알약몬의 알약 인식 모델입니다. 알약 사진에서 알약마다 위치(bbox)와 종류(56종)를 찾습니다.
+이 저장소는 알약몬의 알약 인식 모델입니다. 알약 사진에서 알약마다 위치(bbox)와 종류(56종)를 찾습니다.<br/>
+서비스 앱은 [pill-bbox-front](https://github.com/def-uk/pill-bbox-front)에 있습니다.
 
+[![App](https://img.shields.io/badge/app-pill--bbox--front-452AF7?logo=flutter&logoColor=white)](https://github.com/def-uk/pill-bbox-front)
 [![Python](https://img.shields.io/badge/Python-3.12-452AF7?logo=python&logoColor=white)](pyproject.toml)
 [![uv](https://img.shields.io/badge/uv-managed-452AF7?logo=astral&logoColor=white)](https://docs.astral.sh/uv/)
 [![Model](https://img.shields.io/badge/model-YOLO11m-452AF7)](#결과)
@@ -83,8 +85,18 @@ flowchart LR
 | 모으고 보여 주는 보상 | 유니크 스킨과 몬스터 펫을 장착하거나 컬렉션에 전시해 "나도 갖고 싶다"는 마음이 들게 합니다. |
 | 하루 기준량까지만 보상 | 치료약은 처방된 하루 복용량, 영양제는 제품의 하루 권장량까지만 반영합니다. 넘긴 기록에는 성장·체력 감소·뽑기가 없습니다. |
 
+### 서비스 앱
+
+사진 한 장으로 복용을 기록하는 흐름은 [pill-bbox-front](https://github.com/def-uk/pill-bbox-front)에 Flutter 앱으로 구현되어 있습니다.
+
+| 항목 | 내용 |
+|---|---|
+| 하는 일 | 알약 사진에서 약 종류와 개수를 찾아 복용 기록으로 남김. 처음 보는 약은 저장할 때 등록 |
+| 추론 | 서버 없이 기기 안에서 실행 (웹 ONNX, Android TFLite, iOS Core ML) |
+| 쓰는 모델 | `combofix-v1-fold1-w8` (`yolo11m`). 대회 56종에 AI Hub 40종을 더한 96종, 가중치 int8(80MB → 20MB) |
+
 > [!NOTE]
-> 서비스 구상은 확장 제안 단계입니다. 이 저장소에서 구현한 것은 알약 검출 모델이며, 기능별 상세 설명은 [docs/SERVICE_PLAN.md](docs/SERVICE_PLAN.md)에 있습니다.
+> 캐릭터 성장, 몬스터 퇴치, 처방전 스캔은 아직 확장 제안 단계입니다. 기능별 상세 설명은 [docs/SERVICE_PLAN.md](docs/SERVICE_PLAN.md)에 있습니다.
 
 ## 데이터
 
