@@ -11,6 +11,7 @@ OUT_DIR = Path(__file__).parent
 
 # (모델, 설정, Kaggle mAP@[0.75:0.95], 종류)
 # 종류: "base" 베이스라인(회색), "changed" 바꾼 설정(강조), "final" 최종 모델(점수 None이면 점선)
+# 바꾼 설정 막대는 같은 모델 베이스라인까지와 늘어난 부분을 다른 색으로 칠하고 증가율을 적는다.
 RESULTS = [
     ("YOLO11m", "베이스라인", 0.29946, "base"),
     ("YOLO11m", "외부 데이터 + 외부 클래스까지 학습", 0.63060, "changed"),
@@ -28,6 +29,8 @@ THEMES = {
         "grid": "#d1d9e0",
         "base": "#8c8b85",
         "changed": "#452AF7",
+        "changed_soft": "#C3BAFC",
+        "on_changed": "#ffffff",
     },
     "dark": {
         "text": "#f0f6fc",
@@ -35,6 +38,8 @@ THEMES = {
         "grid": "#3d444d",
         "base": "#6e6d68",
         "changed": "#8270FF",
+        "changed_soft": "#40387A",
+        "on_changed": "#ffffff",
     },
 }
 
@@ -80,7 +85,8 @@ def render(theme):
         y += ROW_H
         prev = model
     plot_bottom = y
-    height = plot_bottom + 34
+    height = plot_bottom + 58
+    baselines = {m: s for m, _, s, k in RESULTS if k == "base"}
 
     out = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{height}" '
@@ -139,11 +145,28 @@ def render(theme):
         fill = c["base"] if kind == "base" else c["changed"]
         weight = "600" if kind != "base" else "400"
         out.append(f'<path d="{bar_path(x0, by, w, BAR_H, RADIUS)}" fill="{fill}"/>')
+        base = baselines.get(model)
+        if kind != "base" and base is not None and score > base:
+            bw = base * sx
+            out.append(
+                f'<rect x="{x0}" y="{by:.1f}" width="{bw:.1f}" height="{BAR_H}" '
+                f'fill="{c["changed_soft"]}"/>'
+            )
+            out.append(
+                f'<text x="{x0 + (bw + w) / 2:.1f}" y="{cy - 0.5}" font-size="12" '
+                f'font-weight="700" fill="{c["on_changed"]}" text-anchor="middle">'
+                f"+{score / base - 1:.0%}</text>"
+            )
         out.append(
             f'<text x="{x0 + w + 8:.1f}" y="{cy}" font-size="13" font-weight="{weight}" '
             f'fill="{c["text"]}">{score:.3f}</text>'
         )
 
+    out.append(
+        f'<text x="16" y="{plot_bottom + 46}" font-size="12" fill="{c["muted"]}">'
+        "보라 막대에서 색이 바뀌는 곳까지가 같은 모델의 베이스라인 점수이고, "
+        "그 뒤가 늘어난 점수입니다. %는 베이스라인 대비 증가율입니다.</text>"
+    )
     out.append("</svg>")
     return "\n".join(out) + "\n"
 
