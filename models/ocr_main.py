@@ -32,6 +32,8 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--workers", type=int, default=0)
     parser.add_argument("--hidden-size", type=int, default=128)
+    parser.add_argument("--optimizer", choices=["AdamW", "MuSGD"], default="AdamW")
+    parser.add_argument("--all-train", action="store_true")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--prepare-only", action="store_true")
     parser.add_argument("--allow-cpu-training", action="store_true")
@@ -44,9 +46,11 @@ def main() -> None:
         split_path,
         set(selection["file_name"]),
         label_mode=args.label_mode,
-        external_val_fraction=args.external_val_fraction,
+        external_val_fraction=0.0 if args.all_train else args.external_val_fraction,
         seed=args.seed,
     )
+    if args.all_train:
+        rows["split"] = "train"
     summary = {
         "label_mode": args.label_mode,
         "fold": args.fold,
@@ -54,7 +58,9 @@ def main() -> None:
         "counts": rows.groupby("split").size().to_dict(),
         "label_sources": rows["label_source"].value_counts().to_dict(),
         "review_file_modified": False,
-        "external_val_fraction": args.external_val_fraction,
+        "external_val_fraction": 0.0 if args.all_train else args.external_val_fraction,
+        "all_train": args.all_train,
+        "optimizer": args.optimizer,
         "image_counts": rows.groupby(["data_source", "split"])["file_name"].nunique().to_dict(),
     }
     summary["image_counts"] = {
@@ -89,6 +95,8 @@ def main() -> None:
         workers=args.workers,
         hidden_size=args.hidden_size,
         label_mode=args.label_mode,
+        optimizer=args.optimizer,
+        all_train=args.all_train,
     )
     print(f"OCR 학습 완료: {checkpoint}", flush=True)
 

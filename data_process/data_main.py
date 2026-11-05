@@ -402,7 +402,37 @@ def main() -> None:
         help="v1 라벨로 여백을 재고 검수표·검수 그림만 만든다 (분할·YOLO 변환 안 함)",
     )
     parser.add_argument("--padding-min", type=float, default=PADDING_MIN, help="여백 후보 기준")
+    parser.add_argument("--full-train-from", type=Path, help="기존 data.yaml의 train·val 합치기")
+    parser.add_argument("--full-train-dir", type=Path, help="전체 학습 입력을 저장할 별도 폴더")
+    parser.add_argument("--holdout-from", type=Path, help="공유 train/val 분할의 원본 data.yaml")
+    parser.add_argument("--holdout-dir", type=Path, help="공유 train/val 분할을 저장할 폴더")
+    parser.add_argument("--val-fraction", type=float, default=0.2)
+    parser.add_argument(
+        "--fixed-train-split", type=Path, help="희귀 조합 train 고정을 읽을 기존 분할"
+    )
     args = parser.parse_args()
+    if args.holdout_from is not None:
+        from data_process.data_yaml import write_holdout_files
+
+        if args.holdout_dir is None or args.full_train_from is not None:
+            parser.error("--holdout-from에는 --holdout-dir만 함께 지정하세요.")
+        print(
+            write_holdout_files(
+                args.holdout_from,
+                args.holdout_dir,
+                args.val_fraction,
+                args.seed,
+                args.fixed_train_split,
+            )
+        )
+        return
+    if args.full_train_from is not None:
+        from data_process.data_yaml import write_full_train_files
+
+        if args.full_train_dir is None:
+            parser.error("--full-train-from에는 --full-train-dir가 필요합니다.")
+        print(write_full_train_files(args.full_train_from, args.full_train_dir))
+        return
     if args.prepare_padding_review:
         prepare_padding_review(args.padding_min)
         return

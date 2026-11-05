@@ -161,9 +161,16 @@ def _label_rows(rows: pd.DataFrame, label_mode: str) -> pd.DataFrame:
     return rows
 
 
-def _approved_rows(rows: pd.DataFrame, label_mode: str = "reviewed") -> pd.DataFrame:
+def _approved_rows(
+    rows: pd.DataFrame, label_mode: str = "reviewed", *, all_train: bool = False
+) -> pd.DataFrame:
     """허용한 정답 출처와 train/val 조합 분리를 학습 시작 전에 검증한다."""
     rows = _label_rows(rows, label_mode)
+    if all_train:
+        if rows.empty or not set(rows["split"]).issubset({"train", "val"}):
+            raise ValueError("전체 OCR 학습에는 train/val 출처의 각인 정답이 필요합니다.")
+        rows["split"] = "train"
+        return rows
     if not set(rows["split"]).issubset({"train", "val"}):
         raise ValueError("OCR 학습 분할은 train/val만 허용합니다.")
     train = rows[rows["split"].eq("train")]
@@ -190,13 +197,15 @@ def train_ocr(
     hidden_size: int = 128,
     label_mode: str = "reviewed",
     cache_crops: bool = True,
+    optimizer: str = "AdamW",
+    all_train: bool = False,
 ) -> Path:
-    """명시한 각인 출처로 독립 OCR을 학습하고 val CER 최저 체크포인트를 반환한다."""
-    rows = _approved_rows(rows, label_mode)
+    """독립 OCR을 학습해 검증 CER 최저 모델 또는 전체 학습의 마지막 모델을 반환한다."""
+    rows = _approved_rows(rows, label_mode, all_train=all_train)
     rows["_crop_index"] = range(len(rows))
     if epochs < 1 or batch < 1 or lr <= 0 or workers < 0 or height < 4 or width < 4:
         raise ValueError("OCR 학습 인자 범위를 확인하세요.")
-    best_path = output_dir / "ocr_best.pt"
+    best_path = output_dir / ("ocr_last.pt" if all_train else "ocr_best.pt")
     if best_path.exists():
         raise FileExistsError(f"기존 OCR 모델을 덮어쓰지 않습니다: {best_path}")
     random.seed(seed)
@@ -227,7 +236,22 @@ def train_ocr(
     )
     device = get_device()
     model = PillCRNN(len(characters) + 1, hidden_size).to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
+    optimizer_name = optimizer
+    if optimizer_name == "AdamW":
+        optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
+    elif optimizer_name == "MuSGD":
+        from ultralytics.optim import MuSGD
+
+        # 행렬·합성곱에만 Muon을 적용하고 편향은 SGD로 갱신한다.
+        optimizer = MuSGD(
+            [
+                {"params": [p for p in model.parameters() if p.ndim >= 2], "use_muon": True},
+                {"params": [p for p in model.parameters() if p.ndim < 2], "use_muon": False},
+            ],
+            lr=lr,
+        )
+    else:
+        raise ValueError("OCR optimizer는 AdamW 또는 MuSGD여야 합니다.")
     criterion = nn.CTCLoss(blank=0, zero_infinity=False)
     output_dir.mkdir(parents=True, exist_ok=True)
     config = dict(
@@ -239,12 +263,16 @@ def train_ocr(
         seed=seed,
         workers=workers,
         hidden_size=hidden_size,
-        optimizer="AdamW",
+        optimizer=optimizer_name,
+        all_train=all_train,
+        checkpoint_selection="last_epoch" if all_train else "lowest_val_cer",
+        optimizer_defaults=optimizer.defaults,
         device=device,
         label_mode=label_mode,
         cache_crops=cache_crops,
         external_val_fraction=rows.attrs.get("external_val_fraction"),
         split_seed=rows.attrs.get("split_seed"),
+        shared_split_path=rows.attrs.get("shared_split_path"),
     )
     (output_dir / "config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
     rows.to_csv(output_dir / "label_split.csv", index=False)
@@ -275,18 +303,19 @@ def train_ocr(
                     errors += edit_distance(truth, predicted)
                     total_chars += len(truth)
                     exact += predicted == truth
-        cer = errors / max(total_chars, 1)
+        cer = None if all_train else errors / max(total_chars, 1)
         record = dict(
             epoch=epoch,
             train_loss=loss_sum / len(train),
-            val_cer=cer,
-            val_exact_accuracy=exact / len(val),
         )
+        if not all_train:
+            record.update(val_cer=cer, val_exact_accuracy=exact / len(val))
         history.append(record)
         pd.DataFrame(history).to_csv(output_dir / "history.csv", index=False)
         print(record, flush=True)
-        if cer < best_cer:
-            best_cer = cer
+        if all_train or cer < best_cer:
+            if not all_train:
+                best_cer = cer
             checkpoint = dict(
                 state_dict={k: v.detach().cpu() for k, v in model.state_dict().items()},
                 characters=characters,
@@ -495,6 +524,8 @@ def evaluate_ocr_predictions(predictions: pd.DataFrame, truth: pd.DataFrame) -> 
 
     if truth.empty:
         raise ValueError("OCR 재분류 비교에 validation 정답이 필요합니다.")
+    if predictions.empty:
+        return dict(precision=0.0, recall=0.0, map50=0.0, map50_95=0.0, map75_95=0.0)
     if set(predictions["file_name"]) - set(truth["file_name"]):
         raise ValueError("validation 정답에 없는 이미지의 예측이 섞였습니다.")
     thresholds = np.linspace(0.5, 0.95, 10)
