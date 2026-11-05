@@ -14,7 +14,7 @@
 [![uv](https://img.shields.io/badge/uv-managed-452AF7?logo=astral&logoColor=white)](https://docs.astral.sh/uv/)
 [![Model](https://img.shields.io/badge/model-YOLO11m-452AF7)](#결과)
 [![Kaggle](https://img.shields.io/badge/Kaggle%20mAP%400.75%3A0.95-0.6306-452AF7?logo=kaggle&logoColor=white)](#결과)
-[![Notion](https://img.shields.io/badge/%EC%A7%84%ED%96%89%20%EA%B8%B0%EB%A1%9D-Notion-000000?logo=notion&logoColor=white)](https://app.notion.com/p/4fbcef24bb194f369f6751ae5a0b6e61?source=copy_link)
+[![Notion](https://img.shields.io/badge/%ED%98%91%EC%97%85%20%EC%9D%BC%EC%A7%80-Notion-000000?logo=notion&logoColor=white)](https://app.notion.com/p/4051a367c3dc8014b321ce35b8487ce5?v=4051a367c3dc8043b777000cd47de162&source=copy_link)
 
 [문제 정의](#문제-정의) · [서비스 구상](#서비스-구상) · [데이터](#데이터) · [접근 방법](#접근-방법) · [실험](#실험) · [결과](#결과) · [팀](#팀) · [시작하기](#시작하기) · [개발 가이드](#개발-가이드) · [폴더 구조](#폴더-구조)
 
@@ -149,7 +149,7 @@ flowchart LR
 
 ## 실험
 
-실험마다 베이스라인 대비 한 가지만 바꿨습니다. 전체 목록과 그래프는 [Notion 실험 페이지](https://app.notion.com/p/4fbcef24bb194f369f6751ae5a0b6e61?source=copy_link)에 있습니다.
+실험마다 베이스라인 대비 한 가지만 바꿨습니다.
 
 ### 1. 베이스라인 및 아키텍처 비교
 
