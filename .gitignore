@@ -243,6 +243,10 @@ wandb/
 data/raw/
 data/processed/*
 !data/processed/*.csv
+# 로컬 data/ 전체 제외 설정이 있어도 팀 공유용 검수 CSV는 표시한다.
+!data/
+!data/processed/
+!data/processed/02_eda_*.csv
 # 외부 데이터(AI Hub 등)를 푼 폴더
 data/external/
 
