@@ -18,7 +18,7 @@ RESULTS = [
     ("YOLO26m", "베이스라인", 0.17877, "base"),
     ("YOLO26m", "외부 데이터 + copy-paste", 0.607, "changed"),
     ("Faster R-CNN", "베이스라인", 0.25918, "base"),
-    ("Faster R-CNN", "최종 모델", 0.45127, "changed"),
+    ("Faster R-CNN", "외부 데이터 + copy-paste", 0.45127, "changed"),
     ("YOLO11m", "최종 모델 (전체 데이터 학습)", None, "final"),
 ]
 

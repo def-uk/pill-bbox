@@ -41,7 +41,7 @@
 <text x="288" y="241.5" font-size="13" fill="#9198a1" text-anchor="end">베이스라인</text>
 <path d="M300.0,227.0 H440.4 Q444.4,227.0 444.4,231.0 V243.0 Q444.4,247.0 440.4,247.0 H300.0 Z" fill="#6e6d68"/>
 <text x="452.4" y="241.5" font-size="13" font-weight="400" fill="#f0f6fc">0.259</text>
-<text x="288" y="275.5" font-size="13" fill="#9198a1" text-anchor="end">최종 모델</text>
+<text x="288" y="275.5" font-size="13" fill="#9198a1" text-anchor="end">외부 데이터 + copy-paste</text>
 <path d="M300.0,261.0 H547.4 Q551.4,261.0 551.4,265.0 V277.0 Q551.4,281.0 547.4,281.0 H300.0 Z" fill="#8270FF"/>
 <text x="559.4" y="275.5" font-size="13" font-weight="600" fill="#f0f6fc">0.451</text>
 <rect x="606.4" y="262.5" width="41.6" height="18" rx="9.0" fill="#2B2558"/><text x="627.2" y="275.0" font-size="11.5" font-weight="700" fill="#B9AFFF" text-anchor="middle">+74%</text>
