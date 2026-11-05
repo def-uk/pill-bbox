@@ -63,38 +63,18 @@ data/processed/yolo/v1/splits/setup30fix_v1_s42/fold_4/data.yaml
 
 ## 학습
 
-```bash
-# 동작 확인 (짧게, wandb 끔)
-WANDB_MODE=disabled uv run python -m models.model_main --model yolo11m.pt yolo26m.pt \
-    --split combo_v1_s42 --folds 0 --epochs 1 --fraction 0.1 --exp smoke
+학습은 최종 모델 노트북 `notebooks/yolo11m_100_aihub_not_background.ipynb`에서 합니다. 노트북이 이 문서의 데이터 파이프라인(`data_process.data_main`)으로 라벨·분할·YOLO 입력을 만든 뒤 Ultralytics로 직접 학습합니다. 설정은 노트북의 "기본 설정 한눈에" 표에 있습니다.
 
-# 본 학습 예: 두 모델 × 증강 on/off × 5 fold
-uv run python -m models.model_main --model yolo11m.pt yolo26m.pt \
-    --split setup30fix_v1_s42 --aug on off --epochs 100 --exp base_v1
-
-# Colab: 결과를 Google Drive에 저장. 런타임이 끊기면 같은 명령에 --resume을 붙여 다시 실행
-uv run python -m models.model_main --model yolo26m.pt --split setup30fix_v1_s42 \
-    --epochs 100 --exp base_v1 --runs-dir /content/drive/MyDrive/pill-bbox/runs --resume
-```
-
-- 후보 모델은 `yolo11m.pt`, `yolo26m.pt`입니다. 가중치는 첫 실행에서 자동으로 받습니다.
-- **전체 파인튜닝**입니다. 분류 출력층만 56종용으로 새로 만들고 나머지 층은 사전학습 가중치에서 시작해 모두 학습합니다(`freeze` 없음).
-- 증강은 `--aug`로 고릅니다. `on`은 계획의 기본값(회전 10°, 색조 변화 약하게, 뒤집기 끔), `off`는 이미지를 바꾸는 증강을 모두 끕니다. 값은 `models/train.py`의 `AUG_PRESETS`에 있습니다.
-- 옵티마이저는 `--optimizer`로 고릅니다(`auto`, `SGD`, `MuSGD`, `Adam`, `Adamax`, `AdamW`, `NAdam`, `RAdam`, `RMSProp`). `--aug`처럼 여러 개를 주면 같은 fold에서 비교합니다(예: `--optimizer AdamW SGD`).
-  - 기본 `auto`는 우리 데이터에서 항상 **AdamW, lr0 약 0.00017**을 고릅니다. 반복 수(⌈학습 사진 수/64⌉ × epoch)가 10,000 미만이기 때문입니다. `auto`는 `--lr0`를 무시하므로 함께 주면 에러로 멈춥니다.
-  - 옵티마이저를 고르면 `--lr0`로 시작 학습률을 정합니다. 생략하면 SGD 계열 0.01, 그 밖은 0.001입니다. `--cos-lr`은 학습률을 cosine 곡선으로 줄입니다.
-  - 실제로 쓰인 옵티마이저와 lr0는 wandb config의 `optimizer_used`, `lr0_used`에 남습니다.
-- 결과는 `runs/<exp>/<모델>_<분할>_aug<on|off>_opt<옵티마이저>_fold<k>/`에 쌓입니다. `--runs-dir`로 `runs/` 대신 다른 폴더(Colab에서는 Drive)를 지정합니다. wandb config에 라벨 버전·분할·fold·seed·증강·옵티마이저가 기록됩니다. 학습률을 바꿔 비교할 때는 폴더 이름에 lr0가 들어가지 않으므로 `--exp`를 다르게 줍니다.
-- 체크포인트는 `weights/last.pt`(매 epoch 덮어씀)와 `weights/best.pt`(검증 **mAP75-95**가 가장 높은 epoch)입니다. `results.csv`는 epoch별 점수 기록이고 `metrics/mAP75-95(B)` 열이 들어 있습니다.
-- `--resume`을 붙이면 fold마다 `last.pt`에서 이어 학습하고, 이미 끝난 fold는 건너뜁니다. 이어 학습은 처음 학습할 때의 인자(epoch 수, 증강 등)를 그대로 씁니다. `--resume` 없이 같은 `--exp`로 다시 실행하면 덮어쓰지 않고 멈춥니다.
-- fold 학습이 끝나면 자동으로 `best.pt`를 평가하고, 마지막에 실험 요약(`results/summary.csv`)을 만듭니다.
-- 장치는 `get_device()`가 고릅니다(cuda → mps → cpu). Mac(MPS)에서는 yolo26m 1 epoch(학습 사진 10%)에 25분 정도 걸렸으므로 **Mac은 동작 확인만, 본 학습은 Colab GPU**에서 합니다.
+- 모델은 `yolo11m.pt`, 100 epoch(patience 10), MuSGD lr0 0.001, 배치 16, 이미지 640, seed 42입니다.
+- **전체 파인튜닝**입니다. 분류 출력층만 새로 만들고 나머지 층은 사전학습 가중치에서 시작해 모두 학습합니다(`freeze` 없음).
+- `best.pt`는 검증 **mAP75-95**가 가장 높은 epoch입니다. early stopping도 이 값을 씁니다.
+- 장치는 `get_device()`가 고릅니다(cuda → mps → cpu). Mac(MPS)은 느리므로 **본 학습은 Colab GPU**에서 합니다.
 
 ## 평가와 test 예측
 
 주 지표는 **mAP75-95**입니다. IoU 0.75, 0.80, 0.85, 0.90, 0.95 다섯 기준의 AP 평균으로, 박스가 알약에 꼭 맞아야 점수가 납니다. 학습 중 `best.pt` 선택과 early stopping, 실험 요약의 정렬이 모두 이 값을 씁니다. mAP50, mAP75, mAP50-95도 함께 기록합니다. 대회 채점 지표 mAP@[0.75:0.95]와 같습니다.
 
-`model_main`이 학습 뒤 평가까지 하므로 보통은 직접 부르지 않습니다. 따로 돌릴 때:
+노트북은 학습 뒤 평가와 제출 csv까지 만듭니다. 학습한 `best.pt`를 따로 평가할 때:
 
 ```python
 from models.evaluate import evaluate_fold, make_submission, predict_test, summarize_exp
@@ -112,7 +92,7 @@ make_submission(weights, "v1", exp="base_v1")  # test 예측 → 제출 csv
   - 사진 한 장당 시간(ms) `ms_preprocess`, `ms_inference`, `ms_postprocess`도 저장합니다. NMS 시간은 `ms_postprocess`에 들어 있습니다. 같은 장비·배치 크기에서 잰 값끼리만 비교합니다.
   - YOLO26처럼 NMS 없는 출력층이 있는 모델은 `nms=False`로 한 번 더 평가해 `<run 이름>_nms_free.csv`에 NMS 사용(`nms`)·미사용(`nms_free`) 두 행으로 저장합니다. ultralytics 기본값에서는 **YOLO26도 NMS를 거쳐** 학습 중 검증·평가·제출 예측을 하므로, 주 지표 비교(`summary.csv`)는 두 모델 모두 NMS를 쓴 값입니다.
 - `summarize_exp`: fold 요약을 run별 평균·표준편차로 모아 `summary.csv`에, NMS-free 결과가 있으면 run·head별로 `summary_nms_free.csv`에 저장합니다.
-- `plot_results`: fold 점수, 정밀도·재현율·F1·평균 IoU, 닮은 약 혼동, 클래스별 AP75-95 그림을 그립니다. `model_main`은 실험 끝에 `results/plots/`에 저장합니다.
+- `plot_results`: fold 점수, 정밀도·재현율·F1·평균 IoU, 닮은 약 혼동, 클래스별 AP75-95 그림을 그립니다.
 - `predict_test`: `category_id`와 픽셀 좌표 `[x, y, w, h]`로 되돌려 `<run 이름>_test_pred.csv`로 저장합니다.
 - `make_submission`: test를 예측해 제출 형식 `annotation_id, image_id, category_id, bbox_x, bbox_y, bbox_w, bbox_h, score`로 `<run 이름>_submission_conf<conf>.csv`에 저장합니다. `image_id`는 test 파일 이름의 숫자, `category_id`는 원본 JSON의 id입니다. 기본 `conf`는 0.001입니다. mAP 채점이라 점수 낮은 박스를 더해도 점수가 떨어지지 않기 때문입니다(파일 약 20MB). 터미널에서는 `uv run python -m models.evaluate --weights <best.pt> --exp <exp>`.
 
@@ -154,7 +134,7 @@ data/processed/
 └── padding/                                        # 여백 측정 결과와 검수 그림
 
 runs/<exp>/                                         # 커밋 안 함. --runs-dir로 위치 변경
-├── <모델>_<분할>_aug<on|off>_opt<옵티마이저>_fold<k>/  # weights/best.pt, last.pt, results.csv
+├── <run 이름>/                                     # weights/best.pt, last.pt, results.csv
 └── results/                                        # fold별 평가 CSV, summary.csv, test 예측
 ```
 
@@ -170,5 +150,5 @@ runs/<exp>/                                         # 커밋 안 함. --runs-dir
 | `data_process/split.py` | 분할 이름 해석, fold 생성, 누수 검사 |
 | `data_process/data_yaml.py` | `class_map.csv`, fold별 `train.txt`·`val.txt`·`data.yaml` |
 | `data_process/move_files.py` | 이미지 링크(안 되면 복사) |
-| `models/train.py`, `models/model_main.py` | 학습(mAP75-95로 best.pt 선택, 이어서 학습), 증강·옵티마이저 설정, 학습·평가 진입점 |
+| `notebooks/yolo11m_100_aihub_not_background.ipynb` | 최종 모델 학습(mAP75-95로 best.pt 선택), 평가, 제출 csv |
 | `models/evaluate.py` | 주 지표(`MAIN_METRIC`), 평가 집계, test 예측, 제출 csv |

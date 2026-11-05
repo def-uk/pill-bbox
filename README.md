@@ -218,8 +218,6 @@ one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞�
 
 </details>
 
-<!-- 점수를 바꾸면 docs/assets/make_results_chart.py의 RESULTS도 고치고 다시 실행하세요 -->
-
 > [!IMPORTANT]
 > **모델 선택: YOLO11m**
 >
@@ -288,18 +286,15 @@ cp .env.example .env                                      # DATA_URL, WANDB_API_
 uv run python -m data_process.data_main --label v1        # 원본 → 라벨 → 분할 → data.yaml
 ```
 
-학습과 Kaggle 제출 csv 만들기:
+학습은 최종 모델 노트북 [notebooks/yolo11m_100_aihub_not_background.ipynb](notebooks/yolo11m_100_aihub_not_background.ipynb)에서 합니다. 노트북의 "팀원 실행 가이드"를 따라 GPU(Colab)에서 실행하세요.
+
+이미 학습한 `best.pt`로 Kaggle 제출 csv만 만들 때:
 
 ```bash
-# 동작 확인 (1 에폭, 데이터 10%, wandb 끔)
-WANDB_MODE=disabled uv run python -m models.model_main --model yolo11m.pt \
-    --split combo_v1_s42 --folds 0 --epochs 1 --fraction 0.1 --exp smoke
-
-# 제출 csv
 uv run python -m models.evaluate --weights <best.pt 경로> --exp <실험 이름>
 ```
 
-본 학습은 GPU(Colab, Kaggle)에서 합니다. 인자와 결과 위치는 [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md)를 참고하세요.
+데이터 파이프라인과 평가 함수는 [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md)를 참고하세요.
 
 ## 개발 가이드
 
@@ -372,7 +367,7 @@ model.train(data="data.yaml", epochs=100, device=get_device())
 pill-bbox/
 ├── data/               # 데이터 (이미지·annotation은 커밋 안 함)
 ├── data_process/       # 데이터 파이프라인 (라벨 보정, 분할, YOLO 변환, AI Hub 읽기)
-├── models/             # 학습(train.py, model_main.py), 평가·제출(evaluate.py)
+├── models/             # 평가·제출(evaluate.py)
 ├── notebooks/          # EDA, 모델별 실험 노트북
 ├── src/                # 공통 설정 (config.py)
 ├── docs/               # 컨벤션, 데이터 파이프라인 문서
