@@ -372,11 +372,11 @@ model.train(data="data.yaml", epochs=100, device=get_device())
 pill-bbox/
 ├── data/               # 데이터 (이미지·annotation은 커밋 안 함)
 ├── data_process/       # 데이터 파이프라인 (라벨 보정, 분할, YOLO 변환, AI Hub 읽기)
-├── models/             # 학습(train.py, model_main.py), 평가·제출(evaluate.py), 튜닝
+├── models/             # 학습(train.py, model_main.py), 평가·제출(evaluate.py)
 ├── notebooks/          # EDA, 모델별 실험 노트북
 ├── src/                # 공통 설정 (config.py)
 ├── docs/               # 컨벤션, 데이터 파이프라인 문서
-├── main.py
+├── visualization.py    # 그림 그리기 공통 함수
 ├── pyproject.toml
 └── uv.lock
 ```
