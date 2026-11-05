@@ -243,6 +243,11 @@ wandb/
 data/raw/
 data/processed/*
 !data/processed/*.csv
+# 로컬 data/ 제외 설정과 별개로 최종 선택과 검수 이력을 공유한다.
+!data/
+!data/processed/
+!data/processed/02_eda_selection.csv
+!data/processed/02_eda_review_decisions.csv
 # 외부 데이터(AI Hub 등)를 푼 폴더
 data/external/
 
