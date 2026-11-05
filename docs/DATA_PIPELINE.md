@@ -63,7 +63,7 @@ data/processed/yolo/v1/splits/setup30fix_v1_s42/fold_4/data.yaml
 
 ## 학습
 
-학습은 최종 모델 노트북 `notebooks/yolo11m_100_aihub_not_background.ipynb`에서 합니다. 노트북이 이 문서의 데이터 파이프라인(`data_process.data_main`)으로 라벨·분할·YOLO 입력을 만든 뒤 Ultralytics로 직접 학습합니다. 설정은 노트북의 "기본 설정 한눈에" 표에 있습니다.
+학습은 최종 모델 노트북 `notebooks/yolo11m.ipynb`에서 합니다. 노트북이 이 문서의 데이터 파이프라인(`data_process.data_main`)으로 라벨·분할·YOLO 입력을 만든 뒤 Ultralytics로 직접 학습합니다. 설정은 노트북의 "기본 설정 한눈에" 표에 있습니다.
 
 - 모델은 `yolo11m.pt`, 100 epoch(patience 10), MuSGD lr0 0.001, 배치 16, 이미지 640, seed 42입니다.
 - **전체 파인튜닝**입니다. 분류 출력층만 새로 만들고 나머지 층은 사전학습 가중치에서 시작해 모두 학습합니다(`freeze` 없음).
@@ -150,5 +150,5 @@ runs/<exp>/                                         # 커밋 안 함. --runs-dir
 | `data_process/split.py` | 분할 이름 해석, fold 생성, 누수 검사 |
 | `data_process/data_yaml.py` | `class_map.csv`, fold별 `train.txt`·`val.txt`·`data.yaml` |
 | `data_process/move_files.py` | 이미지 링크(안 되면 복사) |
-| `notebooks/yolo11m_100_aihub_not_background.ipynb` | 최종 모델 학습(mAP75-95로 best.pt 선택), 평가, 제출 csv |
+| `notebooks/yolo11m.ipynb` | 최종 모델 학습(mAP75-95로 best.pt 선택), 평가, 제출 csv |
 | `models/evaluate.py` | 주 지표(`MAIN_METRIC`), 평가 집계, test 예측, 제출 csv |
