@@ -143,7 +143,12 @@ table.tbl-compare{width:100%;border-collapse:collapse;margin:8pt 0 14pt;font-siz
   .cover::before{margin:0 0 0}
   h1,h2,h3,.fig-title,.lead{break-after:avoid}
   .fig,table.callout,.key,.so,tr{break-inside:avoid}
+  .pdf-dl{display:none}
 }
+.pdf-dl{position:fixed;top:16px;right:16px;z-index:10;padding:8px 14px;border-radius:6px;
+  background:var(--primary);color:#fff;font:600 13px/1.2 "Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  text-decoration:none;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.pdf-dl:hover{background:var(--accent)}
 </style>
 </head>
 <body>
@@ -512,5 +517,6 @@ Ultralytics YOLO26 (<a href="https://arxiv.org/abs/2606.03748" target="_blank" r
 <a href="https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&amp;topMenu=100&amp;aihubDataSe=data&amp;dataSetSn=576" target="_blank" rel="noopener"><u>AI Hub 경구약제 이미지 데이터</u></a>
 </li></ul>
 </section>
+<a class="pdf-dl" href="report.pdf" download="알약몬_실험보고서.pdf">PDF 내려받기</a>
 </body>
 </html>
