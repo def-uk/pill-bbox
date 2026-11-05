@@ -372,7 +372,6 @@ pill-bbox/
 ├── notebooks/          # EDA, 모델별 실험 노트북
 ├── src/                # 공통 설정 (config.py)
 ├── docs/               # 컨벤션, 데이터 파이프라인 문서
-├── team_test/          # 팀원 Git 연습용
 ├── main.py
 ├── pyproject.toml
 └── uv.lock
