@@ -2,7 +2,7 @@
 
     uv run python -m data_process.data_main --label v1 --split combo_v1_s42 setup30fix_v1_s42
 
-산출물은 모두 data/processed/ 아래에 쓴다(docs/DATA_PIPELINE_PLAN.md 5장).
+산출물은 모두 data/processed/ 아래에 쓴다(docs/DATA_PIPELINE.md "산출물 위치").
 """
 
 import argparse
