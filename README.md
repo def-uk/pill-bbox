@@ -16,7 +16,7 @@
 [![Kaggle](https://img.shields.io/badge/Kaggle%20mAP%400.75%3A0.95-0.6306-452AF7?logo=kaggle&logoColor=white)](#결과)
 [![Notion](https://img.shields.io/badge/%ED%98%91%EC%97%85%20%EC%9D%BC%EC%A7%80-Notion-000000?logo=notion&logoColor=white)](https://app.notion.com/p/4051a367c3dc8014b321ce35b8487ce5?v=4051a367c3dc8043b777000cd47de162&source=copy_link)
 
-**📄 [보고서 내려받기 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/docs/report/report.pdf) · [웹에서 보기](https://raw.githack.com/def-uk/pill-bbox/main/docs/report/report.html) · 🎤 [발표자료](https://alyakmon-presentation-yh.vibrantbeach.chatgpt.site/) · 🧪 [실험 지도](docs/EXPERIMENTS.md)**
+**📄 [보고서 내려받기 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/docs/report/report.pdf) · [웹에서 보기](https://raw.githack.com/def-uk/pill-bbox/main/docs/report/report.html) · 🎤 [발표자료 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/presentations/alyakmon_pt.pdf) · [발표 당일 버전](https://alyakmon-presentation-yh.vibrantbeach.chatgpt.site/) · 🧪 [실험 지도](docs/EXPERIMENTS.md)**
 
 [문제 정의](#문제-정의) · [서비스 구상](#서비스-구상) · [데이터](#데이터) · [접근 방법](#접근-방법) · [실험](#실험) · [결과](#결과) · [팀](#팀) · [시작하기](#시작하기) · [개발 가이드](#개발-가이드) · [폴더 구조](#폴더-구조)
 
@@ -376,7 +376,7 @@ pill-bbox/
 ├── src/                # 공통 설정 (config.py)
 ├── docs/               # 컨벤션, 데이터 파이프라인, 실험 지도, YOLO26m 재검토
 │   └── report/         # 실험 결과 보고서 (HTML·PDF)
-├── presentations/      # 모델별 실험 발표 자료 (HTML)
+├── presentations/      # 최종 발표 자료(PDF), 모델별 실험 발표 자료(HTML)
 ├── visualization.py    # 그림 그리기 공통 함수
 ├── pyproject.toml
 └── uv.lock
