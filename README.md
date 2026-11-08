@@ -16,7 +16,7 @@
 [![Kaggle](https://img.shields.io/badge/Kaggle%20mAP%400.75%3A0.95-0.6306-452AF7?logo=kaggle&logoColor=white)](#결과)
 [![Notion](https://img.shields.io/badge/%ED%98%91%EC%97%85%20%EC%9D%BC%EC%A7%80-Notion-000000?logo=notion&logoColor=white)](https://app.notion.com/p/4051a367c3dc8014b321ce35b8487ce5?v=4051a367c3dc8043b777000cd47de162&source=copy_link)
 
-**📄 [보고서 내려받기 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/docs/report/report.pdf) · [웹에서 보기](https://raw.githack.com/def-uk/pill-bbox/main/docs/report/report.html) · 🎤 [발표자료](https://alyakmon-presentation-yh.vibrantbeach.chatgpt.site/)**
+**📄 [보고서 내려받기 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/docs/report/report.pdf) · [웹에서 보기](https://raw.githack.com/def-uk/pill-bbox/main/docs/report/report.html) · 🎤 [발표자료](https://alyakmon-presentation-yh.vibrantbeach.chatgpt.site/) · 🧪 [실험 지도](docs/EXPERIMENTS.md)**
 
 [문제 정의](#문제-정의) · [서비스 구상](#서비스-구상) · [데이터](#데이터) · [접근 방법](#접근-방법) · [실험](#실험) · [결과](#결과) · [팀](#팀) · [시작하기](#시작하기) · [개발 가이드](#개발-가이드) · [폴더 구조](#폴더-구조)
 
@@ -155,7 +155,7 @@ flowchart LR
 
 ### 1. 베이스라인 및 아키텍처 비교
 
-one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞춰 비교했습니다.
+one-stage와 two-stage 후보를 같은 데이터와 평가 코드로 비교했습니다. 분할과 실행 환경은 모델마다 달랐습니다([YOLO26m 제외 결정 재검토](docs/YOLO26M_REVIEW.md)).
 
 | 실험 | 모델 | 날짜 |
 |---|---|---|
@@ -197,7 +197,8 @@ one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞�
 최종 모델은 **외부 데이터 + 외부 클래스까지 학습한 YOLO11m의 fold 1 `best.pt`** (Kaggle 0.63060)입니다.
 서비스 앱의 `combofix-v1-fold1-w8`이 이 가중치를 int8로 줄인 모델입니다.
 
-실험 코드는 실험별 브랜치(`exp/<모델>_<실험>`)와 [notebooks/](notebooks/)에 있습니다.
+실험별 노트북·PR·점수는 [실험 지도](docs/EXPERIMENTS.md)에 모았습니다. main에는 최종 모델 노트북만 남겼고, 실험 노트북은 모델별 실험 브랜치(`exp/yolo11m`, `exp/yolo26m`, `exp/faster_r-cnn`)에 있습니다.
+모델별 실험 발표 자료: [YOLO11m](https://raw.githack.com/def-uk/pill-bbox/main/presentations/yolo11m.html) · [Faster R-CNN](https://raw.githack.com/def-uk/pill-bbox/main/presentations/faster_rcnn.html)
 
 ## 결과
 
@@ -223,8 +224,9 @@ one-stage와 two-stage 후보를 같은 데이터·분할·평가 코드로 맞�
 > [!IMPORTANT]
 > **모델 선택: YOLO11m**
 >
-> - Kaggle 점수가 세 후보 중 가장 높았습니다.
-> - 휴대폰에서 쓸 서비스라 one-stage 모델의 속도가 이점입니다.
+> - 우리가 낸 제출 중 Kaggle 점수가 가장 높았습니다(0.63060).
+> - 웹·Android·iOS 앱 연동과 검증을 이 모델로 마쳤습니다.
+> - YOLO26m과의 차이(0.024)는 분할·증강·GPU가 달라 정확도 우열로 보지 않습니다. 외부 데이터를 같은 방식으로 넣은 단계에서는 YOLO26m 0.45379, YOLO11m 0.44885였습니다([재검토](docs/YOLO26M_REVIEW.md)).
 > - Faster R-CNN은 증강을 YOLO 기준으로 맞춰 실험해 손해를 봤을 수 있습니다. 시간 안에 다시 맞추기 어려워 후보에서 뺐습니다.
 
 ### 알게 된 점
@@ -370,9 +372,11 @@ pill-bbox/
 ├── data/               # 데이터 (이미지·annotation은 커밋 안 함)
 ├── data_process/       # 데이터 파이프라인 (라벨 보정, 분할, YOLO 변환, AI Hub 읽기)
 ├── models/             # 평가·제출(evaluate.py)
-├── notebooks/          # EDA, 모델별 실험 노트북
+├── notebooks/          # 최종 모델(yolo11m.ipynb), EDA. 실험 노트북은 exp/* 브랜치
 ├── src/                # 공통 설정 (config.py)
-├── docs/               # 컨벤션, 데이터 파이프라인 문서
+├── docs/               # 컨벤션, 데이터 파이프라인, 실험 지도, YOLO26m 재검토
+│   └── report/         # 실험 결과 보고서 (HTML·PDF)
+├── presentations/      # 모델별 실험 발표 자료 (HTML)
 ├── visualization.py    # 그림 그리기 공통 함수
 ├── pyproject.toml
 └── uv.lock
