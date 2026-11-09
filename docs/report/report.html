@@ -161,7 +161,7 @@ table.tbl-compare{width:100%;border-collapse:collapse;margin:8pt 0 14pt;font-siz
 <p class="cv-badge">실험 결과 보고서</p>
 </div><table class="cv-kpi"><tbody><tr><td><p>최종 모델</p><p><strong>YOLO11m</strong></p></td><td><p>Kaggle mAP@[0.75:0.95]</p><p><strong>0.63060</strong></p></td><td><p>베이스라인 대비</p><p><strong>+111%</strong></p></td><td><p>배포</p><p><strong>Flutter 앱</strong></p></td></tr></tbody></table><div class="cv-bottom">
 <p class="cv-team"><strong>3팀</strong> 윤동욱(팀장) · 권영현 · 강재민 · 장영훈</p>
-<p class="cv-meta">프로젝트 기간 2026.10.20 – 2026.11.05  |  작성 2026.11.05 · 수정 2026.11.08</p>
+<p class="cv-meta">프로젝트 기간 2026.10.20 – 2026.11.05  |  작성 2026.11.05 · 수정 2026.11.09</p>
 <p class="cv-links"><a href="https://github.com/def-uk/pill-bbox" target="_blank" rel="noopener"><u>모델 저장소</u></a> · <a href="https://github.com/def-uk/pill-bbox-front" target="_blank" rel="noopener"><u>앱 저장소</u></a> · <a href="https://www.kaggle.com/competitions/ai15-level1-project" target="_blank" rel="noopener"><u>Kaggle 대회</u></a></p>
 </div>
 </section>
@@ -239,7 +239,7 @@ table.tbl-compare{width:100%;border-collapse:collapse;margin:8pt 0 14pt;font-siz
 <figure class="fig"><img src="media/image4.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/57.74"></figure>
 <p class="note">대회 페이지: <a href="https://www.kaggle.com/competitions/ai15-level1-project" target="_blank" rel="noopener"><u>Kaggle ai15-level1-project</u></a></p>
 <h2><a id="_Toc244772342" class="bm"></a>1.3 배포: 모델을 앱으로</h2>
-<p class="body">우리는 학습한 모델을 <strong>기기 안에서 추론하는 Flutter 앱(웹 · Android · iOS)</strong>으로 배포했다(<a href="https://github.com/def-uk/pill-bbox-front" target="_blank" rel="noopener"><u>앱 저장소</u></a>). 기기 안에서 돌리기로 한 것은 서버가 꺼져도 기록할 수 있고, 사진이 기기 밖으로 나가지 않기 때문이다.</p>
+<p class="body">우리는 학습한 모델을 <strong>기기 안에서 추론하는 Flutter 웹 앱</strong>으로 배포했다(Android·iOS는 아직 검증하지 않았다, <a href="https://github.com/def-uk/pill-bbox-front" target="_blank" rel="noopener"><u>앱 저장소</u></a>). 기기 안에서 돌리기로 한 것은 서버가 꺼져도 기록할 수 있고, 사진이 기기 밖으로 나가지 않기 때문이다.</p>
 <p class="fig-title"><strong>모델 배포와 개선 순환</strong></p>
 <p class="guide">목적: 학습한 모델이 사용자에게 닿고, 다시 학습 데이터로 돌아오는 경로를 보인다. 읽는 법: 위 줄이 배포, 아래 줄이 사용자 데이터 수집이다.</p>
 <figure class="fig"><img src="media/image5.png" alt="" data-src-w-mm="125.0" style="width:125.0mm;aspect-ratio:125.00/71.31"></figure>
@@ -353,7 +353,7 @@ C2PSA는 사진의 각 부분이 다른 부분과 얼마나 관련 있는지 따
 <tr><td><p><strong>같은 데이터 전략</strong><br>(AI Hub, 외부 알약 = 배경)</p></td><td><p>0.44885</p></td><td><p><strong>0.45379</strong></p></td></tr>
 <tr><td><p><strong>분할</strong></p></td><td><p>combofix 5 fold</p></td><td><p>combo 단일 holdout (train 193장, val 39장)</p></td></tr>
 <tr><td><p><strong>변환 구조</strong></p></td><td><p>DFL과 NMS 후처리가 필요하다</p></td><td><p>DFL이 없고 NMS 없이 출력해 변환이 더 쉽다(3.4)</p></td></tr>
-<tr><td><p><strong>앱 연동</strong></p></td><td><p>웹 ONNX · Android TFLite · iOS Core ML 연동과 검증을 마쳤다</p></td><td><p>하지 않았다</p></td></tr>
+<tr><td><p><strong>앱 연동</strong></p></td><td><p>웹(ONNX) 연동과 검증을 마쳤다. Android·iOS는 검증하지 않았다</p></td><td><p>하지 않았다</p></td></tr>
 </tbody></table>
 <ul class="ul0"><li>
 최고 제출의 차이 0.024는 분할·증강·GPU가 서로 다르고 seed 하나로 한 번씩 돌린 결과다. 같은 데이터 전략에서는 오히려 YOLO26m이 0.005 높았다. 그래서 <strong>이 차이를 정확도 우열로 보지 않는다.</strong>
@@ -505,7 +505,7 @@ conf는 0.25로 고정했다. 0.001에서는 낮은 점수 박스가 섞여 0이
 <section class="page">
 <h1><a id="_Toc244772369" class="bm"></a>6장. 결론 및 향후 과제</h1>
 <h2><a id="_Toc244772370" class="bm"></a>6.1 결론</h2>
-<p class="body">클래스 불균형을 외부 데이터로 돌파한 것이 이 프로젝트의 핵심이었다. 우리는 희귀 약을 157개까지 채우고 대회 밖 알약까지 학습해 YOLO11m의 Kaggle 점수를 0.29946에서 0.63060으로 2.1배 올렸고, 이 모델을 int8 20MB로 줄여 웹·Android·iOS에서 기기 안 추론으로 배포했다. 라벨 보정, 분할, 외부 데이터 선별·검수를 모두 git 등에 기록해 같은 결과를 다시 만들 수 있다.</p>
+<p class="body">클래스 불균형을 외부 데이터로 돌파한 것이 이 프로젝트의 핵심이었다. 우리는 희귀 약을 157개까지 채우고 대회 밖 알약까지 학습해 YOLO11m의 Kaggle 점수를 0.29946에서 0.63060으로 2.1배 올렸고, 이 모델을 int8 20MB로 줄여 웹 앱에서 기기 안 추론으로 배포했다. 라벨 보정, 분할, 외부 데이터 선별·검수를 모두 git 등에 기록해 같은 결과를 다시 만들 수 있다.</p>
 <p class="body">정확한 검출은 알약몬 보상 시스템의 전제다. 어떤 약을 몇 알 먹었는지 맞게 알아야 하루 기준량 안에서만 보상을 줄 수 있다.</p>
 <h2><a id="_Toc244772371" class="bm"></a>6.2 우리가 배운 것</h2>
 <figure class="fig"><img src="media/image38.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.02/110.90"></figure>
@@ -587,6 +587,10 @@ Ultralytics YOLO26 (<a href="https://arxiv.org/abs/2606.03748" target="_blank" r
 <strong>클래스 수</strong>: 초록의 "56종"에 앱 모델의 96종을 함께 적었다.
 </li><li>
 <strong>구성</strong>: 3장의 절 번호를 목차와 맞추고, 3.1과 3.2에 중복되던 논문 소개를 3.2로 합쳤다. 6.3 한계와 6.4 향후 과제를 위 내용에 맞춰 고쳤다.
+</li></ul>
+<p class="body">2026.11.09, 앱 연동 범위를 실제에 맞췄다. 실험 결과 수치는 바꾸지 않았다.</p>
+<ul class="ul0"><li>
+<strong>앱 연동 범위</strong>: 연동과 검증을 마친 것은 웹(ONNX)뿐이다. 1.3, 3.5, 6.1에 "웹 · Android · iOS"로 적었던 것을 웹으로 고치고, Android·iOS는 검증하지 않았다고 적었다.
 </li></ul>
 </section>
 <a class="pdf-dl" href="report.pdf" download="알약몬_실험보고서.pdf">PDF 내려받기</a>
