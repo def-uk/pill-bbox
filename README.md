@@ -6,7 +6,7 @@
 
 **알약 사진 한 장으로 복용을 기록하고, 꾸준한 기록을 캐릭터 성장과 몬스터 퇴치로 바꾸는 서비스**
 
-이 저장소는 알약몬의 알약 인식 모델입니다. 알약 사진에서 알약마다 위치(bbox)와 종류(56종)를 찾습니다.<br/>
+이 저장소는 알약몬의 알약 인식 모델입니다. 알약 사진에서 알약마다 위치(bbox)와 종류를 찾습니다. 대회 채점 대상은 56종이고, 앱 모델은 AI Hub 외부 전용 40종을 더한 96종을 찾습니다.<br/>
 서비스 앱은 [pill-bbox-front](https://github.com/def-uk/pill-bbox-front)에 있습니다.
 
 [![App](https://img.shields.io/badge/app-pill--bbox--front-452AF7?logo=flutter&logoColor=white)](https://github.com/def-uk/pill-bbox-front)
@@ -113,7 +113,8 @@ EDA로 찾은 문제와 처리:
 - **라벨 오류**: 누락 라벨 8개를 추가하고 위치가 틀린 박스 5개와 잘린 캡슐 박스를 고쳐 기본 라벨 `v1`(bbox 771개)을 만들었습니다.
   원본 JSON은 고치지 않고 보정 기록(`data/processed/corrections.csv`)으로 적용합니다.
 - **누수**: 같은 약 조합을 각도만 바꿔 찍은 사진이 많아, 무작위로 나누면 검증 점수가 부풀려집니다.
-  조합 단위(`combo_v1_s42`)와 촬영 세팅 단위(`setup30fix_v1_s42`) 5 fold 분할을 만들고, bbox 5개 이하의 희귀 약이 든 조합은 train에 고정했습니다.
+  조합 단위(`combo_v1_s42`)와 촬영 세팅 단위(`setup30fix_v1_s42`) 5 fold 분할을 만들었습니다.
+  최종 모델은 조합 단위에서 bbox 5개 이하의 희귀 약이 든 조합을 train에 고정한 `combofix_v1_s42`를 씁니다(최종 모델 노트북이 만듭니다).
 - **클래스 불균형**: 희귀 약 때문에 AI Hub 외부 데이터를 가져왔습니다. 대회 56종과 겹치는 클래스는 클래스당 bbox 157개까지 채우고,
   박스가 맞지 않는 사진은 사람이 검수해 빼거나 고쳤습니다(2차 EDA). 대회에 없는 약은 새 클래스로 학습하고 평가에서는 뺍니다.
 
@@ -132,9 +133,9 @@ flowchart LR
     G --> H[Kaggle 제출 csv]
 ```
 
-- **후보 모델**: one-stage(YOLO11m, YOLO26m)와 two-stage(Faster R-CNN)를 같은 데이터·같은 분할로 비교했습니다.
+- **후보 모델**: one-stage(YOLO11m, YOLO26m)와 two-stage(Faster R-CNN)를 같은 데이터 전략과 지표로 비교했습니다. 분할과 실행 환경은 모델마다 달랐습니다.
   YOLO26m은 NMS 없이 바로 박스를 내는 출력층(end-to-end)도 함께 평가했습니다.
-- **공통 베이스라인**: 같은 하이퍼파라미터, 같은 분할, 같은 평가 코드로 맞춘 뒤 실험마다 변수 하나만 바꿨습니다.
+- **공통 베이스라인**: 같은 하이퍼파라미터와 평가 코드로 맞춘 뒤 실험마다 변수 하나만 바꿨습니다. YOLO11m은 `combofix` 5 fold, YOLO26m은 `combo` 단일 holdout으로 학습했습니다.
 - **평가**: mAP75-95를 주 지표로 `best.pt`와 early stopping을 정하고, 정밀도·재현율·추론 속도·혼동행렬·실패 사례를 함께 봤습니다.
   성능이 오르든 내리든 모든 실험을 문서화했습니다.
 
@@ -226,7 +227,7 @@ one-stage와 two-stage 후보를 같은 데이터와 평가 코드로 비교했�
 >
 > - 우리가 낸 제출 중 Kaggle 점수가 가장 높았습니다(0.63060).
 > - 웹 앱(ONNX) 연동과 검증을 이 모델로 마쳤습니다. Android·iOS는 아직 검증하지 않았습니다.
-> - YOLO26m과의 차이(0.024)는 분할·증강·GPU가 달라 정확도 우열로 보지 않습니다. 외부 데이터를 같은 방식으로 넣은 단계에서는 YOLO26m 0.45379, YOLO11m 0.44885였습니다([재검토](docs/YOLO26M_REVIEW.md)).
+> - YOLO26m과의 차이(0.023)는 분할·증강·GPU가 달라 정확도 우열로 보지 않습니다. 외부 데이터를 같은 방식으로 넣은 단계에서는 YOLO26m 0.45379, YOLO11m 0.44885였습니다([재검토](docs/YOLO26M_REVIEW.md)).
 > - Faster R-CNN은 증강을 YOLO 기준으로 맞춰 실험해 손해를 봤을 수 있습니다. 시간 안에 다시 맞추기 어려워 후보에서 뺐습니다.
 
 ### 알게 된 점
@@ -241,7 +242,7 @@ one-stage와 two-stage 후보를 같은 데이터와 평가 코드로 비교했�
 
 > [!NOTE]
 > 검증 mAP75-95(0.9대)가 Kaggle 점수(0.6대)보다 크게 높았습니다. 조합 단위 분할에도 촬영 세팅이 같은 사진이 train과 검증에 함께 남아 있기 때문으로 보고,
-> 모델 선택은 Kaggle 점수로 했습니다. 시간 때문에 fold 0 하나로 실험했으므로 5 fold 평균 비교는 남은 과제입니다.
+> 모델 선택은 Kaggle 점수로 했습니다. 최종 설정은 5 fold를 모두 학습했지만, 증강·OCR 등 나머지 실험은 대부분 시간 때문에 fold 0 하나로 했으므로 5 fold 평균 비교는 남은 과제입니다.
 
 ### 향후 계획
 
@@ -292,7 +293,7 @@ uv run python -m data_process.data_main --label v1        # 원본 → 라벨 �
 
 학습은 최종 모델 노트북 [notebooks/yolo11m.ipynb](notebooks/yolo11m.ipynb)에서 합니다. 노트북의 "팀원 실행 가이드"를 따라 GPU(Colab)에서 실행하세요.
 
-이미 학습한 `best.pt`로 Kaggle 제출 csv만 만들 때:
+대회 56종만 학습한 `best.pt`로 Kaggle 제출 csv만 만들 때(96종을 학습한 최종 모델은 노트북 15단계에서 만듭니다):
 
 ```bash
 uv run python -m models.evaluate --weights <best.pt 경로> --exp <실험 이름>

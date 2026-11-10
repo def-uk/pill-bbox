@@ -58,8 +58,10 @@ data/processed/yolo/v1/splits/setup30fix_v1_s42/fold_4/data.yaml
 | `combo_v1_s42` | 조합 (같은 약 조합을 각도만 바꿔 찍은 사진은 한쪽에) | 세팅을 공유하는 다른 조합 누수가 fold마다 48–75% 남음 |
 | `setup30fix_v1_s42` | 세팅 묶음 (30px 기준) + 희귀 약 묶음은 항상 train | 누수 0%. 검증 사진이 26–43장으로 적음 |
 | `setup30_v1_s42` | 세팅 묶음, 희귀 약 고정 없음 | 만들 수는 있지만 기본 실행에서는 만들지 않음 |
+| `combofix_v1_s42` | 조합 + 희귀 약(bbox 5개 이하)이 든 조합은 항상 train | **최종 모델의 분할.** 이 파이프라인이 아니라 `notebooks/yolo11m.ipynb`가 `combo_v1_s42`에서 만듦. `split.py`는 이 이름을 해석하지 못함 |
 
 `--split`을 생략하면 `combo_<버전>_s42`와 `setup30fix_<버전>_s42` 두 개를 만듭니다. 한 fold 점수로 모델을 고르지 말고 5 fold 평균·표준편차로 비교합니다.
+다만 이 프로젝트의 검증 점수는 0.99 근처에서 포화되어, 최종 제출은 fold별 Kaggle 점수가 가장 높은 fold 1로 정했습니다(보고서 5.2).
 
 ## 학습
 
@@ -84,6 +86,7 @@ predict_test(weights, "v1", exp="base_v1")  # test 842장 예측
 make_submission(weights, "v1", exp="base_v1")  # test 예측 → 제출 csv
 ```
 
+- 이 함수들은 대회 56종만 학습한 가중치용입니다. 외부 전용 알약까지 96종을 학습한 최종 모델은 `class_map.csv`에 없는 클래스를 예측하므로, 노트북의 `make_competition_submission`(15단계)으로 제출 csv를 만듭니다.
 - 결과는 `runs/<exp>/results/`에 저장됩니다. Drive에 학습했다면 `runs_dir=`에 같은 Drive 경로를 넘깁니다.
 - `predict_test`: `category_id`와 픽셀 좌표 `[x, y, w, h]`로 되돌려 `<run 이름>_test_pred.csv`로 저장합니다.
 - `make_submission`: test를 예측해 제출 형식 `annotation_id, image_id, category_id, bbox_x, bbox_y, bbox_w, bbox_h, score`로 `<run 이름>_submission_conf<conf>.csv`에 저장합니다. `image_id`는 test 파일 이름의 숫자, `category_id`는 원본 JSON의 id입니다. 기본 `conf`는 0.001입니다. mAP 채점이라 점수 낮은 박스를 더해도 점수가 떨어지지 않기 때문입니다(파일 약 20MB). 터미널에서는 `uv run python -m models.evaluate --weights <best.pt> --exp <exp>`.
