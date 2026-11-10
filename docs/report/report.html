@@ -159,15 +159,15 @@ table.tbl-compare{width:100%;border-collapse:collapse;margin:8pt 0 14pt;font-siz
 <p class="cv-title"><strong>알약몬</strong></p>
 <p class="cv-sub">찍으면 기록되고, 기록하면 캐릭터가 자라는 복약 서비스</p>
 <p class="cv-badge">실험 결과 보고서</p>
-</div><table class="cv-kpi"><tbody><tr><td><p>최종 모델</p><p><strong>YOLO11m</strong></p></td><td><p>Kaggle mAP@[0.75:0.95]</p><p><strong>0.63060</strong></p></td><td><p>베이스라인 대비</p><p><strong>+111%</strong></p></td><td><p>배포</p><p><strong>Flutter 앱</strong></p></td></tr></tbody></table><div class="cv-bottom">
+</div><table class="cv-kpi"><tbody><tr><td><p>최종 모델</p><p><strong>YOLO11m</strong></p></td><td><p>Kaggle mAP@[0.75:0.95]</p><p><strong>0.63060</strong></p></td><td><p>베이스라인 대비</p><p><strong>+111%</strong></p></td><td><p>배포</p><p><strong>Flutter 웹 앱</strong></p></td></tr></tbody></table><div class="cv-bottom">
 <p class="cv-team"><strong>3팀</strong> 윤동욱(팀장) · 권영현 · 강재민 · 장영훈</p>
-<p class="cv-meta">프로젝트 기간 2026.10.20 – 2026.11.05  |  작성 2026.11.05 · 수정 2026.11.09</p>
+<p class="cv-meta">프로젝트 기간 2026.10.20 – 2026.11.05  |  작성 2026.11.05 · 수정 2026.11.11</p>
 <p class="cv-links"><a href="https://github.com/def-uk/pill-bbox" target="_blank" rel="noopener"><u>모델 저장소</u></a> · <a href="https://github.com/def-uk/pill-bbox-front" target="_blank" rel="noopener"><u>앱 저장소</u></a> · <a href="https://www.kaggle.com/competitions/ai15-level1-project" target="_blank" rel="noopener"><u>Kaggle 대회</u></a></p>
 </div>
 </section>
 <section class="page">
 <h1><a id="_Toc244772337" class="bm"></a>초록</h1>
-<p class="body"><strong>알약몬</strong>은 알약 사진 한 장으로 복용을 기록하고, 그 기록을 캐릭터 성장과 질병 몬스터 퇴치라는 보상으로 이어 주는 1020 대상 복약 서비스다. 이 보고서는 그 핵심인 검출 모델을 다룬다. 우리는 사진 속 알약마다 위치와 종류를 찾는 검출 모델을 만들고, 기기 안에서 추론하는 Flutter 앱으로 배포했다. 대회 채점 대상은 56종이고, 앱 모델은 AI Hub 외부 전용 알약 40종을 더해 96종을 찾는다. 가장 큰 제약은 학습 사진 232장과 심한 클래스 불균형이었다. 그래서 AI Hub 외부 데이터로 희귀 클래스를 클래스당 157 bbox까지 채웠고, test에 대회 밖 알약이 있다는 것을 확인한 뒤에는 그 알약을 새 클래스로 학습했다. 그 결과 YOLO11m의 Kaggle mAP@[0.75:0.95]는 <strong>0.29946에서 0.63060으로 2.1배</strong>가 됐다. 같은 과정으로 YOLO26m은 0.60721, Faster R-CNN은 0.45759를 얻었다. 베이스라인에서는 YOLO26m이 0.18로 가장 낮았지만, 외부 데이터를 같은 방식으로 넣자 YOLO11m과 같은 수준(0.45379 대 0.44885)이 됐다. 증강·라벨 재검수·각인 OCR의 효과는 ±0.014 안으로, seed 하나로 잰 이 실험들에서는 노이즈와 구분되지 않았다. 이 데이터에서는 모델이나 증강보다 데이터의 양과 구성이 성능을 결정했다. 최종 모델은 우리가 낸 제출 중 최고점이고 앱 연동을 이미 마친 YOLO11m으로 정했다. 두 YOLO 모델의 정확도 우열은 이 실험들로 확정하지 못했다.</p>
+<p class="body"><strong>알약몬</strong>은 알약 사진 한 장으로 복용을 기록하고, 그 기록을 캐릭터 성장과 질병 몬스터 퇴치라는 보상으로 이어 주는 1020 대상 복약 서비스다. 이 보고서는 그 핵심인 검출 모델을 다룬다. 우리는 사진 속 알약마다 위치와 종류를 찾는 검출 모델을 만들고, 기기 안에서 추론하는 Flutter 웹 앱으로 배포했다. 대회 채점 대상은 56종이고, 앱 모델은 AI Hub 외부 전용 알약 40종을 더해 96종을 찾는다. 가장 큰 제약은 학습 사진 232장과 심한 클래스 불균형이었다. 그래서 AI Hub 외부 데이터로 희귀 클래스를 클래스당 157 bbox까지 채웠고, test에 대회 밖 알약이 있다는 것을 확인한 뒤에는 그 알약을 새 클래스로 학습했다. 그 결과 YOLO11m의 Kaggle mAP@[0.75:0.95]는 <strong>0.29946에서 0.63060으로 2.1배</strong>가 됐다. 같은 과정으로 YOLO26m은 0.60721, Faster R-CNN은 0.45759를 얻었다. 베이스라인에서는 YOLO26m이 0.18로 가장 낮았지만, 외부 데이터를 같은 방식으로 넣자 YOLO11m과 같은 수준(0.45379 대 0.44885)이 됐다. 외부 데이터를 넣은 뒤의 증강·라벨 재검수·각인 OCR은 Kaggle 점수를 -0.027에서 +0.014 사이로 움직였다. 데이터 쪽 효과(+0.1 이상)보다 한 자릿수 작았고, seed 하나로 잰 값이라 ±0.01 안의 차이는 노이즈와 구분되지 않는다. 이 데이터에서는 모델이나 증강보다 데이터의 양과 구성이 성능을 결정했다. 최종 모델은 우리가 낸 제출 중 최고점이고 앱 연동을 이미 마친 YOLO11m으로 정했다. 두 YOLO 모델의 정확도 우열은 이 실험들로 확정하지 못했다.</p>
 <p class="fig-title"><strong>우리가 내린 결정의 흐름</strong></p>
 <figure class="fig"><img src="media/image2.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/122.09"></figure>
 </section>
@@ -198,30 +198,30 @@ table.tbl-compare{width:100%;border-collapse:collapse;margin:8pt 0 14pt;font-siz
 <p class="toc2"><a href="#_Toc244772358"><span class="toc-t">4.3 데이터 품질 개선 실험</span><span class="toc-dots"></span><span class="toc-n">21</span></a></p>
 <p class="toc2"><a href="#_Toc244772359"><span class="toc-t">4.4 데이터 증강 기법 비교</span><span class="toc-dots"></span><span class="toc-n">22</span></a></p>
 <p class="toc2"><a href="#_Toc244772360"><span class="toc-t">4.5 각인 OCR 결합 실험</span><span class="toc-dots"></span><span class="toc-n">23</span></a></p>
-<p class="toc2"><a href="#_Toc244772361"><span class="toc-t">4.6 모델별 성능 비교</span><span class="toc-dots"></span><span class="toc-n">23</span></a></p>
+<p class="toc2"><a href="#_Toc244772361"><span class="toc-t">4.6 모델별 성능 비교</span><span class="toc-dots"></span><span class="toc-n">24</span></a></p>
 <p class="toc2"><a href="#_Toc244772362"><span class="toc-t">4.7 최종 모델 성능</span><span class="toc-dots"></span><span class="toc-n">25</span></a></p>
 <p class="toc1"><a href="#_Toc244772363"><span class="toc-t">5장. 결과 분석 및 시각화</span><span class="toc-dots"></span><span class="toc-n">27</span></a></p>
 <p class="toc2"><a href="#_Toc244772364"><span class="toc-t">5.1 무엇이 점수를 올렸나</span><span class="toc-dots"></span><span class="toc-n">28</span></a></p>
 <p class="toc2"><a href="#_Toc244772365"><span class="toc-t">5.2 검증 점수를 믿을 수 없었던 이유</span><span class="toc-dots"></span><span class="toc-n">29</span></a></p>
 <p class="toc2"><a href="#_Toc244772366"><span class="toc-t">5.3 최종 설정 위 추가 실험</span><span class="toc-dots"></span><span class="toc-n">30</span></a></p>
 <p class="toc2"><a href="#_Toc244772367"><span class="toc-t">5.4 혼동행렬과 과적합</span><span class="toc-dots"></span><span class="toc-n">30</span></a></p>
-<p class="toc2"><a href="#_Toc244772380"><span class="toc-t">5.5 서비스에 넣어도 되는가</span><span class="toc-dots"></span><span class="toc-n">31</span></a></p>
-<p class="toc2"><a href="#_Toc244772368"><span class="toc-t">5.6 종합</span><span class="toc-dots"></span><span class="toc-n">32</span></a></p>
-<p class="toc1"><a href="#_Toc244772369"><span class="toc-t">6장. 결론 및 향후 과제</span><span class="toc-dots"></span><span class="toc-n">33</span></a></p>
-<p class="toc2"><a href="#_Toc244772370"><span class="toc-t">6.1 결론</span><span class="toc-dots"></span><span class="toc-n">33</span></a></p>
-<p class="toc2"><a href="#_Toc244772371"><span class="toc-t">6.2 우리가 배운 것</span><span class="toc-dots"></span><span class="toc-n">33</span></a></p>
-<p class="toc2"><a href="#_Toc244772372"><span class="toc-t">6.3 한계</span><span class="toc-dots"></span><span class="toc-n">33</span></a></p>
-<p class="toc2"><a href="#_Toc244772373"><span class="toc-t">6.4 향후 과제</span><span class="toc-dots"></span><span class="toc-n">34</span></a></p>
-<p class="toc1"><a href="#_Toc244772374"><span class="toc-t">부록</span><span class="toc-dots"></span><span class="toc-n">35</span></a></p>
-<p class="toc2"><a href="#_Toc244772375"><span class="toc-t">A. 사용 기술</span><span class="toc-dots"></span><span class="toc-n">35</span></a></p>
-<p class="toc2"><a href="#_Toc244772376"><span class="toc-t">B. 근거 PR</span><span class="toc-dots"></span><span class="toc-n">35</span></a></p>
-<p class="toc2"><a href="#_Toc244772377"><span class="toc-t">C. 참고 자료</span><span class="toc-dots"></span><span class="toc-n">35</span></a></p>
-<p class="toc2"><a href="#_Toc244772381"><span class="toc-t">D. 수정 이력</span><span class="toc-dots"></span><span class="toc-n">35</span></a></p>
+<p class="toc2"><a href="#_Toc244772380"><span class="toc-t">5.5 서비스에 넣어도 되는가</span><span class="toc-dots"></span><span class="toc-n">32</span></a></p>
+<p class="toc2"><a href="#_Toc244772368"><span class="toc-t">5.6 종합</span><span class="toc-dots"></span><span class="toc-n">33</span></a></p>
+<p class="toc1"><a href="#_Toc244772369"><span class="toc-t">6장. 결론 및 향후 과제</span><span class="toc-dots"></span><span class="toc-n">34</span></a></p>
+<p class="toc2"><a href="#_Toc244772370"><span class="toc-t">6.1 결론</span><span class="toc-dots"></span><span class="toc-n">34</span></a></p>
+<p class="toc2"><a href="#_Toc244772371"><span class="toc-t">6.2 우리가 배운 것</span><span class="toc-dots"></span><span class="toc-n">34</span></a></p>
+<p class="toc2"><a href="#_Toc244772372"><span class="toc-t">6.3 한계</span><span class="toc-dots"></span><span class="toc-n">34</span></a></p>
+<p class="toc2"><a href="#_Toc244772373"><span class="toc-t">6.4 향후 과제</span><span class="toc-dots"></span><span class="toc-n">35</span></a></p>
+<p class="toc1"><a href="#_Toc244772374"><span class="toc-t">부록</span><span class="toc-dots"></span><span class="toc-n">36</span></a></p>
+<p class="toc2"><a href="#_Toc244772375"><span class="toc-t">A. 사용 기술</span><span class="toc-dots"></span><span class="toc-n">36</span></a></p>
+<p class="toc2"><a href="#_Toc244772376"><span class="toc-t">B. 근거 PR</span><span class="toc-dots"></span><span class="toc-n">36</span></a></p>
+<p class="toc2"><a href="#_Toc244772377"><span class="toc-t">C. 참고 자료</span><span class="toc-dots"></span><span class="toc-n">36</span></a></p>
+<p class="toc2"><a href="#_Toc244772381"><span class="toc-t">D. 수정 이력</span><span class="toc-dots"></span><span class="toc-n">36</span></a></p>
 </section>
 <section class="page">
 <h1><a id="_Toc244772339" class="bm"></a>1장. 서론 및 프로젝트 개요</h1>
 <table class="callout"><tbody>
-<tr><th><strong>한 일</strong></th><td>  사진으로 복용을 기록하고 보상으로 기록을 이어 가게 하는 서비스를 정하고, 그 핵심인 알약 검출 모델을 Flutter 앱으로 배포했다.</td></tr>
+<tr><th><strong>한 일</strong></th><td>  사진으로 복용을 기록하고 보상으로 기록을 이어 가게 하는 서비스를 정하고, 그 핵심인 알약 검출 모델을 Flutter 웹 앱으로 배포했다.</td></tr>
 <tr><th><strong>이유</strong></th><td>  복약 기록은 귀찮아서 끊기기 쉽고, 기록만 하는 앱은 이미 많기에 게임 보상형으로 차별화를 설계했다.</td></tr>
 <tr><th><strong>결과</strong></th><td>  정확도(mAP@[0.75:0.95])를 주 지표로, 속도를 보조 기준으로 정했고, 모델은 기기 안에서 돈다.</td></tr>
 </tbody></table>
@@ -252,7 +252,7 @@ table.tbl-compare{width:100%;border-collapse:collapse;margin:8pt 0 14pt;font-siz
 <table class="callout"><tbody>
 <tr><th><strong>한 일</strong></th><td>  라벨 오류를 고치고, 같은 장면이 학습·검증에 나뉘지 않게 조합 단위로 나누고, AI Hub 데이터로 희귀 클래스를 채웠다.</td></tr>
 <tr><th><strong>이유</strong></th><td>  232장 중 같은 장면이 많아 무작위 분할은 점수를 부풀리고, 희귀 약 18종은 bbox가 5개 이하였다.</td></tr>
-<tr><th><strong>결과</strong></th><td>  bbox 763 → 771개(v1), 누수율 90.9% → 조합 단위, 클래스 불균형 CV 1.534 → 0.099.</td></tr>
+<tr><th><strong>결과</strong></th><td>  bbox 763 → 771개(v1), 누수율 90.9% → 조합 단위, 클래스 불균형 CV 1.534 → 0.100.</td></tr>
 </tbody></table>
 <h2><a id="_Toc244772345" class="bm"></a>2.1 데이터 구성</h2>
 <figure class="fig"><img src="media/image8.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/43.19"></figure>
@@ -279,14 +279,14 @@ pHash를 보다가 이상한 점을 찾았다. <strong>조합이 다른데도</s
 <figure class="fig fig-ind"><img src="media/image13.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.02/107.49"></figure>
 </li></ul>
 <h2><a id="_Toc244772348" class="bm"></a>2.4 클래스 불균형 시각화</h2>
-<p class="body">3351 한 종이 bbox의 20.4%(157개)인 반면, bbox 5개 이하인 약이 18종(32%)이다. 최대/최소가 51배이고, 희귀 약 18종 중 17종은 한 조합에서만 나온다. 우리는 불균형을 증강이 아닌 실제 사진으로 먼저 줄이기로 하고, AI Hub에서 가져오는 방법 다섯 가지를 비교했다.</p>
+<p class="body">3351 한 종이 bbox의 20.4%(157개)인 반면, bbox 5개 이하인 약이 18종(32%)이다. 최대/최소가 52배(157개 대 3개)이고, 희귀 약 18종 중 17종은 한 조합에서만 나온다. 우리는 불균형을 증강이 아닌 실제 사진으로 먼저 줄이기로 하고, AI Hub에서 가져오는 방법 다섯 가지를 비교했다.</p>
 <figure class="fig"><img src="media/image14.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/53.25"></figure>
 <p class="note">CV(변동계수)는 클래스별 bbox 수의 표준편차/평균이다. 157은 외부에 없는 최다 클래스 3351의 개수다.</p>
 <p class="so"><strong>→ 그래서</strong> CV가 가장 낮고 test에 있을 외부 알약도 함께 들어오는 첫번째(157bbox) 안을 골랐다.</p>
 <figure class="fig"><a id="_Toc244772349" class="bm"></a><img src="media/image15.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/87.00"></figure>
 <p class="body"><strong>외부 데이터(ai_hub) 선별과 검수.</strong> 공통 54종을 클래스당 157개까지 seed 42로 뽑고, 좌표 오류·bbox 겹침·크기 불일치·대회와 같은 조합(검증 누수 가능)인 사진을 뺐다. 최종 5,842장(외부 bbox 21,720개, 외부 전용 40종)을 train에 더했다. 2차로 박스가 알약을 다 감싸지 못한 3,109개를 골라 SAM·GrabCut으로 후보를 만들고, 사람이 검수해 bbox 223개를 고치고 106장을 뺐다.</p>
 <h2>2.5 데이터 품질 개선 과정</h2>
-<p class="body"><strong>대회 라벨 보정(v1).</strong> 라벨 누락 8개, 위치가 틀린 박스 5개, 좌표가 겹친 박스 3쌍, 빈 박스 1개, 잘린 캡슐 박스를 고쳐 bbox를 763개에서 771개로 만들었다.</p>
+<p class="body"><strong>대회 라벨 보정(v1).</strong> 누락된 라벨 8개를 추가해 bbox를 763개에서 771개로 만들었다. 위치가 틀린 박스 5개(다른 약과 좌표가 겹친 3개, 이미지 밖 좌표 1개, 빈 배경 박스 1개)와 잘린 캡슐 박스 1개는 위치를 고쳤다.</p>
 <figure class="fig"><img src="media/image16.jpg" alt="" data-src-w-mm="158.9" style="width:158.9mm;aspect-ratio:158.91/181.61"></figure>
 </section>
 <section class="page">
@@ -294,7 +294,7 @@ pHash를 보다가 이상한 점을 찾았다. <strong>조합이 다른데도</s
 <table class="callout"><tbody>
 <tr><th><strong>한 일</strong></th><td>  one-stage 두 개(YOLO11m, YOLO26m)와 two-stage 하나(Faster R-CNN)를 같은 데이터 전략과 지표로 비교했다. 다만 분할과 실행 환경은 모델마다 달랐다(3.5). <strong>선정 기준과 후보는 알약 인식·객체 검출 논문을 먼저 읽고 정했다.</strong></td></tr>
 <tr><th><strong>이유</strong></th><td>  약은 정확도가 우선이지만 휴대폰에서 바로 돌아야 해서, 정확도와 속도·변환 편의를 함께 봐야 했다.</td></tr>
-<tr><th><strong>결과</strong></th><td>  우리가 낸 제출 중 최고점(0.63060)이고 앱 연동을 이미 마친 YOLO11m을 골랐다. 두 YOLO의 정확도 차이(0.024)는 조건이 달라 확정하지 못했다.</td></tr>
+<tr><th><strong>결과</strong></th><td>  우리가 낸 제출 중 최고점(0.63060)이고 앱 연동을 이미 마친 YOLO11m을 골랐다. 두 YOLO의 정확도 차이(0.023)는 조건이 달라 확정하지 못했다.</td></tr>
 </tbody></table>
 <h2><a id="_Toc244772351" class="bm"></a>3.1 모델 선정 방향</h2>
 <p class="body">우리는 모델을 고르기 전에 논문부터 읽었다. 알약 인식 연구 1편과 검출기 비교·설계 논문들에서 "어떤 기준으로 무엇을 비교해야 하는지"를 먼저 정했다. 아래 네 기준은 모두 논문 근거가 있다.</p>
@@ -313,10 +313,10 @@ pHash를 보다가 이상한 점을 찾았다. <strong>조합이 다른데도</s
 <p class="body">해당 논문에선 YOLO11은 모든 데이터셋에서 1위는 아니었지만 항상 최상위권이었다. 학습 데이터가 늘수록 선형적으로 오른다는 것이 핵심적인 장점으로, 가장 큰 학습셋에서 정확도 80.83%, 정밀도 1.0, 재현율 0.96에 도달했다. 반면 최적 성능에는 더 큰 학습 데이터가 필요할 수 있다고 했다.</p>
 <h2><a id="_Toc244772353" class="bm"></a>3.3 핵심 근거 논문 2: Yurdakul &amp; Çakmak, "Multi-Scale Performance Benchmarking of YOLO Models for Effervescent Tablet Defect Detection" (Preprints.org, 2026)</h2>
 <p class="body">첫 번째 논문으로 "YOLO11, 그리고 m 크기"라는 방향을 정한 뒤, 우리는 <strong>YOLO11과 YOLO12, 그리고 최신 YOLO26 중 무엇을 쓸지</strong> 정해야 했다. 두번째 논문은 정제(알약) 사진에서 YOLO11·YOLO12·YOLO26을 크기별(n·s·m·l·x)로 15개 모두 같은 조건에서 비교한 연구다. 대신 본 논문은 동료 심사 전이라는 한계점을 가지고 있다.</p>
-<table class="tbl-compare"><colgroup><col style="width:50%"><col style="width:50%"></colgroup><thead><tr><th><p><strong>논문에서 본 것</strong></p></th><th><p><strong>우리가 한 결정</strong></p></th></tr></thead><tbody><tr><td><p>YOLO11이 정확도와 속도를 모두 이끌었다. 최고 정확도는 YOLO11l(mAP@0.5 96.8%, mAP@0.5:0.95 91.7%)이었다. 가장 효율적인 것은 YOLO11n(mAP@0.5 95.6%, 파라미터 250만 개, 345.9 FPS)이었다</p></td><td><p>첫번째 논문과 같은 결과가 일치했기에, YOLO11을 기준 모델로 삼았다</p></td></tr><tr><td><p>크다고 항상 좋지 않았다. YOLO11의 mAP@0.5는 n 95.6%에서 l 96.8%까지 오른 뒤 x에서 96.6%로 오히려 내렸다</p></td><td><p>L까지 키우지 않고, 첫 번째 논문처럼 속도와 정확도의 중간인 m 크기로 정했다</p></td></tr><tr><td><p>YOLO12는 정확도는 경쟁력 있지만, 크기가 커질수록 추론이 눈에 띄게 느렸다. attention 블록 A2C2f를 많이 쓰기 때문이다</p></td><td><p>휴대폰 속도가 중요해 YOLO12는 후보에서 뺐다</p></td></tr><tr><td><p>모양이 비슷한 클래스끼리 오류가 많았다</p></td><td><p>혼동 후보 약(2.3)을 정하고 혼동행렬을 반드시 보기로 했다(5.4)</p></td></tr><tr><td><p>학습 설정: 640×640, 100 에폭, 모든 모델 같은 하이퍼파라미터</p></td><td><p>모델을 바꿔도 하이퍼파라미터는 고정했다(4.1). 베이스라인은 30 에폭으로 시작해 이후 100 에폭으로 맞췄다. 다만 YOLO26m은 대회 사진만으로 100 에폭을 돌리지 않았다(4.2)</p></td></tr><tr><td><p>증강: 뒤집기·작은 회전·크기·이동, HSV, Mosaic</p></td><td><p>같은 종류를 쓰되, 각인과 색이 약을 구분하는 단서라 뒤집기는 끄고 회전·색조는 약하게 두었다(4.1)</p></td></tr></tbody></table>
+<table class="tbl-compare"><colgroup><col style="width:50%"><col style="width:50%"></colgroup><thead><tr><th><p><strong>논문에서 본 것</strong></p></th><th><p><strong>우리가 한 결정</strong></p></th></tr></thead><tbody><tr><td><p>YOLO11이 정확도와 속도를 모두 이끌었다. 최고 정확도는 YOLO11l(mAP@0.5 96.8%, mAP@0.5:0.95 91.7%)이었다. 가장 효율적인 것은 YOLO11n(mAP@0.5 95.6%, 파라미터 250만 개, 345.9 FPS)이었다</p></td><td><p>첫번째 논문과 같은 결과가 일치했기에, YOLO11을 기준 모델로 삼았다</p></td></tr><tr><td><p>크다고 항상 좋지 않았다. YOLO11의 mAP@0.5는 n 95.6%에서 l 96.8%까지 오른 뒤 x에서 96.6%로 오히려 내렸다</p></td><td><p>L까지 키우지 않고, 첫 번째 논문처럼 속도와 정확도의 중간인 m 크기로 정했다</p></td></tr><tr><td><p>YOLO12는 정확도는 경쟁력 있지만, 크기가 커질수록 추론이 눈에 띄게 느렸다. attention 블록 A2C2f를 많이 쓰기 때문이다</p></td><td><p>휴대폰 속도가 중요해 YOLO12는 후보에서 뺐다</p></td></tr><tr><td><p>모양이 비슷한 클래스끼리 오류가 많았다</p></td><td><p>혼동행렬을 반드시 보기로 했다(5.4)</p></td></tr><tr><td><p>학습 설정: 640×640, 100 에폭, 모든 모델 같은 하이퍼파라미터</p></td><td><p>모델을 바꿔도 하이퍼파라미터는 고정했다(4.1). 베이스라인은 30 에폭으로 시작해 이후 100 에폭으로 맞췄다. 다만 YOLO26m은 대회 사진만으로 100 에폭을 돌리지 않았다(4.2)</p></td></tr><tr><td><p>증강: 뒤집기·작은 회전·크기·이동, HSV, Mosaic</p></td><td><p>같은 종류를 쓰되, 각인과 색이 약을 구분하는 단서라 뒤집기는 끄고 회전·색조는 약하게 두었다(4.1)</p></td></tr></tbody></table>
 <h2><a id="_Toc244772379" class="bm"></a>3.4 모델 아키텍처</h2>
 <figure class="fig"><img src="media/image17.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:165.98/100.54"></figure>
-<p class="lead"><strong>세 후보의 구조도 이 논문으로 이해했다</strong></p>
+<p class="lead"><strong>YOLO 계열의 구조도 이 논문으로 이해했다</strong></p>
 <ul class="ul0"><li>
 <strong>YOLO11</strong>: 백본은 다운샘플링 Conv와 C3k2 블록이 번갈아 쌓이고, 끝에 SPPF와 C2PSA가 있다.
 <ul class="ul1"><li>
@@ -331,7 +331,7 @@ C2PSA는 사진의 각 부분이 다른 부분과 얼마나 관련 있는지 따
 <ul class="ul0"><li>
 <strong>YOLO12</strong>: 흐름은 같지만 백본 뒤쪽과 넥의 블록을 대부분 A2C2f(C2f + 영역 주의)로 바꿨다. 관계를 더 잘 보지만 계산이 늘어 큰 크기에서 느려진다.
 </li><li>
-<strong>YOLO26</strong>: 백본과 넥은 YOLO11과 거의 같다. C2PSA의 출력이 넥의 위·아래 경로 양쪽으로 이어져, 작은 물체와 큰 물체 모두 전체 맥락을 얻는다. 이 논문이 인용한 YOLO26 리뷰 논문 **[Sapkota et al., arXiv:2509.25164]**에 따르면 바뀐 점은 셋이다.
+<strong>YOLO26</strong>: 백본과 넥은 YOLO11과 거의 같다. C2PSA의 출력이 넥의 위·아래 경로 양쪽으로 이어져, 작은 물체와 큰 물체 모두 전체 맥락을 얻는다. 이 논문이 인용한 YOLO26 분석 논문(Sapkota 등, arXiv:2509.25164)에 따르면 바뀐 점은 셋이다.
 <ul class="ul1"><li>
 <strong>DFL 제거</strong>와 <strong>NMS 없는 출력</strong>으로 모델 변환이 쉽고 CPU에서 빨라졌다.
 </li><li>
@@ -356,7 +356,7 @@ C2PSA는 사진의 각 부분이 다른 부분과 얼마나 관련 있는지 따
 <tr><td><p><strong>앱 연동</strong></p></td><td><p>웹(ONNX) 연동과 검증을 마쳤다. Android·iOS는 검증하지 않았다</p></td><td><p>하지 않았다</p></td></tr>
 </tbody></table>
 <ul class="ul0"><li>
-최고 제출의 차이 0.024는 분할·증강·GPU가 서로 다르고 seed 하나로 한 번씩 돌린 결과다. 같은 데이터 전략에서는 오히려 YOLO26m이 0.005 높았다. 그래서 <strong>이 차이를 정확도 우열로 보지 않는다.</strong>
+최고 제출의 차이 0.023은 분할·증강·GPU가 서로 다르고 seed 하나로 한 번씩 돌린 결과다. 같은 데이터 전략에서는 오히려 YOLO26m이 0.005 높았다. 그래서 <strong>이 차이를 정확도 우열로 보지 않는다.</strong>
 </li><li>
 변환 구조만 보면 YOLO26m이 유리하다. 따라서 "변환이 쉬워서"는 YOLO11m을 고른 근거가 될 수 없다.
 </li><li>
@@ -369,7 +369,7 @@ Faster R-CNN(최고 0.45759)은 차이가 컸다. 다만 증강을 YOLO 기준�
 <table class="callout"><tbody>
 <tr><th><strong>한 일</strong></th><td>  기준에서 한 번에 한 가지만 바꾸는 방식으로 학습량, 외부 데이터, 증강, OCR을 차례로 시험했다.</td></tr>
 <tr><th><strong>이유</strong></th><td>  무엇이 점수를 움직이는지 분리해서 알아야 다음 실험을 고를 수 있었다.</td></tr>
-<tr><th><strong>결과</strong></th><td>  학습량(+0.115), 외부 데이터(+0.034), 외부 전용 알약(+0.182)만 크게 올렸다. 나머지는 ±0.014 안으로, seed 하나로 잰 결과라 노이즈와 구분되지 않았다.</td></tr>
+<tr><th><strong>결과</strong></th><td>  학습량(+0.115), 외부 데이터(+0.034), 외부 전용 알약(+0.182)만 크게 올렸다. 나머지는 -0.027에서 +0.014 사이였다. seed 하나로 잰 결과라 ±0.01 안의 차이는 노이즈와 구분되지 않는다.</td></tr>
 </tbody></table>
 <h2><a id="_Toc244772356" class="bm"></a>4.1 공통 설정</h2>
 <figure class="fig"><img src="media/image19.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/53.25"></figure>
@@ -379,7 +379,7 @@ Faster R-CNN(최고 0.45759)은 차이가 컸다. 다만 증강을 YOLO 기준�
 <p class="body">YOLO26m은 0.18로 가장 낮았고, 평가 헤드를 NMS에서 NMS-free로 바꿔도 0.17877 → 0.18437로 그대로였다. 우리는 이 결과만으로 10.31에 YOLO26m을 후보에서 뺐다가, 근거가 부족하다는 피드백을 받고 11.02에 다시 넣었다. 두 모델이 거친 단계를 나란히 놓으면 베이스라인의 차이는 모델 구조보다 학습량 부족으로 설명된다.</p>
 <table class="tbl-compare"><colgroup><col style="width:46%"><col style="width:18%"><col style="width:18%"><col style="width:18%"></colgroup><thead><tr><th><p>단계 (Kaggle mAP@[0.75:0.95])</p></th><th><p>YOLO11m</p></th><th><p>YOLO26m</p></th><th><p>근거</p></th></tr></thead><tbody>
 <tr><td><p>① 대회 사진만, 30 에폭</p></td><td><p>0.29946</p></td><td><p>0.17877</p></td><td><p>#101, #102</p></td></tr>
-<tr><td><p>② 대회 사진만, 100 에폭</p></td><td><p>0.41485</p></td><td><p>돌리지 않음</p></td><td><p>#105</p></td></tr>
+<tr><td><p>② 대회 사진만, 100 에폭</p></td><td><p>0.41485</p></td><td><p>돌리지 않음</p></td><td><p>#103, #105</p></td></tr>
 <tr><td><p>③ + AI Hub, 외부 알약 = 배경</p></td><td><p>0.44885</p></td><td><p><strong>0.45379</strong></p></td><td><p>#105, #112</p></td></tr>
 <tr><td><p>④ 외부 알약을 새 클래스로 학습·제출</p></td><td><p><strong>0.63060</strong></p></td><td><p>0.60721</p></td><td><p>#109, #114</p></td></tr>
 </tbody></table>
@@ -409,7 +409,7 @@ Faster R-CNN(최고 0.45759)은 차이가 컸다. 다만 증강을 YOLO 기준�
 <h2><a id="_Toc244772359" class="bm"></a>4.4 데이터 증강 기법 비교</h2>
 <figure class="fig"><img src="media/image24.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.02/89.91"></figure>
 <ul class="ul0"><li>
-<strong>Mosaic</strong>: 대회 데이터만 쓸 때는 도움이 됐지만(끄면 -0.055), 외부 데이터를 넣은 뒤에는 ±0.015 안이었고, 끄면 YOLO11m은 오르고 YOLO26m은 내려가 방향도 엇갈렸다. 노이즈와 구분되지 않는 차이다.
+<strong>Mosaic</strong>: 대회 데이터만 쓸 때는 도움이 됐지만(끄면 -0.055), 외부 데이터를 넣은 뒤(외부 알약 = 배경)에는 끄면 YOLO11m +0.014, YOLO26m -0.006으로 방향이 엇갈렸다. 최종 설정(외부 알약 = 새 클래스)에서는 끄면 -0.027이었다. 끄는 쪽이 낫다는 근거는 없었다.
 </li><li>
 <strong>Copy-Paste</strong>: Ultralytics 옵션은 세그멘테이션 마스크가 있어야 동작해 bbox 데이터에서는 아무 일도 하지 않았다. 그래서 정답 bbox를 잘라 빈 배경에 붙이는 방식을 직접 구현했다.
 </li><li>
@@ -426,12 +426,24 @@ Faster R-CNN(최고 0.45759)은 차이가 컸다. 다만 증강을 YOLO 기준�
 <p class="fig-title"><strong>모델별 베이스라인과 최고 점수</strong></p>
 <p class="guide">목적: 세 모델을 같은 출발점에서 비교한다. 읽는 법: 회색은 30 에폭 베이스라인, 파랑은 최고 제출이다.</p>
 <figure class="fig"><img src="media/image28.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/69.07"></figure>
-<p class="key"><em>핵심: 같은 데이터 전략이 세 모델 모두에 통했고, 최고 제출은 YOLO11m의 0.631이었다. 다만 YOLO26m과의 차이(0.024)는 분할·증강·GPU가 달라 정확도 우열로 보지 않는다(3.5).</em></p>
+<p class="key"><em>핵심: 같은 데이터 전략이 세 모델 모두에 통했고, 최고 제출은 YOLO11m의 0.631이었다. 다만 YOLO26m과의 차이(0.023)는 분할·증강·GPU가 달라 정확도 우열로 보지 않는다(3.5).</em></p>
 <figure class="fig"><img src="media/image29.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/38.69"></figure>
 <figure class="fig"><img src="media/image30.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.02/77.26"></figure>
-<figure class="fig"><img src="media/image31.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/74.55"></figure>
+<p class="fig-title"><strong>모델별 한계</strong></p>
+<table class="tbl-compare"><colgroup><col style="width:22%"><col style="width:28%"><col style="width:50%"></colgroup><thead><tr><th><p>실험</p></th><th><p>기대했던 것</p></th><th><p>한계: 왜 기대만큼 안 됐나</p></th></tr></thead><tbody>
+<tr><td><p>YOLO11m</p></td><td><p>속도·정확도 균형이 좋고 앱 변환이 쉽다 (최고 0.631)</p></td><td><p>검증 0.986과 Kaggle 0.631의 차이가 커서 검증으로는 실제 성능을 알 수 없다. max_det 4라 사진에 알약이 5개 이상이면 놓친다. int8 변환 후 정확도는 대회 사진으로만 확인했다</p></td></tr>
+<tr><td><p>YOLO26m</p></td><td><p>COCO 최고 구조라 가장 높을 것이다</p></td><td><p>YOLO11m보다 0.023 낮았다. 검증이 일찍 상한(0.995)에 닿아 best.pt와 조기 종료를 검증으로 고를 수 없었고(best 15-24 에폭), 데이터가 적을 때 가장 약했다</p></td></tr>
+<tr><td><p>Faster R-CNN</p></td><td><p>two-stage의 박스 정밀도로 높은 IoU에서 앞선다</p></td><td><p>최고 0.458로 YOLO보다 0.15 이상 낮았다. 외부 전용 알약 새 클래스(B안) 노트북은 만들었지만 결과를 얻지 못했다. 추론이 가장 느리고(21 ms) 앱 변환 경로가 없다</p></td></tr>
+</tbody></table>
 <h2><a id="_Toc244772362" class="bm"></a>4.7 최종 모델 성능</h2>
-<figure class="fig"><img src="media/image32.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/53.25"></figure>
+<p class="fig-title"><strong>최종 모델</strong></p>
+<table class="tbl-compare"><colgroup><col style="width:22%"><col style="width:78%"></colgroup><thead><tr><th><p>항목</p></th><th><p>값</p></th></tr></thead><tbody>
+<tr><td><p>모델</p></td><td><p>YOLO11m, 96종(대회 56 + 외부 전용 40), 전체 파인튜닝</p></td></tr>
+<tr><td><p>데이터</p></td><td><p>대회 train + AI Hub 선별 사진 5,842장. val은 대회 사진만</p></td></tr>
+<tr><td><p>검증 (5 fold)</p></td><td><p><strong>mAP50 0.9912, mAP50-95 0.9887, mAP75-95 0.9862 ± 0.0120</strong></p></td></tr>
+<tr><td><p>Kaggle</p></td><td><p><strong>0.63060 (베이스라인 0.29946의 2.1배)</strong>. 5 fold 각각의 best.pt로 낸 제출 중 가장 높았던 fold 1의 점수다. 나머지 fold의 점수는 저장소에 남아 있지 않다</p></td></tr>
+<tr><td><p>배포</p></td><td><p>int8 20MB, 웹(ONNX)에서 기기 안 추론. Android·iOS는 검증하지 않았다</p></td></tr>
+</tbody></table>
 <figure class="fig"><img src="media/image33.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/86.10"></figure>
 <p class="key"><em>핵심: 다섯 fold 모두 올랐고, 표준편차가 0.029에서 0.012로 줄었다.</em></p>
 <p class="note">이 값은 검증 점수다. 5.2에서 보듯 검증은 0.99 근처에서 포화돼 있어, fold마다 학습이 고르게 수렴했다는 근거일 뿐 실제 사진에서의 성능을 보장하지는 않는다. 서비스 관점의 안정성 근거는 5.5에 모았다.</p>
@@ -446,13 +458,13 @@ Faster R-CNN(최고 0.45759)은 차이가 컸다. 다만 증강을 YOLO 기준�
 <h2><a id="_Toc244772364" class="bm"></a>5.1 무엇이 점수를 올렸나</h2>
 <p class="fig-title"><strong>실험 목적별 Kaggle 점수 변화</strong></p>
 <figure class="fig"><img src="media/image34.png" alt="" data-src-w-mm="145.0" style="width:145.0mm;aspect-ratio:145.00/181.50"></figure>
-<p class="key"><em>핵심: +0.1 이상은 모두 데이터 쪽(학습량, 외부 데이터, 외부 전용 알약)에서 나왔다. 외부 데이터를 쓴 뒤의 증강·정제·OCR은 ±0.014 안이었다.</em></p>
+<p class="key"><em>핵심: +0.1 이상은 모두 데이터 쪽(학습량, 외부 데이터, 외부 전용 알약)에서 나왔다. 외부 데이터를 쓴 뒤의 증강·정제·OCR은 -0.027에서 +0.014 사이였다.</em></p>
 <h2><a id="_Toc244772365" class="bm"></a>5.2 검증 점수를 믿을 수 없었던 이유</h2>
 <p class="fig-title"><strong>같은 실험의 검증 점수와 Kaggle 점수</strong></p>
 <figure class="fig"><img src="media/image35.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/106.38"></figure>
 <p class="lead"><em><strong>-왜 이렇게 차이가 났을까?</strong></em></p>
 <ul class="ul0"><li>
-<strong>검증이 작다</strong>: fold 0 검증은 37–39장, 박스 117개다.
+<strong>검증이 작다</strong>: fold 0 검증은 37장(fold에 따라 37–40장), 박스 117개다.
 </li><li>
 <strong>누수가 남았다</strong>: 조합 단위로 나눠도 세팅이 같은 사진이 48–75% 남는다.
 </li><li>
@@ -464,14 +476,17 @@ Faster R-CNN(최고 0.45759)은 차이가 컸다. 다만 증강을 YOLO 기준�
 <h2><a id="_Toc244772366" class="bm"></a>5.3 최종 설정 위 추가 실험</h2>
 <p class="fig-title"><strong>최종 설정(yolo11m 베스트 모델)에 한 가지씩 더한 실험</strong></p>
 <figure class="fig"><img src="media/image36.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.00/65.00"></figure>
-<p class="key"><em>핵심: 모두 ±0.006 안이었고, 기존 최고기록 0.63060을 넘지 못했다. 증강으로 더 오를 여지가 거의 없다.</em></p>
+<p class="key"><em>핵심: 검증 점수는 모두 ±0.006 안이었다. Kaggle 점수는 Mosaic 끄기 -0.027, Mosaic 끄기 + HSV 약화 -0.022(4.4), 희귀 알약 오버샘플링 -0.026(4.3)으로 모두 0.63060보다 낮았다. 최종 설정에서 증강을 바꿔 더 오른 실험은 없었다.</em></p>
 <h2><a id="_Toc244772367" class="bm"></a>5.4 혼동행렬과 과적합</h2>
-<p class="fig-title"><strong>YOLO11m 혼동행렬 (100 에폭, 5 fold 합계, conf 0.25)</strong></p>
+<p class="fig-title"><strong>최종 모델 혼동행렬 (AI Hub + 외부 전용 클래스, 5 fold 검증 합계, conf 0.25)</strong></p>
 <p class="guide">목적: 어떤 약을 무엇으로 헷갈리는지 본다. 읽는 법: 행은 예측, 열은 정답, 대각선이 맞힌 것이고 마지막 bg는 배경이다.</p>
+<figure class="fig"><img src="media/image40.png" alt="" data-src-w-mm="110.0" style="width:110.0mm;aspect-ratio:1069/990"></figure>
+<p class="key"><em>핵심: 최종 모델은 615개 중 612개(99.5%)를 맞혔다. 다른 약 혼동 3개, 놓침 0개, 오탐 1개다.</em></p>
+<p class="fig-title"><strong>100 에폭 베이스라인 혼동행렬 (대회 사진만, 5 fold 검증 합계, conf 0.25)</strong></p>
 <figure class="fig"><img src="media/image37.png" alt="" data-src-w-mm="110.0" style="width:110.0mm;aspect-ratio:110.00/101.87"></figure>
-<p class="key"><em>핵심: 615개 중 594개(96.6%)를 맞혔다. 다른 약 혼동 14개, 놓침 7개, 오탐 6개다.</em></p>
+<p class="key"><em>핵심: 외부 데이터를 넣기 전 베이스라인은 615개 중 594개(96.6%)를 맞혔다. 다른 약 혼동 14개, 놓침 7개, 오탐 6개다.</em></p>
 <ul class="ul0"><li>
-Mosaic을 끄면 다른 약 혼동이 14 → 24개, 오탐이 6 → 19개로 늘었다.
+베이스라인에서 Mosaic을 끄면 다른 약 혼동이 14 → 24개, 오탐이 6 → 19개로 늘었다.
 </li><li>
 conf는 0.25로 고정했다. 0.001에서는 낮은 점수 박스가 섞여 0이 아닌 칸이 31개에서 55개로 늘어 읽기 어렵다.
 </li><li>
@@ -480,7 +495,7 @@ conf는 0.25로 고정했다. 0.001에서는 낮은 점수 박스가 섞여 0이
 <h2><a id="_Toc244772380" class="bm"></a>5.5 서비스에 넣어도 되는가: 안정성 근거와 남은 위험</h2>
 <p class="body">알약몬에서 모델이 틀리면 복용 기록과 보상이 함께 틀린다. 그래서 점수 하나가 아니라 "틀릴 때 얼마나, 어떻게 틀리는가"와 "틀려도 사용자가 바로잡을 수 있는가"를 함께 봤다.</p>
 <table class="tbl-compare"><colgroup><col style="width:30%"><col style="width:70%"></colgroup><thead><tr><th><p>근거</p></th><th><p>내용</p></th></tr></thead><tbody>
-<tr><td><p><strong>틀리는 양과 방식</strong></p></td><td><p>5 fold 합계 615개 중 594개(96.6%)를 맞혔다. 놓침 7개, 오탐 6개, 다른 약으로 혼동 14개다(5.4)</p></td></tr>
+<tr><td><p><strong>틀리는 양과 방식</strong></p></td><td><p>최종 모델은 5 fold 검증 합계 615개 중 612개(99.5%)를 맞혔다. 놓침 0개, 오탐 1개, 다른 약으로 혼동 3개다. 대회 사진만 쓴 베이스라인은 594개(96.6%)였다(5.4). 검증 사진으로 잰 값이라 실제 사진의 성능은 아니다(5.2)</p></td></tr>
 <tr><td><p><strong>과적합</strong></p></td><td><p>최종 설정 fold 0의 train-val 차이는 0.0255였다(5.4)</p></td></tr>
 <tr><td><p><strong>경량화 뒤에도 같은 결과</strong></p></td><td><p>가중치를 int8로 저장해 모델 파일을 80MB에서 20MB로 줄였고, 탐지 결과는 원래 모델과 같았다</p></td></tr>
 <tr><td><p><strong>앱의 안전장치</strong></p></td><td><p>신뢰도 0.5 미만은 약으로 보지 않는다. 한 알약에 서로 다른 약 박스가 겹치면 하나만 남기고 나머지는 바꿀 후보로 둔다. 모델이 놓친 물체는 색으로 따로 찾아 "알 수 없는 물체"로 보여 준다(대회 사진 알약의 99%). 모든 결과는 사용자가 확인·수정한 뒤에 저장된다</p></td></tr>
@@ -505,7 +520,7 @@ conf는 0.25로 고정했다. 0.001에서는 낮은 점수 박스가 섞여 0이
 <section class="page">
 <h1><a id="_Toc244772369" class="bm"></a>6장. 결론 및 향후 과제</h1>
 <h2><a id="_Toc244772370" class="bm"></a>6.1 결론</h2>
-<p class="body">클래스 불균형을 외부 데이터로 돌파한 것이 이 프로젝트의 핵심이었다. 우리는 희귀 약을 157개까지 채우고 대회 밖 알약까지 학습해 YOLO11m의 Kaggle 점수를 0.29946에서 0.63060으로 2.1배 올렸고, 이 모델을 int8 20MB로 줄여 웹 앱에서 기기 안 추론으로 배포했다. 라벨 보정, 분할, 외부 데이터 선별·검수를 모두 git 등에 기록해 같은 결과를 다시 만들 수 있다.</p>
+<p class="body">클래스 불균형을 외부 데이터로 돌파한 것이 이 프로젝트의 핵심이었다. 우리는 희귀 약을 157개까지 채우고 대회 밖 알약까지 학습해 YOLO11m의 Kaggle 점수를 0.29946에서 0.63060으로 2.1배 올렸고, 이 모델을 int8 20MB로 줄여 웹 앱에서 기기 안 추론으로 배포했다. 라벨 보정, 분할, 외부 데이터 선별·검수를 모두 git에 기록해 같은 결과를 다시 만들 수 있다.</p>
 <p class="body">정확한 검출은 알약몬 보상 시스템의 전제다. 어떤 약을 몇 알 먹었는지 맞게 알아야 하루 기준량 안에서만 보상을 줄 수 있다.</p>
 <h2><a id="_Toc244772371" class="bm"></a>6.2 우리가 배운 것</h2>
 <figure class="fig"><img src="media/image38.png" alt="" data-src-w-mm="166.0" style="width:166.0mm;aspect-ratio:166.02/110.90"></figure>
@@ -528,7 +543,7 @@ Ultralytics 모델은 AGPL-3.0이라 공개 배포 전 소스 공개나 Enterpri
 <ul class="ul0"><li>
 알약몬 보상 시스템을 구현한다: 처방전 OCR로 복용 일정 등록, 캐릭터 성장·질병 몬스터, 하루 기준량을 넘은 기록은 보상에서 제외 등등.
 </li><li>
-검증 없이 전체 데이터로 최종 모델을 다시 학습해 제출한다.
+전체 데이터 재학습을 다시 설계한다. 11.05에 검증 없이 전체 데이터(train + val)로 seed 5개를 학습해 제출했지만 0.63060을 넘지 못했다. 20 에폭에서 멈춘 last.pt는 seed마다 test 예측 박스 수가 3,541–11,490개로 크게 달랐다. 멈출 에폭을 정하는 기준부터 세운다.
 </li><li>
 앱에서 동의를 받아 모은 실제 사진으로 재학습한다.
 </li><li>
@@ -591,6 +606,18 @@ Ultralytics YOLO26 (<a href="https://arxiv.org/abs/2606.03748" target="_blank" r
 <p class="body">2026.11.09, 앱 연동 범위를 실제에 맞췄다. 실험 결과 수치는 바꾸지 않았다.</p>
 <ul class="ul0"><li>
 <strong>앱 연동 범위</strong>: 연동과 검증을 마친 것은 웹(ONNX)뿐이다. 1.3, 3.5, 6.1에 "웹 · Android · iOS"로 적었던 것을 웹으로 고치고, Android·iOS는 검증하지 않았다고 적었다.
+</li></ul>
+<p class="body">2026.11.11, 본문과 그림·노트북 출력이 어긋나던 부분을 고쳤다. Kaggle 점수는 바꾸지 않았다.</p>
+<ul class="ul0"><li>
+<strong>혼동행렬</strong>: 5.4와 5.5의 "615개 중 594개"는 최종 모델이 아니라 대회 사진만 쓴 100 에폭 베이스라인의 값이었다. 최종 모델의 혼동행렬(612개)을 더하고, 5.5의 근거를 최종 모델 값으로 바꿨다.
+</li><li>
+<strong>증강·정제·OCR의 범위</strong>: 초록, 4장, 5.1의 "±0.014 안"과 4.4의 "±0.015 안"을 4.3·4.4 그림의 값에 맞춰 "-0.027에서 +0.014 사이"로 고쳤다. 5.3의 "±0.006 안"은 검증 점수라는 점과 같은 실험의 Kaggle 변화를 함께 적었다.
+</li><li>
+<strong>최종 모델 표</strong>: 4.7 표에 남아 있던 "웹·Android·iOS"를 웹으로 고치고, 0.63060이 5 fold 제출 중 fold 1의 점수라는 것을 적었다. 표지와 초록의 "Flutter 앱"도 "Flutter 웹 앱"으로 맞췄다.
+</li><li>
+<strong>향후 과제</strong>: 6.4의 "전체 데이터 재학습"은 11.05에 이미 해 본 실험이라 그 결과를 적었다.
+</li><li>
+<strong>수치와 표기</strong>: 두 YOLO의 최고 제출 차이를 0.024에서 0.023(0.63060 - 0.60721)으로, 불균형 CV를 2.4 표와 같은 0.100으로, 최대/최소 배수를 v1 라벨 기준 52배로 고쳤다. 2.5의 라벨 보정 개수는 보정 기록(corrections.csv)의 분류대로 다시 적었다. 3.3의 없는 참조, 3.4의 마크다운 기호와 소제목, 4.2 표의 근거 PR, 5.2의 검증 사진 수를 바로잡았다. 4.6 "모델별 한계"와 4.7 "최종 모델" 표는 그림에서 글자 표로 바꿨다.
 </li></ul>
 </section>
 <a class="pdf-dl" href="report.pdf" download="알약몬_실험보고서.pdf">PDF 내려받기</a>
