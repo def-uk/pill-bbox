@@ -307,6 +307,7 @@ uv run python -m models.evaluate --weights <best.pt 경로> --exp <실험 이름
 | 상황 | 명령 |
 |---|---|
 | pull 받은 뒤 | `uv sync` |
+| 실험 노트북 패키지(easyocr, optuna 등)까지 | `uv sync --group exp` |
 | 학습 데이터 만들기 | `uv run python -m data_process.data_main --label v1` |
 | 노트북 열기 | `uv run jupyter lab` |
 | 패키지 추가 / 제거 | `uv add <패키지>` / `uv remove <패키지>` |
@@ -328,7 +329,7 @@ gh pr create --base main                     # PR 본문은 템플릿을 채움
 ```
 
 - 패키지는 `uv add`로만 추가하고 `pyproject.toml`과 `uv.lock`을 함께 커밋합니다. `pip install`은 쓰지 않습니다.
-- 노트북은 출력을 지운 뒤 커밋합니다.
+- 노트북은 출력을 지운 뒤 커밋합니다. 결과 기록으로 출력을 남길 때는 PR에 이유를 적습니다(`01_eda.ipynb`, `yolo11m.ipynb`).
 
 ### 환경
 

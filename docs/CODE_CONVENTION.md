@@ -60,6 +60,7 @@ def make_labels(csv_path: Path, output_dir: Path) -> int:
 
 - 노트북은 탐색과 시각화용입니다. 두 번 이상 쓰는 코드는 `.py`로 옮기고 import해서 씁니다.
 - 커밋 전에 출력을 지웁니다(Clear All Outputs). 출력이 남아 있으면 파일이 커지고 diff를 읽을 수 없습니다.
+  EDA 결과나 최종 모델 학습 기록처럼 출력 자체가 기록일 때만 남기고, PR에 이유를 적습니다(`01_eda.ipynb`, `yolo11m.ipynb`).
 - 파일 이름은 `번호_내용.ipynb` 형식으로 짓습니다(예: `01_eda.ipynb`).
 
 ## 커밋하지 않는 것
