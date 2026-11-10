@@ -13,6 +13,8 @@ data/
 │   ├── fixed_annotations.csv   # 위치 수정 기록 (kwon)
 │   ├── corrections.csv         # 통합 보정 기록 (수정 전후 좌표와 근거)
 │   ├── padding_review.csv      # 여백 검수표
+│   ├── 02_eda_selection.csv    # AI Hub 외부 데이터 선별 결과 (02_eda)
+│   ├── 02_eda_review_decisions.csv  # AI Hub 박스 2차 검수 결정 (02_eda)
 │   ├── labels/                 # 라벨 버전 (raw, v1, v2, v2auto)
 │   ├── splits/                 # train/val 분할 (fold별)
 │   ├── yolo/                   # YOLO 학습 입력 (images, labels, data.yaml)
@@ -42,7 +44,7 @@ data/
 - JSON 구조는 아래 스키마와 같습니다. 대회 데이터와 같은 로더(`load_annotations`)로 읽습니다.
   단, AI Hub 원본은 `category_id`가 모두 1(`Drug`)이라 `load_combo_annotations`가 대회 데이터처럼
   `drug_N`의 숫자(K-001900 → 1900)로 바꿉니다. `dl_idx`는 약 코드보다 1 작아 클래스로 쓰지 않습니다.
-- 지금은 EDA용입니다. 학습 데이터(`data_main`)에는 아직 넣지 않습니다.
+- 데이터 파이프라인(`data_main`)은 외부 데이터를 다루지 않습니다. 최종 모델 노트북 `notebooks/yolo11m.ipynb`의 5-2단계가 `02_eda`의 선별 결과로 고른 5,842장을 train에만 더합니다.
 
 ## Annotations (JSON 파일 구조)
 
