@@ -5,20 +5,15 @@ description = "Pill detection with YOLO"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "easyocr>=1.7.2",
     "gdown>=6.4.2",
     "matplotlib>=3.11.2",
     "numpy>=2.5.4",
     "opencv-python>=5.0.0.93",
-    "optuna>=5.0.0",
     "pandas>=3.0.6",
     "python-dotenv>=1.2.4",
     "pyyaml>=6.0.3",
     "scikit-learn>=1.9.1",
-    "seaborn>=0.13.2",
-    "tensorboard>=2.21.0",
     "torch>=2.14.1",
-    "torchsummary>=1.5.1",
     "torchvision>=0.29.1",
     "tqdm>=4.70.1",
     "ultralytics>=8.4.182",
@@ -26,6 +21,14 @@ dependencies = [
 ]
 
 [dependency-groups]
+# exp/* 브랜치의 실험 노트북에서만 쓰는 패키지 (main 코드는 쓰지 않음). uv sync --group exp
+exp = [
+    "easyocr>=1.7.2",
+    "optuna>=5.0.0",
+    "seaborn>=0.13.2",
+    "tensorboard>=2.21.0",
+    "torchsummary>=1.5.1",
+]
 dev = [
     "ipykernel>=7.4.0",
     "jupyterlab>=4.6.4",
@@ -56,3 +59,7 @@ extend-exclude = ["notebooks/archive"]
 [tool.ruff.lint]
 # E/F: pycodestyle·pyflakes, I: import 정렬, B: 흔한 버그 패턴, UP: 최신 문법
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# 노트북은 셀마다 따로 실행할 수 있게 셀 안에서 sys.path를 잡고 import를 다시 한다.
+"notebooks/*.ipynb" = ["E402", "F811"]
