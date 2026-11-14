@@ -4,29 +4,48 @@
 
 # 알약몬 <sub><sup>(구 먹었약)</sup></sub>
 
-**알약 사진 한 장으로 복용을 기록하고, 꾸준한 기록을 캐릭터 성장과 몬스터 퇴치로 바꾸는 서비스**
+**알약 사진 한 장으로 복용을 기록하는 서비스의 알약 인식 모델**
 
-이 저장소는 알약몬의 알약 인식 모델입니다. 알약 사진에서 알약마다 위치(bbox)와 종류를 찾습니다. 대회 채점 대상은 56종이고, 앱 모델은 AI Hub 외부 전용 40종을 더한 96종을 찾습니다.<br/>
-서비스 앱은 [pill-bbox-front](https://github.com/def-uk/pill-bbox-front)에 있습니다.
+알약 사진에서 알약마다 위치(bbox)와 종류를 찾습니다.
 
-[![App](https://img.shields.io/badge/app-pill--bbox--front-452AF7?logo=flutter&logoColor=white)](https://github.com/def-uk/pill-bbox-front)
-[![Python](https://img.shields.io/badge/Python-3.12-452AF7?logo=python&logoColor=white)](pyproject.toml)
-[![uv](https://img.shields.io/badge/uv-managed-452AF7?logo=astral&logoColor=white)](https://docs.astral.sh/uv/)
-[![Model](https://img.shields.io/badge/model-YOLO11m-452AF7)](#결과)
-[![Kaggle](https://img.shields.io/badge/Kaggle%20mAP%400.75%3A0.95-0.6306-452AF7?logo=kaggle&logoColor=white)](#결과)
-[![Notion](https://img.shields.io/badge/%ED%98%91%EC%97%85%20%EC%9D%BC%EC%A7%80-Notion-000000?logo=notion&logoColor=white)](https://app.notion.com/p/4051a367c3dc8014b321ce35b8487ce5?v=4051a367c3dc8043b777000cd47de162&source=copy_link)
-
-**📄 [보고서 내려받기 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/docs/report/report.pdf) · [웹에서 보기](https://raw.githack.com/def-uk/pill-bbox/main/docs/report/report.html) · 🎤 [발표자료 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/presentations/alyakmon_pt.pdf) · [발표 당일 버전](https://alyakmon-presentation-yh.vibrantbeach.chatgpt.site/) · 🧪 [실험 지도](docs/EXPERIMENTS.md)**
-
-[문제 정의](#문제-정의) · [서비스 구상](#서비스-구상) · [데이터](#데이터) · [접근 방법](#접근-방법) · [실험](#실험) · [결과](#결과) · [팀](#팀) · [시작하기](#시작하기) · [개발 가이드](#개발-가이드) · [폴더 구조](#폴더-구조)
+**🚀 [서비스 열기](https://def-uk.github.io/pill-bbox-front/) · 📄 [보고서 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/docs/report/report.pdf) · 🎤 [발표자료 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/presentations/alyakmon_pt.pdf)**
 
 </div>
 
-<br/>
+## 서비스
 
-| 🎯 과제 | 🗂️ 데이터 | 🏆 최종 모델 | 📈 최고 Kaggle 점수 |
-|:---:|:---:|:---:|:---:|
-| 알약 bbox + 56종 분류 | 대회 232장 + AI Hub 외부 데이터 | **YOLO11m** (2026-11-04 결정) | **0.63060** (mAP@[0.75:0.95]) |
+<div align="center">
+<a href="https://github.com/def-uk/pill-bbox-front/blob/main/docs/media/demo.mp4"><img src="https://raw.githubusercontent.com/def-uk/pill-bbox-front/main/docs/media/demo.gif" width="880" alt="알약몬 데모: 처방 몬스터, 사진으로 기록, 퇴치, 모르는 약 찾기"/></a>
+
+**[서비스 열기](https://def-uk.github.io/pill-bbox-front/)**
+</div>
+
+## 팀
+
+<table>
+  <tr>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/def-uk"><img src="https://github.com/def-uk.png" width="100" alt="동욱"/><br/><b>동욱</b></a><br/>
+      <sub><a href="https://github.com/def-uk">@def-uk</a></sub><br/><br/>
+      <sub>데이터 파이프라인·학습·평가 코드, Faster R-CNN 베이스라인, YOLO26m 실험, 프론트엔드 데모, README</sub>
+    </td>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/gwon753-dev"><img src="https://github.com/gwon753-dev.png" width="100" alt="영현"/><br/><b>영현</b></a><br/>
+      <sub><a href="https://github.com/gwon753-dev">@gwon753-dev</a></sub><br/><br/>
+      <sub>라벨 보정, YOLO11m 베이스라인·외부 데이터·모자이크·OCR 실험, 프로젝트 문서화</sub>
+    </td>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/JJAM99"><img src="https://github.com/JJAM99.png" width="100" alt="재민"/><br/><b>재민</b></a><br/>
+      <sub><a href="https://github.com/JJAM99">@JJAM99</a></sub><br/><br/>
+      <sub>YOLO11m 베이스라인·증강 실험, 외부 데이터 1·2차 EDA·전처리</sub>
+    </td>
+    <td align="center" valign="top" width="25%">
+      <a href="https://github.com/younghoon1215"><img src="https://github.com/younghoon1215.png" width="100" alt="영훈"/><br/><b>영훈</b></a><br/>
+      <sub><a href="https://github.com/younghoon1215">@younghoon1215</a></sub><br/><br/>
+      <sub>YOLO26m 베이스라인, Faster R-CNN 실험, 발표 자료</sub>
+    </td>
+  </tr>
+</table>
 
 ## 문제 정의
 
@@ -39,29 +58,10 @@
 알약몬은 알약 사진을 찍으면 어떤 약인지 알아보고 찍은 시각에 먹은 것으로 기록합니다.
 그리고 그 기록을 **캐릭터 성장과 질병 몬스터 퇴치**로 보여 줘서, 기록을 이어 갈 이유를 만듭니다.
 
-| 누가 | 언제 쓰나 |
-|---|---|
-| 비타민·영양제를 챙겨 먹는 1020 | 매일 먹은 기록으로 내 캐릭터를 키우고 꾸밀 때 |
-| 처방약을 받은 1020 | 처방된 기간을 끝까지 지켜 질병 몬스터를 물리칠 때 |
-
-알림과 체크 위주의 복약 관리 앱과 다른 점:
-
-| | 알림·체크 위주의 복약 앱 | 알약몬 |
-|---|---|---|
-| 기록 방법 | 먹은 약을 직접 골라 체크 | 알약 사진 한 장(검출 모델), 처방전 스캔(OCR) |
-| 계속할 이유 | 정해진 시각의 알림 | 캐릭터 성장, 몬스터 퇴치, 유니크 뽑기, 컬렉션 |
-
-정한 원칙:
-
-- **정확도가 우선입니다.** 약을 잘못 알려 주면 위험하므로 박스와 클래스가 정확해야 합니다.
-  그래서 대회 지표도 박스가 꼭 맞아야 점수가 나는 mAP@[0.75:0.95]입니다.
-- **속도도 봅니다.** 휴대폰 앱으로 낼 서비스라 QR 코드처럼 바로 결과가 나와야 합니다. 같은 정확도라면 one-stage 모델을 고릅니다.
-- **약통이 아니라 알약을 봅니다.** 약통 라벨은 믿을 수 없습니다(타이레놀 통에 감기약을 넣어 둘 수도 있습니다).
-- 깨지거나 오염된 약은 확신도가 낮으면 "확인할 수 없는 약"으로 처리하는 방향을 논의했습니다.
-
-| 입력 | 출력 |
-|---|---|
-| 알약 사진 (한 장에 알약 최대 4개) | 알약마다 bbox, 클래스(약 이름), 확신도 |
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/io_dark.svg">
+  <img src="docs/assets/io_light.svg" alt="입력은 알약이 놓인 사진 한 장이고, 출력은 최종 모델이 알약마다 찾은 bbox, 약 이름, 확신도입니다." width="820">
+</picture>
 
 ## 서비스 구상
 
@@ -86,16 +86,6 @@ flowchart LR
 | 치료약 → 질병 몬스터 퇴치 | 약을 등록하면 질병 몬스터가 나타납니다. 체력은 처방 기간에 맞추고, 하루치를 다 먹을 때마다 줄어듭니다. |
 | 모으고 보여 주는 보상 | 유니크 스킨과 몬스터 펫을 장착하거나 컬렉션에 전시해 "나도 갖고 싶다"는 마음이 들게 합니다. |
 | 하루 기준량까지만 보상 | 치료약은 처방된 하루 복용량, 영양제는 제품의 하루 권장량까지만 반영합니다. 넘긴 기록에는 성장·체력 감소·뽑기가 없습니다. |
-
-### 서비스 앱
-
-사진 한 장으로 복용을 기록하는 흐름은 [pill-bbox-front](https://github.com/def-uk/pill-bbox-front)에 Flutter 앱으로 구현되어 있습니다.
-
-| 항목 | 내용 |
-|---|---|
-| 하는 일 | 알약 사진에서 약 종류와 개수를 찾아 복용 기록으로 남김. 처음 보는 약은 저장할 때 등록 |
-| 추론 | 서버 없이 기기 안에서 실행. 웹(ONNX)에서 연동·검증을 마쳤고, Android·iOS는 아직 검증하지 않음 |
-| 쓰는 모델 | `combofix-v1-fold1-w8` (`yolo11m`). 대회 56종에 AI Hub 40종을 더한 96종, 가중치 int8(80MB → 20MB) |
 
 > [!NOTE]
 > 캐릭터 성장, 몬스터 퇴치, 처방전 스캔은 아직 확장 제안 단계입니다. 기능별 상세 설명은 [docs/SERVICE_PLAN.md](docs/SERVICE_PLAN.md)에 있습니다.
@@ -156,130 +146,74 @@ flowchart LR
 
 ### 1. 베이스라인 및 아키텍처 비교
 
-one-stage와 two-stage 후보를 같은 데이터와 평가 코드로 비교했습니다. 분할과 실행 환경은 모델마다 달랐습니다([YOLO26m 제외 결정 재검토](docs/YOLO26M_REVIEW.md)).
+one-stage와 two-stage 후보를 같은 데이터와 평가 코드로 비교했습니다.
 
-| 실험 | 모델 | 날짜 |
-|---|---|---|
-| 베이스라인 구축 (분할, 평가 지표, training loop, 혼동행렬, 실패 사례 시각화, 제출 csv) | YOLO11m, YOLO26m, Faster R-CNN | 10.30 |
-| 100 에폭 학습 | YOLO11m, Faster R-CNN | 10.31 |
+<table>
+  <tr><th width="480" align="left">실험</th><th width="240" align="left">모델</th></tr>
+  <tr><td>베이스라인 구축 (분할, 평가 지표, training loop, 혼동행렬, 실패 사례 시각화, 제출 csv)</td><td>YOLO11m, YOLO26m, Faster R-CNN</td></tr>
+  <tr><td>100 에폭 학습</td><td>YOLO11m, Faster R-CNN</td></tr>
+</table>
 
 ### 2. 데이터 품질 개선
 
 희귀 클래스를 채우려고 외부 데이터를 더하고, 박스가 맞지 않는 사진은 걸러 냈습니다.
 
-| 실험 | 모델 | 날짜 |
-|---|---|---|
-| AI Hub 외부 데이터 추가 | YOLO11m, YOLO26m, Faster R-CNN | 11.01 |
-| 2차 EDA로 선별·검수한 외부 데이터 | YOLO11m, YOLO26m | 11.03 |
+<table>
+  <tr><th width="480" align="left">실험</th><th width="240" align="left">모델</th></tr>
+  <tr><td>AI Hub 외부 데이터 추가</td><td>YOLO11m, YOLO26m, Faster R-CNN</td></tr>
+  <tr><td>2차 EDA로 선별·검수한 외부 데이터</td><td>YOLO11m, YOLO26m</td></tr>
+</table>
 
 ### 3. 증강 기법 비교
 
 알약은 각인과 색이 클래스를 가르므로 어떤 증강이 도움이 되고 해가 되는지 하나씩 확인했습니다.
 
-| 실험 | 모델 | 날짜 |
-|---|---|---|
-| 모자이크 증강 켜기·끄기 | YOLO11m, YOLO26m, Faster R-CNN | 11.01–11.02 |
-| 회전 증강 | YOLO11m, Faster R-CNN | 11.02 |
-| Copy-paste 증강 (정답 bbox를 잘라 다른 사진에 붙이는 방식을 직접 구현) | YOLO11m, YOLO26m, Faster R-CNN | 11.03 |
-| 최고 모델에서 모자이크 끄기, 채도·색조·밝기 증강 줄이기 | YOLO11m | 11.04 |
+<table>
+  <tr><th width="480" align="left">실험</th><th width="240" align="left">모델</th></tr>
+  <tr><td>모자이크 증강 켜기·끄기</td><td>YOLO11m, YOLO26m, Faster R-CNN</td></tr>
+  <tr><td>회전 증강</td><td>YOLO11m, Faster R-CNN</td></tr>
+  <tr><td>Copy-paste 증강 (정답 bbox를 잘라 다른 사진에 붙이는 방식을 직접 구현)</td><td>YOLO11m, YOLO26m, Faster R-CNN</td></tr>
+  <tr><td>최고 모델에서 모자이크 끄기, 채도·색조·밝기 증강 줄이기</td><td>YOLO11m</td></tr>
+</table>
 
 ### 4. 학습 방식 변경
 
-| 실험 | 모델 | 날짜 |
-|---|---|---|
-| 각인 OCR을 함께 학습해 재분류 | YOLO11m, YOLO26m | 11.03 |
+<table>
+  <tr><th width="480" align="left">실험</th><th width="240" align="left">모델</th></tr>
+  <tr><td>각인 OCR을 함께 학습해 재분류</td><td>YOLO11m, YOLO26m</td></tr>
+</table>
 
 ### 5. 최종 모델
 
-| 실험 | 모델 | 날짜 |
-|---|---|---|
-| 검증 없이 전체 데이터(train + val)로 seed 5개 학습. 0.63060을 넘지 못해 채택하지 않음 | YOLO11m | 11.05 |
+<table>
+  <tr><th width="480" align="left">실험</th><th width="240" align="left">모델</th></tr>
+  <tr><td>검증 없이 전체 데이터(train + val)로 seed 5개 학습. 0.63060을 넘지 못해 채택하지 않음</td><td>YOLO11m</td></tr>
+</table>
 
 최종 모델은 **외부 데이터 + 외부 클래스까지 학습한 YOLO11m의 fold 1 `best.pt`** (Kaggle 0.63060)입니다.
 서비스 앱의 `combofix-v1-fold1-w8`이 이 가중치를 int8로 줄인 모델입니다.
 
 실험별 노트북·PR·점수는 [실험 지도](docs/EXPERIMENTS.md)에 모았습니다. main에는 최종 모델 노트북만 남겼고, 실험 노트북은 모델별 실험 브랜치(`exp/yolo11m`, `exp/yolo26m`, `exp/faster_r-cnn`)에 있습니다.
-모델별 실험 발표 자료: [YOLO11m](https://raw.githack.com/def-uk/pill-bbox/main/presentations/yolo11m.html) · [Faster R-CNN](https://raw.githack.com/def-uk/pill-bbox/main/presentations/faster_rcnn.html)
 
 ## 결과
+
+<img src="docs/assets/kaggle_public.png" width="100%" alt="Kaggle Public 리더보드 2위, 0.63060"/><br/>
+<sub>Kaggle Public 2위 (0.63060)</sub>
+
+<img src="docs/assets/kaggle_private.png" width="100%" alt="Kaggle Private 리더보드 4위, 0.59022"/><br/>
+<sub>Kaggle Private 4위 (0.59022)</sub>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results_dark.svg">
   <img src="docs/assets/results_light.svg" alt="모델·설정별 Kaggle mAP@[0.75:0.95]. 베이스라인은 YOLO11m 0.299, YOLO26m 0.179, Faster R-CNN 0.259. 최종 모델인 외부 데이터를 더한 YOLO11m 0.631, 외부 데이터와 copy-paste를 쓴 YOLO26m 0.607, Faster R-CNN 0.451." width="820">
 </picture>
 
+자세한 내용 보기 → [보고서 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/docs/report/report.pdf) · [웹에서 보기](https://raw.githack.com/def-uk/pill-bbox/main/docs/report/report.html)
+
+## 더 보기
+
 <details>
-<summary>표로 보기</summary>
-
-| 모델 | 설정 | Kaggle mAP@[0.75:0.95] |
-|---|---|---|
-| YOLO11m | 베이스라인 (30 에폭, 외부 데이터 없음) | 0.29946 |
-| YOLO26m | 베이스라인 (30 에폭, 외부 데이터 없음) | 0.17877 |
-| Faster R-CNN | 베이스라인 (30 에폭, 외부 데이터 없음) | 0.25918 |
-| **YOLO11m** | **최종 모델**: 외부 데이터, 외부 클래스까지 학습 (fold 1 `best.pt`) | **0.63060** |
-| YOLO26m | 외부 데이터 + copy-paste | 0.607 |
-| Faster R-CNN | 외부 데이터 + copy-paste | 0.45127 |
-
-</details>
-
-> [!IMPORTANT]
-> **모델 선택: YOLO11m**
->
-> - 우리가 낸 제출 중 Kaggle 점수가 가장 높았습니다(0.63060).
-> - 웹 앱(ONNX) 연동과 검증을 이 모델로 마쳤습니다. Android·iOS는 아직 검증하지 않았습니다.
-> - YOLO26m과의 차이(0.023)는 분할·증강·GPU가 달라 정확도 우열로 보지 않습니다. 외부 데이터를 같은 방식으로 넣은 단계에서는 YOLO26m 0.45379, YOLO11m 0.44885였습니다([재검토](docs/YOLO26M_REVIEW.md)).
-> - Faster R-CNN은 증강을 YOLO 기준으로 맞춰 실험해 손해를 봤을 수 있습니다. 시간 안에 다시 맞추기 어려워 후보에서 뺐습니다.
-
-### 알게 된 점
-
-- 각인 OCR을 함께 학습하면 오히려 점수가 떨어졌습니다. 원인은 확정하지 않았고, 아래 가설을 세웠습니다([분석 문서](https://app.notion.com/p/YOLO11m-OCR-40f524fd755581f29fd2c5cccca93806)).
-  - **개별 학습**(YOLO와 OCR을 따로 학습해 결과만 결합): YOLO 출력은 그대로이므로 결합 단계를 의심합니다. OCR이 잘못 읽어 맞은 클래스를 뒤집거나, 잘라낸 알약 이미지가 작아 각인이 뭉개지거나, 다른 알약의 문자가 붙었을 수 있습니다.
-  - **공동 학습**(backbone 공유, `L = L_det + λ·L_OCR`): OCR 손실이 공유 특징을 바꿔 탐지 자체가 나빠졌을 수 있습니다. 두 작업의 기울기 충돌, 너무 큰 λ, 다운샘플링으로 인한 작은 각인 소실, 회전·모자이크 뒤 bbox와 각인의 연결이 깨지는 경우를 의심합니다.
-  - 확인할 것: 같은 YOLO 출력에서 OCR 결합 전·후 비교, λ=0 대조군과 비교.
-- 검증 사진까지 넣어 전체 데이터로 학습해도 점수가 오르지 않았습니다. 더해지는 대회 사진이 40장 정도로 적고,
-  20 에폭에서 멈춘 `last.pt`는 seed마다 test 예측 박스 수가 3,541–11,490개로 크게 달라 단일 모델로는 안정적이지 않았습니다.
-- YOLO의 내장 `copy_paste`는 세그멘테이션 마스크용이라 bbox 데이터에서는 동작하지 않아, bbox copy-paste를 직접 구현했습니다.
-
-> [!NOTE]
-> 검증 mAP75-95(0.9대)가 Kaggle 점수(0.6대)보다 크게 높았습니다. 조합 단위 분할에도 촬영 세팅이 같은 사진이 train과 검증에 함께 남아 있기 때문으로 보고,
-> 모델 선택은 Kaggle 점수로 했습니다. 최종 설정은 5 fold를 모두 학습했지만, 증강·OCR 등 나머지 실험은 대부분 시간 때문에 fold 0 하나로 했으므로 5 fold 평균 비교는 남은 과제입니다.
-
-### 향후 계획
-
-- 증강을 Faster R-CNN에 맞춰 다시 실험합니다. 약은 정확도가 우선이라 two-stage 모델의 가능성을 더 확인할 가치가 있습니다.
-- 앱 사용자가 찍은 사진을 모아 정제한 뒤 학습 데이터로 씁니다.
-- 앙상블(WBF), TTA를 시도합니다.
-
-## 팀
-
-<table>
-  <tr>
-    <td align="center" valign="top" width="25%">
-      <a href="https://github.com/def-uk"><img src="https://github.com/def-uk.png" width="100" alt="동욱"/><br/><b>동욱</b></a><br/>
-      <sub><a href="https://github.com/def-uk">@def-uk</a></sub><br/><br/>
-      <sub>데이터 파이프라인·학습·평가 코드, Faster R-CNN 베이스라인, YOLO26m 실험, 프론트엔드 데모, README</sub>
-    </td>
-    <td align="center" valign="top" width="25%">
-      <a href="https://github.com/gwon753-dev"><img src="https://github.com/gwon753-dev.png" width="100" alt="영현"/><br/><b>영현</b></a><br/>
-      <sub><a href="https://github.com/gwon753-dev">@gwon753-dev</a></sub><br/><br/>
-      <sub>라벨 보정, YOLO11m 베이스라인·외부 데이터·모자이크·OCR 실험, 프로젝트 문서화</sub>
-    </td>
-    <td align="center" valign="top" width="25%">
-      <a href="https://github.com/JJAM99"><img src="https://github.com/JJAM99.png" width="100" alt="재민"/><br/><b>재민</b></a><br/>
-      <sub><a href="https://github.com/JJAM99">@JJAM99</a></sub><br/><br/>
-      <sub>YOLO11m 베이스라인·증강 실험, 외부 데이터 1·2차 EDA·전처리</sub>
-    </td>
-    <td align="center" valign="top" width="25%">
-      <a href="https://github.com/younghoon1215"><img src="https://github.com/younghoon1215.png" width="100" alt="영훈"/><br/><b>영훈</b></a><br/>
-      <sub><a href="https://github.com/younghoon1215">@younghoon1215</a></sub><br/><br/>
-      <sub>YOLO26m 베이스라인, Faster R-CNN 실험, 발표 자료</sub>
-    </td>
-  </tr>
-</table>
-
-<!-- 맡은 일이 다르면 고쳐 주세요 -->
-
-## 시작하기
+<summary><b>시작하기</b></summary>
 
 [uv](https://docs.astral.sh/uv/)로 Python 3.12와 패키지를 맞춥니다.
 
@@ -301,9 +235,12 @@ uv run python -m models.evaluate --weights <best.pt 경로> --exp <실험 이름
 
 데이터 파이프라인과 평가 함수는 [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md)를 참고하세요.
 
-## 개발 가이드
+</details>
 
-### 치트시트
+<details>
+<summary><b>개발 가이드</b></summary>
+
+#### 치트시트
 
 | 상황 | 명령 |
 |---|---|
@@ -332,7 +269,7 @@ gh pr create --base main                     # PR 본문은 템플릿을 채움
 - 패키지는 `uv add`로만 추가하고 `pyproject.toml`과 `uv.lock`을 함께 커밋합니다. `pip install`은 쓰지 않습니다.
 - 노트북은 출력을 지운 뒤 커밋합니다. 결과 기록으로 출력을 남길 때는 PR에 이유를 적습니다(`01_eda.ipynb`, `yolo11m.ipynb`).
 
-### 환경
+#### 환경
 
 | OS | PyTorch | 장치 |
 |---|---|---|
@@ -341,7 +278,7 @@ gh pr create --base main                     # PR 본문은 템플릿을 채움
 
 장치는 `src/config.py`의 `get_device()`가 고릅니다(cuda → mps → cpu). 코드에 `"cuda"`, `"mps"`를 직접 쓰지 않습니다.
 
-### 실험 기록 (wandb)
+#### 실험 기록 (wandb)
 
 `.env`에 [API 키](https://wandb.ai/authorize)와 팀 이름(`WANDB_ENTITY`)을 넣고, 학습 전에 `init_wandb()`를 부릅니다.
 ultralytics 전역 설정은 바꾸지 않으므로 이 프로젝트 밖의 YOLO 학습에는 영향이 없습니다.
@@ -358,16 +295,10 @@ model.train(data="data.yaml", epochs=100, device=get_device())
 
 인터넷 없이 기록만 남기려면 `WANDB_MODE=offline`, 나중에 `uv run wandb sync wandb/offline-run-*`로 올립니다.
 
-### 규칙 문서
+</details>
 
-| 문서 | 내용 |
-|---|---|
-| [docs/CODE_CONVENTION.md](docs/CODE_CONVENTION.md) | 코드 컨벤션 (포맷, 이름, import, 경로·장치) |
-| [docs/GIT_CONVENTION.md](docs/GIT_CONVENTION.md) | Git 컨벤션 (커밋 메시지 `<type>: <요약>`, 브랜치 `<type>/<짧은-설명>`, PR) |
-| [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md) | 데이터 파이프라인 (라벨 버전, 분할, 학습·평가 명령, 여백 검수) |
-| [data/README.md](data/README.md) | 데이터 폴더 구조, 외부 데이터, annotation JSON 구조 |
-
-## 폴더 구조
+<details>
+<summary><b>폴더 구조</b></summary>
 
 ```
 pill-bbox/
@@ -383,3 +314,18 @@ pill-bbox/
 ├── pyproject.toml
 └── uv.lock
 ```
+
+</details>
+
+## 관련 문서
+
+| 문서 | 내용 |
+|---|---|
+| [서비스 구상](docs/SERVICE_PLAN.md) | 캐릭터 성장, 몬스터 퇴치, 처방전 스캔 등 확장 제안 |
+| [서비스 앱 저장소](https://github.com/def-uk/pill-bbox-front) | Flutter 앱 코드, 앱에 넣은 모델 설명 |
+| [실험 지도](docs/EXPERIMENTS.md) | 실험별 노트북·PR·점수 |
+| [YOLO26m 제외 결정 재검토](docs/YOLO26M_REVIEW.md) | 모델 선택 근거를 다시 따져 본 기록 |
+| [데이터 파이프라인](docs/DATA_PIPELINE.md) | 라벨 버전, 분할, 학습·평가 명령 |
+| [데이터 폴더 구조](data/README.md) | 폴더 구조, 외부 데이터, annotation JSON 구조 |
+| [코드 컨벤션](docs/CODE_CONVENTION.md) · [Git 컨벤션](docs/GIT_CONVENTION.md) | 포맷·이름 규칙, 커밋·브랜치·PR 규칙 |
+| [협업 일지 (Notion)](https://app.notion.com/p/4051a367c3dc8014b321ce35b8487ce5?v=4051a367c3dc8043b777000cd47de162&source=copy_link) | 회의와 작업 기록 |
