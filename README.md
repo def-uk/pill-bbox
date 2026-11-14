@@ -8,7 +8,7 @@
 
 알약 사진에서 알약마다 위치(bbox)와 종류를 찾습니다.
 
-**🚀 [서비스 열기](https://def-uk.github.io/pill-bbox-front/) · 📄 [보고서 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/docs/report/report.pdf) · 🎤 [발표자료 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/presentations/alyakmon_pt.pdf)**
+**🚀 [서비스 열기](https://www.havepills.party/) · 📄 [보고서 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/docs/report/report.pdf) · 🎤 [발표자료 (PDF)](https://raw.githubusercontent.com/def-uk/pill-bbox/main/presentations/alyakmon_pt.pdf)**
 
 </div>
 
@@ -17,7 +17,7 @@
 <div align="center">
 <a href="https://github.com/def-uk/pill-bbox-front/blob/main/docs/media/demo.mp4"><img src="https://raw.githubusercontent.com/def-uk/pill-bbox-front/main/docs/media/demo.gif" width="880" alt="알약몬 데모: 처방 몬스터, 사진으로 기록, 퇴치, 모르는 약 찾기"/></a>
 
-**[서비스 열기](https://def-uk.github.io/pill-bbox-front/)**
+**[서비스 열기](https://www.havepills.party/)**
 </div>
 
 ## 팀
